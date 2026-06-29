@@ -101,7 +101,7 @@ function baseHtml({ title, preheader, body, cta, footer }: TemplateParams): stri
   <div class="container">
     <div class="card">
       <div class="header">
-        <img src="${APP_URL}/logo.svg" alt="W" width="48" height="48">
+        <img src="${APP_URL}/logo.png" alt="W" width="48" height="48">
         <h1>${esc(title)}</h1>
         <p>${esc(preheader)}</p>
       </div>
