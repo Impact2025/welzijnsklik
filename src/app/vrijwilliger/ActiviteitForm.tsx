@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
-import Link from "next/link";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { logActiviteit } from "@/lib/actions/activiteiten";
 import {
   Camera,
@@ -19,6 +19,7 @@ interface Bewoner {
 }
 
 export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
+  const router = useRouter();
   const [bewonerId, setBewonerId] = useState("");
   const [type, setType] = useState("");
   const [duur, setDuur] = useState("30");
@@ -157,9 +158,14 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
     startTransition(async () => {
       await logActiviteit(formData);
       setSuccess(true);
-      setBewonerId(""); setType(""); setDuur("30"); setNotities(""); setFotoDataUrl(null); setFotoBlob(null);
     });
   }
+
+  useEffect(() => {
+    if (!success) return;
+    const t = setTimeout(() => router.push("/vrijwilliger"), 2000);
+    return () => clearTimeout(t);
+  }, [success, router]);
 
   if (success) {
     return (
@@ -168,21 +174,9 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
           <CheckCircle2 size={28} className="text-emerald-600" />
         </div>
         <div>
-          <p className="font-bold text-gray-900 text-lg">Geregistreerd!</p>
-          <p className="text-neutral-500 text-sm mt-1">De activiteit is succesvol vastgelegd.</p>
+          <p className="font-bold text-gray-900 text-lg">Bedankt!</p>
+          <p className="text-neutral-500 text-sm mt-1">De activiteit is vastgelegd. Je wordt teruggestuurd naar het dashboard…</p>
         </div>
-        <button
-          onClick={() => setSuccess(false)}
-          className="bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold px-6 py-3 rounded-2xl transition-colors"
-        >
-          Nog een activiteit
-        </button>
-        <Link
-          href="/vrijwilliger"
-          className="text-sm text-warm-400 hover:text-warm-600 transition-colors"
-        >
-          Terug naar overzicht
-        </Link>
       </div>
     );
   }
