@@ -70,8 +70,9 @@ model Organisatie {
   naam      String
   plaats    String
   createdAt DateTime    @default(now())
-  gebruikers Gebruiker[]
-  bewoners   Bewoner[]
+  gebruikers   Gebruiker[]
+  bewoners     Bewoner[]
+  hulpGevraagd HulpGevraagd[]
 }
 
 model Gebruiker {
@@ -82,7 +83,7 @@ model Gebruiker {
   organisatieId String
   organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
   telefoon      String?
-  voorkeurActiviteiten String[]
+  voorkeurActiviteiten String[]  @default([])
   interneNotities      String?   @db.Text
   activiteiten  Activiteit[]       @relation("VrijwilligerActiviteiten")
   familieVan    FamilieKoppeling[]
@@ -96,6 +97,7 @@ model Gebruiker {
   wervingsInteresses Wervingsinteresse[]
   emailVoorkeur    EmailVoorkeur?
   reacties         Reactie[]
+  hulpReacties     HulpReactie[]
 }
 
 model EmailVoorkeur {
@@ -178,6 +180,36 @@ model ActiviteitLog {
   actie           String   // "FOTO_UPLOAD" (uitbreidbaar)
   details         String?  // bijv. de Blob URL
   createdAt       DateTime @default(now())
+}
+
+model HulpGevraagd {
+  id             String        @id @default(cuid())
+  organisatieId  String
+  organisatie    Organisatie   @relation(fields: [organisatieId], references: [id])
+  titel          String
+  omschrijving   String        @db.Text
+  datum          DateTime
+  duurMinuten    Int
+  aantalNodig    Int           @default(1)
+  fotoUrl        String?
+  status         String        @default("open")
+  aangemaaktDoor String
+  reacties       HulpReactie[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model HulpReactie {
+  id             String       @id @default(cuid())
+  hulpGevraagdId String
+  hulpGevraagd   HulpGevraagd @relation(fields: [hulpGevraagdId], references: [id], onDelete: Cascade)
+  vrijwilligerId String
+  vrijwilliger   Gebruiker    @relation(fields: [vrijwilligerId], references: [id])
+  bericht        String?
+  status         String       @default("aangemeld")
+  createdAt      DateTime     @default(now())
+
+  @@unique([hulpGevraagdId, vrijwilligerId])
 }
 
 model Wervingsinteresse {

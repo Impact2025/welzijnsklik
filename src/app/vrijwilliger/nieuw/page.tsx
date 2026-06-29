@@ -1,12 +1,14 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import ActiviteitForm from "../ActiviteitForm";
 
 export default async function NieuweActiviteitPage() {
   const session = await auth();
-  const organisatieId = session!.user.organisatieId!;
+  const organisatieId = session?.user?.organisatieId;
+  if (!organisatieId) redirect("/login");
 
   const bewoners = await prisma.bewoner.findMany({
     where: { organisatieId },

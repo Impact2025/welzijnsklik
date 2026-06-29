@@ -49,14 +49,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.profielFoto = sessionData.profielFoto;
         return token;
       }
-      if (user?.id && !token.gebruikerId) {
-        console.log("[auth] jwt callback: userId =", user.id);
+      // Query DB bij eerste login OF als vereiste velden ontbreken (verouderd token)
+      const userId = user?.id ?? (token.sub as string | undefined);
+      if (userId && (!token.gebruikerId || !token.organisatieId)) {
         try {
           const gebruiker = await prisma.gebruiker.findUnique({
-            where: { userId: user.id },
+            where: { userId },
             select: { id: true, rol: true, organisatieId: true, naam: true, profielFoto: true },
           });
-          console.log("[auth] jwt callback: gebruiker =", gebruiker);
           if (gebruiker) {
             token.gebruikerId = gebruiker.id;
             token.rol = gebruiker.rol as Rol;
