@@ -46,6 +46,7 @@ interface Props {
   rol: string;
   naam?: string;
   children: React.ReactNode;
+  nieuweAanmeldingen?: number;
 }
 
 function getInitials(naam?: string) {
@@ -58,7 +59,7 @@ function getInitials(naam?: string) {
     .join("");
 }
 
-export default function AppShell({ rol, naam, children }: Props) {
+export default function AppShell({ rol, naam, children, nieuweAanmeldingen = 0 }: Props) {
   const pathname = usePathname();
   const navItems = NAV_MAP[rol] ?? [];
   const initials = getInitials(naam);
@@ -74,8 +75,13 @@ export default function AppShell({ rol, naam, children }: Props) {
           <span className="font-semibold text-gray-900 text-[15px] tracking-tight">Welzijnsklik</span>
         </div>
         <div className="flex items-center gap-0.5">
-          <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors text-neutral-400">
+          <button className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors text-neutral-400">
             <Bell size={18} />
+            {nieuweAanmeldingen > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                {nieuweAanmeldingen > 9 ? "9+" : nieuweAanmeldingen}
+              </span>
+            )}
           </button>
           <Link
             href="/account"

@@ -23,7 +23,6 @@ const devProviders =
                 return null;
               }
               console.log("[dev-login] user gevonden:", user.id, user.email);
-              // Geef alleen velden terug die NextAuth verwacht
               return { id: user.id, email: user.email ?? email, name: user.name };
             } catch (err) {
               console.error("[dev-login] authorize fout:", err);
@@ -39,7 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     ...devProviders,
     Resend({
-      apiKey: process.env.RESEND_API_KEY,
+      apiKey: process.env.RESEND_API_KEY!,
       from: process.env.RESEND_FROM_EMAIL ?? "noreply@welzijnsklik.nl",
     }),
   ],
@@ -67,6 +66,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
       return token;
+    },
+    async session({ session, token }) {
+      // Kopieer custom JWT-velden naar session.user
+      if (token) {
+        session.user.gebruikerId = token.gebruikerId as string | undefined;
+        session.user.rol = token.rol as Rol | undefined;
+        session.user.organisatieId = token.organisatieId as string | undefined;
+        session.user.naam = token.naam as string | undefined;
+      }
+      return session;
     },
   },
 });

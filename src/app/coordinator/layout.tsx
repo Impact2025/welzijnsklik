@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { getNieuweAanmeldingenCount } from "@/lib/actions/notificaties";
 import AppShell from "@/components/AppShell";
 
 export default async function CoordinatorLayout({
@@ -12,8 +13,14 @@ export default async function CoordinatorLayout({
     redirect("/geen-toegang");
   }
 
+  const nieuweAanmeldingen = await getNieuweAanmeldingenCount();
+
   return (
-    <AppShell rol="COORDINATOR" naam={session.user.naam ?? session.user.name ?? undefined}>
+    <AppShell
+      rol="COORDINATOR"
+      naam={session.user.naam ?? session.user.name ?? undefined}
+      nieuweAanmeldingen={nieuweAanmeldingen}
+    >
       {children}
     </AppShell>
   );
