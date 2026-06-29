@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   Clock,
+  Megaphone,
   type LucideIcon,
 } from "lucide-react";
 import { Avatar } from "@/components/ui";
@@ -29,13 +30,15 @@ const NAV_COORDINATOR: NavItem[] = [
   { href: "/coordinator", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/coordinator/tijdlijn", icon: FileText, label: "Tijdlijn" },
   { href: "/coordinator/bewoners", icon: Users, label: "Bewoners" },
+  { href: "/coordinator/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/coordinator/meldingen", icon: Bell, label: "Meldingen" },
-  { href: "/coordinator/gebruikers", icon: Settings, label: "Team" },
 ];
 
 const NAV_VRIJWILLIGER: NavItem[] = [
+  { href: "/vrijwilliger", icon: LayoutDashboard, label: "Dashboard", exact: true },
+  { href: "/vrijwilliger/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/vrijwilliger/nieuw", icon: PlusCircle, label: "Nieuw", exact: true },
-  { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Mijn activiteiten" },
+  { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Activiteiten" },
 ];
 
 const NAV_FAMILIE: NavItem[] = [
@@ -61,11 +64,19 @@ interface Props {
   profielFoto?: string | null;
   children: React.ReactNode;
   nieuweAanmeldingen?: number;
+  nieuweHulpReacties?: number;
+  openHulpVragen?: number;
 }
 
-export default function AppShell({ rol, naam, profielFoto, children, nieuweAanmeldingen = 0 }: Props) {
+export default function AppShell({ rol, naam, profielFoto, children, nieuweAanmeldingen = 0, nieuweHulpReacties = 0, openHulpVragen = 0 }: Props) {
   const pathname = usePathname();
   const navItems = NAV_MAP[rol] ?? [];
+
+  const navBadge: Record<string, number> = {
+    "/coordinator/meldingen": nieuweAanmeldingen,
+    "/coordinator/hulp-gevraagd": nieuweHulpReacties,
+    "/vrijwilliger/hulp-gevraagd": openHulpVragen,
+  };
 
   return (
     <div className="min-h-screen bg-warm-50 flex flex-col">
@@ -121,20 +132,25 @@ export default function AppShell({ rol, naam, profielFoto, children, nieuweAanme
               const isActive = item.exact
                 ? pathname === item.href
                 : pathname.startsWith(item.href);
+              const badge = navBadge[item.href] ?? 0;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex flex-col items-center gap-1 px-5 py-2 rounded-2xl transition-all duration-150 ${
+                  className={`flex flex-col items-center gap-1 px-2 py-2 rounded-2xl transition-all duration-150 ${
                     isActive
                       ? "text-brand-600"
                       : "text-warm-400 hover:text-warm-600"
                   }`}
                 >
-                  <item.icon
-                    size={22}
-                    strokeWidth={isActive ? 2.2 : 1.7}
-                  />
+                  <div className="relative">
+                    <item.icon size={22} strokeWidth={isActive ? 2.2 : 1.7} />
+                    {badge > 0 && (
+                      <span className="absolute -top-1 -right-1.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                        {badge > 9 ? "9+" : badge}
+                      </span>
+                    )}
+                  </div>
                   <span className={`text-[10px] font-semibold tracking-wide ${isActive ? "text-brand-600" : ""}`}>
                     {item.label}
                   </span>

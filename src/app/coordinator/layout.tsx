@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getNieuweAanmeldingenCount } from "@/lib/actions/notificaties";
+import { getNieuweHulpReactiesCount } from "@/lib/actions/hulp-gevraagd";
 import AppShell from "@/components/AppShell";
 
 export default async function CoordinatorLayout({
@@ -13,7 +14,10 @@ export default async function CoordinatorLayout({
     redirect("/geen-toegang");
   }
 
-  const nieuweAanmeldingen = await getNieuweAanmeldingenCount();
+  const [nieuweAanmeldingen, nieuweHulpReacties] = await Promise.all([
+    getNieuweAanmeldingenCount(),
+    getNieuweHulpReactiesCount(),
+  ]);
 
   return (
     <AppShell
@@ -21,6 +25,7 @@ export default async function CoordinatorLayout({
       naam={session.user.naam ?? session.user.name ?? undefined}
       profielFoto={session.user.profielFoto}
       nieuweAanmeldingen={nieuweAanmeldingen}
+      nieuweHulpReacties={nieuweHulpReacties}
     >
       {children}
     </AppShell>
