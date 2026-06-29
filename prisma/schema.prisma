@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth.js vereiste modellen ───────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+
+  // Onze eigen extensie
+  gebruiker Gebruiker?
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Welzijnsklik domeinmodellen ─────────────────────────────────────────────
+
+enum Rol {
+  COORDINATOR
+  VRIJWILLIGER
+  FAMILIE
+}
+
+model Organisatie {
+  id        String      @id @default(cuid())
+  naam      String
+  plaats    String
+  createdAt DateTime    @default(now())
+  gebruikers Gebruiker[]
+  bewoners   Bewoner[]
+}
+
+model Gebruiker {
+  id            String      @id @default(cuid())
+  naam          String
+  email         String      @unique
+  rol           Rol
+  organisatieId String
+  organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  activiteiten  Activiteit[]       @relation("VrijwilligerActiviteiten")
+  familieVan    FamilieKoppeling[]
+  createdAt     DateTime    @default(now())
+
+  // Link naar Auth.js User
+  userId        String      @unique
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  wervingsInteresses Wervingsinteresse[]
+}
+
+model Bewoner {
+  id                 String      @id @default(cuid())
+  naam               String
+  organisatieId      String
+  organisatie        Organisatie @relation(fields: [organisatieId], references: [id])
+  toestemmingFotos   Boolean     @default(false)
+  toestemmingDoor    String?
+  toestemmingDatum   DateTime?
+  activiteiten       Activiteit[]
+  familieleden       FamilieKoppeling[]
+  createdAt          DateTime    @default(now())
+}
+
+model FamilieKoppeling {
+  id          String    @id @default(cuid())
+  bewonerId   String
+  bewoner     Bewoner   @relation(fields: [bewonerId], references: [id])
+  gebruikerId String
+  gebruiker   Gebruiker @relation(fields: [gebruikerId], references: [id])
+  relatie     String
+}
+
+model Activiteit {
+  id             String    @id @default(cuid())
+  bewonerId      String
+  bewoner        Bewoner   @relation(fields: [bewonerId], references: [id])
+  vrijwilligerId String
+  vrijwilliger   Gebruiker @relation("VrijwilligerActiviteiten", fields: [vrijwilligerId], references: [id])
+  type           String
+  duurMinuten    Int
+  notities       String?
+  fotoUrl        String?
+  createdAt      DateTime  @default(now())
+}
+
+model Wervingsinteresse {
+  id           String    @id @default(cuid())
+  gebruikerId  String?
+  gebruiker    Gebruiker? @relation(fields: [gebruikerId], references: [id])
+  naam         String?
+  email        String?
+  activiteitId String?
+  bericht      String?
+  status       String    @default("nieuw")
+  createdAt    DateTime  @default(now())
+}
