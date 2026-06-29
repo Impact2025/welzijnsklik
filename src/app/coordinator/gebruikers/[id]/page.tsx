@@ -83,6 +83,7 @@ export default async function GebruikerDetailPage({
       {gebruiker.rol === "VRIJWILLIGER" && (
         <ProfielForm
           gebruikerId={gebruiker.id}
+          naam={gebruiker.naam}
           telefoon={gebruiker.telefoon}
           voorkeurActiviteiten={gebruiker.voorkeurActiviteiten}
           interneNotities={gebruiker.interneNotities}

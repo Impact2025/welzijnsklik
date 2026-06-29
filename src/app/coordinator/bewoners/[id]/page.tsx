@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import ToestemmingForm from "./ToestemmingForm";
 import { FamilieSection } from "./FamilieSection";
+import { BewonersEditForm } from "./BewonersEditForm";
 import { ArrowLeft, Camera, Activity, ClipboardList, Home } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
@@ -55,8 +56,17 @@ export default async function BewonderDetail({
               {bewoner.naam.split(" ")[0][0]}{bewoner.naam.split(" ").at(-1)?.[0]}
             </span>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">{bewoner.naam}</h1>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold text-gray-900">{bewoner.naam}</h1>
+              <BewonersEditForm
+                bewonerId={bewoner.id}
+                naam={bewoner.naam}
+                kamer={bewoner.kamer}
+                geboortedatum={bewoner.geboortedatum}
+                notities={bewoner.notities}
+              />
+            </div>
             <div className="flex items-center gap-3 mt-0.5">
               {bewoner.kamer && (
                 <span className="text-sm text-neutral-500 flex items-center gap-1">

@@ -2,8 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Users, UserPlus, Loader2, X, Phone, Mail } from "lucide-react";
-import { nodigGebruikerUit } from "@/lib/actions/gebruikers";
+import { Users, UserPlus, Loader2, X, Phone, Mail, Pencil, Save } from "lucide-react";
+import { nodigGebruikerUit, updateFamilielid } from "@/lib/actions/gebruikers";
 import { signIn } from "next-auth/react";
 
 interface Familielid {
@@ -16,6 +16,76 @@ interface Familielid {
 
 const RELATIE_OPTIES = ["Kind", "Kleinkind", "Partner", "Broer/Zus", "Vriend/Vriendin", "Anders"];
 
+function FamilieEditModal({
+  bewonerId,
+  lid,
+  onClose,
+}: {
+  bewonerId: string;
+  lid: Familielid;
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const RELATIE_OPTIES = ["Kind", "Kleinkind", "Partner", "Broer/Zus", "Vriend/Vriendin", "Anders"];
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    const formData = new FormData(e.currentTarget);
+    startTransition(async () => {
+      try {
+        await updateFamilielid(formData);
+        onClose();
+        router.refresh();
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Onbekende fout");
+      }
+    });
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/30 flex items-end sm:items-center justify-center p-4">
+      <div className="bg-white rounded-3xl w-full max-w-sm p-5 space-y-4 shadow-xl">
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-gray-900">Familielid bewerken</h2>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors">
+            <X size={16} />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input type="hidden" name="gebruikerId" value={lid.id} />
+          <input type="hidden" name="bewonerId" value={bewonerId} />
+          {error && <p className="text-red-600 text-xs bg-red-50 rounded-xl p-3 border border-red-100">{error}</p>}
+          <div>
+            <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1.5">Naam <span className="text-red-400">*</span></label>
+            <input name="naam" required defaultValue={lid.naam}
+              className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1.5">Telefoonnummer</label>
+            <input name="telefoon" type="tel" defaultValue={lid.telefoon ?? ""}
+              className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1.5">Relatie</label>
+            <select name="relatie" defaultValue={lid.relatie}
+              className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50">
+              {RELATIE_OPTIES.map((r) => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
+          <button type="submit" disabled={isPending}
+            className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-xl text-sm transition-colors disabled:opacity-60">
+            {isPending ? <Loader2 size={15} className="animate-spin" /> : <><Save size={15} />Opslaan</>}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export function FamilieSection({
   bewonerId,
   familieleden,
@@ -25,6 +95,7 @@ export function FamilieSection({
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [editLid, setEditLid] = useState<Familielid | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -97,6 +168,12 @@ export function FamilieSection({
                   {f.email}
                 </a>
               </div>
+              <button
+                onClick={() => setEditLid(f)}
+                className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-neutral-100 transition-colors flex-shrink-0"
+              >
+                <Pencil size={12} className="text-neutral-400" />
+              </button>
             </div>
           ))}
         </div>
@@ -174,6 +251,14 @@ export function FamilieSection({
             )}
           </div>
         </div>
+      )}
+
+      {editLid && (
+        <FamilieEditModal
+          bewonerId={bewonerId}
+          lid={editLid}
+          onClose={() => setEditLid(null)}
+        />
       )}
     </div>
   );

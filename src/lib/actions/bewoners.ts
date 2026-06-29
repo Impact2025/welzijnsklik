@@ -104,6 +104,39 @@ export async function maakBewoner(formData: FormData) {
   return bewoner.id;
 }
 
+export async function updateBewoner(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.organisatieId || session.user.rol !== "COORDINATOR") {
+    throw new Error("Niet geautoriseerd");
+  }
+
+  const bewonerId = formData.get("bewonerId") as string;
+  const naam = (formData.get("naam") as string | null)?.trim() ?? "";
+  const kamer = (formData.get("kamer") as string | null)?.trim() || null;
+  const geboortedatumRaw = (formData.get("geboortedatum") as string | null)?.trim();
+  const notities = (formData.get("notities") as string | null)?.trim() || null;
+
+  if (!naam) throw new Error("Naam is verplicht");
+
+  const bewoner = await prisma.bewoner.findFirst({
+    where: { id: bewonerId, organisatieId: session.user.organisatieId },
+  });
+  if (!bewoner) throw new Error("Bewoner niet gevonden");
+
+  await prisma.bewoner.update({
+    where: { id: bewonerId },
+    data: {
+      naam,
+      kamer,
+      geboortedatum: geboortedatumRaw ? new Date(geboortedatumRaw) : null,
+      notities,
+    },
+  });
+
+  revalidatePath(`/coordinator/bewoners/${bewonerId}`);
+  revalidatePath("/coordinator/bewoners");
+}
+
 export async function getBewonersVoorOrganisatie() {
   const session = await auth();
   if (!session?.user?.organisatieId) throw new Error("Niet geautoriseerd");

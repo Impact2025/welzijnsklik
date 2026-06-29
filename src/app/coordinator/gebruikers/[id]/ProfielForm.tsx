@@ -3,17 +3,18 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Save, Loader2 } from "lucide-react";
-import { updateVrijwilligerProfiel } from "@/lib/actions/gebruikers";
+import { updateVrijwilligerProfiel, updateGebruikerNaam } from "@/lib/actions/gebruikers";
 import { ACTIVITEIT_TYPES } from "@/lib/activiteit";
 
 interface Props {
   gebruikerId: string;
+  naam: string;
   telefoon: string | null;
   voorkeurActiviteiten: string[];
   interneNotities: string | null;
 }
 
-export function ProfielForm({ gebruikerId, telefoon, voorkeurActiviteiten, interneNotities }: Props) {
+export function ProfielForm({ gebruikerId, naam, telefoon, voorkeurActiviteiten, interneNotities }: Props) {
   const router = useRouter();
   const [gekozen, setGekozen] = useState<string[]>(voorkeurActiviteiten);
   const [isPending, startTransition] = useTransition();
@@ -36,6 +37,7 @@ export function ProfielForm({ gebruikerId, telefoon, voorkeurActiviteiten, inter
 
     startTransition(async () => {
       try {
+        await updateGebruikerNaam(formData);
         await updateVrijwilligerProfiel(formData);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 2000);
@@ -54,9 +56,20 @@ export function ProfielForm({ gebruikerId, telefoon, voorkeurActiviteiten, inter
         <p className="text-red-600 text-xs bg-red-50 rounded-xl p-3 border border-red-100">{error}</p>
       )}
 
-      {/* Telefoon */}
+      {/* Naam + telefoon */}
       <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 space-y-3">
-        <h3 className="font-semibold text-gray-900 text-[15px]">Contact</h3>
+        <h3 className="font-semibold text-gray-900 text-[15px]">Gegevens</h3>
+        <div>
+          <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1.5">
+            Naam <span className="text-red-400">*</span>
+          </label>
+          <input
+            name="naam"
+            required
+            defaultValue={naam}
+            className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
+          />
+        </div>
         <div>
           <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1.5">
             Telefoonnummer
