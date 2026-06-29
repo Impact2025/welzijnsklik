@@ -1,19 +1,21 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { FileText, Clock } from "lucide-react";
 
 export default async function BriefjesPage({
   searchParams,
 }: {
-  searchParams: { van?: string; tot?: string; vrijwilligerId?: string };
+  searchParams: Promise<{ van?: string; tot?: string; vrijwilligerId?: string }>;
 }) {
+  const { van: vanParam, tot: totParam, vrijwilligerId } = await searchParams;
   const session = await auth();
   const organisatieId = session!.user.organisatieId!;
 
   const nu = new Date();
   const eersteVanMaand = new Date(nu.getFullYear(), nu.getMonth(), 1);
 
-  const van = searchParams.van ? new Date(searchParams.van) : eersteVanMaand;
-  const tot = searchParams.tot ? new Date(searchParams.tot) : nu;
+  const van = vanParam ? new Date(vanParam) : eersteVanMaand;
+  const tot = totParam ? new Date(totParam) : nu;
 
   const vrijwilligers = await prisma.gebruiker.findMany({
     where: { organisatieId, rol: "VRIJWILLIGER" },
@@ -24,9 +26,7 @@ export default async function BriefjesPage({
     where: {
       bewoner: { organisatieId },
       createdAt: { gte: van, lte: tot },
-      ...(searchParams.vrijwilligerId
-        ? { vrijwilligerId: searchParams.vrijwilligerId }
-        : {}),
+      ...(vrijwilligerId ? { vrijwilligerId } : {}),
     },
     include: {
       bewoner: { select: { naam: true } },
@@ -35,107 +35,104 @@ export default async function BriefjesPage({
     orderBy: [{ vrijwilliger: { naam: "asc" } }, { createdAt: "desc" }],
   });
 
-  // Groepeer per vrijwilliger
   const perVrijwilliger = activiteiten.reduce<
     Record<string, { naam: string; totaalMinuten: number; activiteiten: typeof activiteiten }>
   >((acc, a) => {
     const key = a.vrijwilligerId;
-    if (!acc[key]) {
-      acc[key] = { naam: a.vrijwilliger.naam, totaalMinuten: 0, activiteiten: [] };
-    }
+    if (!acc[key]) acc[key] = { naam: a.vrijwilliger.naam, totaalMinuten: 0, activiteiten: [] };
     acc[key].totaalMinuten += a.duurMinuten;
     acc[key].activiteiten.push(a);
     return acc;
   }, {});
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Briefjes / Rapportage</h1>
+    <div className="px-4 py-6 space-y-5">
+      <div>
+        <h1 className="text-xl font-bold text-gray-900">Briefjes</h1>
+        <p className="text-sm text-neutral-500 mt-0.5">Rapportage per vrijwilliger</p>
+      </div>
 
       {/* Filter */}
-      <form method="GET" className="bg-white rounded-xl shadow-sm p-4 flex flex-wrap gap-3 items-end">
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Van</label>
-          <input
-            type="date"
-            name="van"
-            defaultValue={van.toISOString().slice(0, 10)}
-            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
-          />
+      <form method="GET" className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 space-y-3">
+        <p className="text-xs font-semibold text-neutral-400 uppercase tracking-widest">Filter</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs text-neutral-500 mb-1 font-medium">Van</label>
+            <input
+              type="date"
+              name="van"
+              defaultValue={van.toISOString().slice(0, 10)}
+              className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-neutral-500 mb-1 font-medium">Tot</label>
+            <input
+              type="date"
+              name="tot"
+              defaultValue={tot.toISOString().slice(0, 10)}
+              className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
+            />
+          </div>
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Tot</label>
-          <input
-            type="date"
-            name="tot"
-            defaultValue={tot.toISOString().slice(0, 10)}
-            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Vrijwilliger</label>
+          <label className="block text-xs text-neutral-500 mb-1 font-medium">Vrijwilliger</label>
           <select
             name="vrijwilligerId"
-            defaultValue={searchParams.vrijwilligerId ?? ""}
-            className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm"
+            defaultValue={vrijwilligerId ?? ""}
+            className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
           >
             <option value="">Alle vrijwilligers</option>
             {vrijwilligers.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.naam}
-              </option>
+              <option key={v.id} value={v.id}>{v.naam}</option>
             ))}
           </select>
         </div>
         <button
           type="submit"
-          className="bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition"
+          className="w-full bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold py-2.5 rounded-xl transition-colors"
         >
-          Filter
+          Toepassen
         </button>
       </form>
 
-      {/* Rapportagetabel per vrijwilliger */}
+      {/* Rapportage */}
       {Object.keys(perVrijwilliger).length === 0 ? (
-        <p className="text-gray-400 text-sm">Geen activiteiten gevonden voor deze periode.</p>
+        <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 px-4 py-10 text-center">
+          <FileText size={24} className="text-neutral-300 mx-auto mb-2" />
+          <p className="text-neutral-400 text-sm">Geen activiteiten gevonden voor deze periode.</p>
+        </div>
       ) : (
         Object.values(perVrijwilliger).map((vw) => (
-          <div key={vw.naam} className="bg-white rounded-xl shadow-sm overflow-hidden">
-            <div className="px-4 py-3 bg-amber-50 border-b flex items-center justify-between">
-              <h2 className="font-semibold text-gray-700">{vw.naam}</h2>
-              <span className="text-sm text-gray-500">
-                Totaal: {Math.floor(vw.totaalMinuten / 60)}u{" "}
-                {vw.totaalMinuten % 60}min
-              </span>
+          <div key={vw.naam} className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
+            <div className="px-4 py-3.5 border-b border-neutral-50 flex items-center justify-between">
+              <h2 className="font-semibold text-gray-900 text-[15px]">{vw.naam}</h2>
+              <div className="flex items-center gap-1.5 text-neutral-500 text-xs font-medium">
+                <Clock size={12} />
+                {Math.floor(vw.totaalMinuten / 60)}u {vw.totaalMinuten % 60}m
+              </div>
             </div>
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-xs text-gray-500 uppercase">
-                <tr>
-                  <th className="px-4 py-2 text-left">Datum</th>
-                  <th className="px-4 py-2 text-left">Bewoner</th>
-                  <th className="px-4 py-2 text-left">Activiteit</th>
-                  <th className="px-4 py-2 text-right">Duur</th>
-                  <th className="px-4 py-2 text-left">Notities</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {vw.activiteiten.map((a) => (
-                  <tr key={a.id}>
-                    <td className="px-4 py-2 text-gray-600 whitespace-nowrap">
-                      {new Date(a.createdAt).toLocaleDateString("nl-NL")}
-                    </td>
-                    <td className="px-4 py-2 text-gray-800">{a.bewoner.naam}</td>
-                    <td className="px-4 py-2 text-gray-800">{a.type}</td>
-                    <td className="px-4 py-2 text-right text-gray-600">
-                      {a.duurMinuten} min
-                    </td>
-                    <td className="px-4 py-2 text-gray-400 max-w-xs truncate">
-                      {a.notities ?? "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="divide-y divide-neutral-50">
+              {vw.activiteiten.map((a) => (
+                <div key={a.id} className="px-4 py-3 flex items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-gray-900 truncate">{a.bewoner.naam}</p>
+                      <span className="text-xs text-neutral-400 flex-shrink-0">{a.duurMinuten} min</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="text-xs text-neutral-500 bg-neutral-100 px-2 py-0.5 rounded-full">{a.type}</span>
+                      <span className="text-xs text-neutral-400">
+                        {new Date(a.createdAt).toLocaleDateString("nl-NL", { day: "numeric", month: "short" })}
+                      </span>
+                    </div>
+                    {a.notities && (
+                      <p className="text-xs text-neutral-400 mt-0.5 italic truncate">{a.notities}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ))
       )}

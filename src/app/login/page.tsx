@@ -1,89 +1,37 @@
-"use client";
+import LoginForm from "./LoginForm";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
-
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string; callbackUrl?: string };
+  searchParams: Promise<{ error?: string; callbackUrl?: string }>;
 }) {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [sent, setSent] = useState(false);
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    await signIn("resend", {
-      email,
-      callbackUrl: searchParams.callbackUrl ?? "/",
-      redirect: false,
-    });
-    setSent(true);
-    setLoading(false);
-  }
-
-  if (sent) {
-    return (
-      <main className="min-h-screen flex items-center justify-center bg-amber-50 px-4">
-        <div className="bg-white rounded-2xl shadow-md p-8 max-w-sm w-full text-center">
-          <div className="text-4xl mb-4">📬</div>
-          <h1 className="text-xl font-semibold text-gray-800 mb-2">
-            Check je e-mail
-          </h1>
-          <p className="text-gray-500 text-sm">
-            We hebben een inloglink gestuurd naar{" "}
-            <strong>{email}</strong>. Klik op de link om in te loggen.
-          </p>
-        </div>
-      </main>
-    );
-  }
+  const { error, callbackUrl } = await searchParams;
+  const isDev = process.env.NODE_ENV === "development";
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-amber-50 px-4">
-      <div className="bg-white rounded-2xl shadow-md p-8 max-w-sm w-full">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-amber-700">Welzijnsklik</h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Verbindt bewoners, vrijwilligers en familie
-          </p>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 px-4">
+      <div className="w-full max-w-sm space-y-8">
+        {/* Logo */}
+        <div className="text-center space-y-3">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-amber-500 rounded-2xl shadow-lg mx-auto">
+            <span className="text-white font-bold text-2xl leading-none select-none">W</span>
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Welzijnsklik</h1>
+            <p className="text-neutral-500 text-sm mt-1">
+              Welzijn dichtbij, altijd verbonden
+            </p>
+          </div>
         </div>
 
-        {searchParams.error && (
-          <p className="text-red-600 text-sm bg-red-50 rounded-lg p-3 mb-4">
-            Er is iets misgegaan. Probeer opnieuw.
-          </p>
-        )}
+        {/* Form card */}
+        <div className="bg-white rounded-3xl shadow-sm border border-neutral-100 p-6">
+          <LoginForm error={error} callbackUrl={callbackUrl} isDev={isDev} />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              E-mailadres
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="naam@organisatie.nl"
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium py-2.5 rounded-lg text-sm transition disabled:opacity-60"
-          >
-            {loading ? "Versturen…" : "Stuur inloglink"}
-          </button>
-        </form>
+        <p className="text-center text-xs text-neutral-400">
+          De Meerwende · Badhoevedorp
+        </p>
       </div>
     </main>
   );

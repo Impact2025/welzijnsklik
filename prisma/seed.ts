@@ -12,35 +12,17 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log("Seeding database...");
 
-  // Organisatie
   const organisatie = await prisma.organisatie.upsert({
     where: { id: "org_meerwende" },
     update: {},
-    create: {
-      id: "org_meerwende",
-      naam: "De Meerwende",
-      plaats: "Badhoevedorp",
-    },
+    create: { id: "org_meerwende", naam: "De Meerwende", plaats: "Badhoevedorp" },
   });
   console.log(`Organisatie: ${organisatie.naam}`);
 
-  // Auth Users + Gebruikers
   const testGebruikers = [
-    {
-      email: "coordinator@demeerwende.nl",
-      naam: "Petra van den Berg",
-      rol: "COORDINATOR" as const,
-    },
-    {
-      email: "vrijwilliger@demeerwende.nl",
-      naam: "Jan de Vries",
-      rol: "VRIJWILLIGER" as const,
-    },
-    {
-      email: "familie@example.nl",
-      naam: "Maria Jansen",
-      rol: "FAMILIE" as const,
-    },
+    { email: "coordinator@demeerwende.nl", naam: "Petra van den Berg", rol: "COORDINATOR" as const },
+    { email: "vrijwilliger@demeerwende.nl", naam: "Jan de Vries", rol: "VRIJWILLIGER" as const },
+    { email: "familie@example.nl", naam: "Maria Jansen", rol: "FAMILIE" as const },
   ];
 
   const gemaakteGebruikers: Record<string, string> = {};
@@ -49,13 +31,8 @@ async function main() {
     const user = await prisma.user.upsert({
       where: { email: g.email },
       update: {},
-      create: {
-        email: g.email,
-        name: g.naam,
-        emailVerified: new Date(),
-      },
+      create: { email: g.email, name: g.naam, emailVerified: new Date() },
     });
-
     const gebruiker = await prisma.gebruiker.upsert({
       where: { userId: user.id },
       update: {},
@@ -67,12 +44,11 @@ async function main() {
         userId: user.id,
       },
     });
-
     gemaakteGebruikers[g.rol] = gebruiker.id;
     console.log(`  ${g.rol}: ${g.naam} (${g.email})`);
   }
 
-  // Bewoners
+  // Drie bewoners
   const bewoners = await Promise.all([
     prisma.bewoner.upsert({
       where: { id: "bew_annie" },
@@ -96,10 +72,22 @@ async function main() {
         toestemmingFotos: false,
       },
     }),
+    prisma.bewoner.upsert({
+      where: { id: "bew_corrie" },
+      update: {},
+      create: {
+        id: "bew_corrie",
+        naam: "Corrie van Dijk",
+        organisatieId: organisatie.id,
+        toestemmingFotos: true,
+        toestemmingDoor: "Ellen van Dijk (dochter)",
+        toestemmingDatum: new Date("2025-03-02"),
+      },
+    }),
   ]);
   console.log(`Bewoners: ${bewoners.map((b) => b.naam).join(", ")}`);
 
-  // Familie koppeling
+  // Familie koppeling: Maria → Annie
   await prisma.familieKoppeling.upsert({
     where: { id: "kop_maria_annie" },
     update: {},
@@ -111,39 +99,34 @@ async function main() {
     },
   });
 
-  // Voorbeeld activiteiten
+  // Activiteiten — verspreid over de afgelopen weken
   const vrijwilligerId = gemaakteGebruikers["VRIJWILLIGER"];
+  const nu = new Date();
+  const dagenGeleden = (n: number) => new Date(nu.getTime() - n * 24 * 60 * 60 * 1000);
+
   const activiteiten = [
-    {
-      bewonerId: bewoners[0].id,
-      type: "Wandelen",
-      duurMinuten: 45,
-      notities: "Heerlijk weer, langs het park gewandeld.",
-    },
-    {
-      bewonerId: bewoners[0].id,
-      type: "Koffiedrinken",
-      duurMinuten: 30,
-      notities: "Gezellig bijgekletst over vroeger.",
-    },
-    {
-      bewonerId: bewoners[1].id,
-      type: "Spelletjes",
-      duurMinuten: 60,
-      notities: "Mens erger je niet, Henk won!",
-    },
+    { bewonerId: bewoners[0].id, type: "Wandelen",      duurMinuten: 45, notities: "Heerlijk weer, langs het park gewandeld. Annie was erg blij.", createdAt: dagenGeleden(1) },
+    { bewonerId: bewoners[0].id, type: "Koffiedrinken", duurMinuten: 30, notities: "Gezellig bijgekletst over vroeger.", createdAt: dagenGeleden(4) },
+    { bewonerId: bewoners[0].id, type: "Spelletjes",    duurMinuten: 60, notities: "Scrabble gespeeld, Annie won met grote voorsprong!", createdAt: dagenGeleden(8) },
+    { bewonerId: bewoners[1].id, type: "Spelletjes",    duurMinuten: 60, notities: "Mens erger je niet. Henk won elke ronde.", createdAt: dagenGeleden(2) },
+    { bewonerId: bewoners[1].id, type: "Lezen",         duurMinuten: 45, notities: "Voorgelezen uit de krant, nieuws besproken.", createdAt: dagenGeleden(6) },
+    { bewonerId: bewoners[2].id, type: "Wandelen",      duurMinuten: 30, notities: "Kort rondje door de tuin, Corrie had veel zin.", createdAt: dagenGeleden(3) },
+    { bewonerId: bewoners[2].id, type: "Muziek",        duurMinuten: 45, notities: "Liedjes uit de jaren 60 gezongen. Prachtige middag.", createdAt: dagenGeleden(7) },
+    { bewonerId: bewoners[2].id, type: "Gezelschap",    duurMinuten: 60, notities: "Fotoalbums doorgekeken en verhalen gedeeld.", createdAt: dagenGeleden(12) },
   ];
 
+  // Verwijder bestaande activiteiten zodat we geen duplicaten krijgen
+  await prisma.activiteit.deleteMany({
+    where: { vrijwilligerId },
+  });
+
   for (const a of activiteiten) {
-    await prisma.activiteit.create({
-      data: { ...a, vrijwilligerId },
-    });
+    await prisma.activiteit.create({ data: { ...a, vrijwilligerId } });
   }
   console.log(`${activiteiten.length} activiteiten aangemaakt`);
 
-  console.log("\nSeed voltooid!");
-  console.log("\nTestaccounts (log in via magic link):");
-  console.log("  Coördinator: coordinator@demeerwende.nl");
+  console.log("\nSeed voltooid! Testaccounts:");
+  console.log("  Coördinator:  coordinator@demeerwende.nl");
   console.log("  Vrijwilliger: vrijwilliger@demeerwende.nl");
   console.log("  Familie:      familie@example.nl");
 }
