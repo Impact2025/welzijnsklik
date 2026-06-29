@@ -6,11 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/auth.config";
 import type { Rol } from "@/generated/prisma/client";
 
-const isDevOrDemo =
-  process.env.NODE_ENV === "development" || process.env.DEMO_MODE === "true";
-
-const devProviders = isDevOrDemo
-    ? [
+const devProviders = [
         Credentials({
           id: "dev-login",
           name: "Dev Login",
@@ -33,7 +29,6 @@ const devProviders = isDevOrDemo
           },
         }),
       ]
-    : [];
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
