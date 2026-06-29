@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 import AppShell from "@/components/AppShell";
 
 export default async function FamilieLayout({
@@ -12,8 +13,25 @@ export default async function FamilieLayout({
     redirect("/geen-toegang");
   }
 
+  // Nieuwe activiteiten (afgelopen 7 dagen) van gekoppelde bewoners
+  const weekGeleden = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const nieuweActiviteiten = await prisma.activiteit.count({
+    where: {
+      bewoner: {
+        familieleden: { some: { gebruikerId: session.user.gebruikerId } },
+      },
+      createdAt: { gte: weekGeleden },
+    },
+  }).catch(() => 0);
+
   return (
-    <AppShell rol="FAMILIE" naam={session.user.naam ?? session.user.name ?? undefined} profielFoto={session.user.profielFoto}>
+    <AppShell
+      rol="FAMILIE"
+      naam={session.user.naam ?? session.user.name ?? undefined}
+      profielFoto={session.user.profielFoto}
+      notificatieHref="/familie"
+      notificatieBadge={nieuweActiviteiten}
+    >
       {children}
     </AppShell>
   );

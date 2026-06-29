@@ -24,7 +24,8 @@ export default async function CoordinatorLayout({
       rol="COORDINATOR"
       naam={session.user.naam ?? session.user.name ?? undefined}
       profielFoto={session.user.profielFoto}
-      nieuweAanmeldingen={nieuweAanmeldingen}
+      notificatieHref="/coordinator/meldingen"
+      notificatieBadge={nieuweAanmeldingen}
       nieuweHulpReacties={nieuweHulpReacties}
     >
       {children}

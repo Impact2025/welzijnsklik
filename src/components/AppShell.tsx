@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Users,
-  FileText,
+  CalendarDays,
   PlusCircle,
   Heart,
   Handshake,
@@ -28,7 +28,7 @@ interface NavItem {
 
 const NAV_COORDINATOR: NavItem[] = [
   { href: "/coordinator", icon: LayoutDashboard, label: "Dashboard", exact: true },
-  { href: "/coordinator/tijdlijn", icon: FileText, label: "Tijdlijn" },
+  { href: "/coordinator/agenda", icon: CalendarDays, label: "Agenda" },
   { href: "/coordinator/bewoners", icon: Users, label: "Bewoners" },
   { href: "/coordinator/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/coordinator/meldingen", icon: Bell, label: "Meldingen" },
@@ -63,17 +63,18 @@ interface Props {
   naam?: string;
   profielFoto?: string | null;
   children: React.ReactNode;
-  nieuweAanmeldingen?: number;
+  notificatieHref?: string;
+  notificatieBadge?: number;
   nieuweHulpReacties?: number;
   openHulpVragen?: number;
 }
 
-export default function AppShell({ rol, naam, profielFoto, children, nieuweAanmeldingen = 0, nieuweHulpReacties = 0, openHulpVragen = 0 }: Props) {
+export default function AppShell({ rol, naam, profielFoto, children, notificatieHref, notificatieBadge = 0, nieuweHulpReacties = 0, openHulpVragen = 0 }: Props) {
   const pathname = usePathname();
   const navItems = NAV_MAP[rol] ?? [];
 
   const navBadge: Record<string, number> = {
-    "/coordinator/meldingen": nieuweAanmeldingen,
+    "/coordinator/meldingen": notificatieBadge,
     "/coordinator/hulp-gevraagd": nieuweHulpReacties,
     "/vrijwilliger/hulp-gevraagd": openHulpVragen,
   };
@@ -87,15 +88,15 @@ export default function AppShell({ rol, naam, profielFoto, children, nieuweAanme
           <span className="font-semibold text-warm-900 text-[15px] tracking-tight">Welzijnsklik</span>
         </Link>
         <div className="flex items-center gap-0.5">
-          {rol === "COORDINATOR" && (
+          {notificatieHref && (
             <Link
-              href="/coordinator/meldingen"
+              href={notificatieHref}
               className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
             >
               <Bell size={18} />
-              {nieuweAanmeldingen > 0 && (
+              {notificatieBadge > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
-                  {nieuweAanmeldingen > 9 ? "9+" : nieuweAanmeldingen}
+                  {notificatieBadge > 9 ? "9+" : notificatieBadge}
                 </span>
               )}
             </Link>
