@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import SignOutButton from "@/components/SignOutButton";
-import { User, Building2, Shield } from "lucide-react";
+import { User, Building2, Shield, Download } from "lucide-react";
 
 const ROL_LABELS: Record<string, string> = {
   COORDINATOR: "Coördinator",
@@ -79,11 +79,18 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      {/* Uitloggen */}
-      <div className="bg-white rounded-2xl p-5 shadow-sm border border-neutral-100">
-        <p className="text-sm text-neutral-500 mb-3">
+      {/* Uitloggen & Data-export */}
+      <div className="bg-white rounded-2xl p-5 shadow-sm border border-neutral-100 space-y-3">
+        <p className="text-sm text-neutral-500 mb-1">
           Je bent ingelogd als <strong className="text-gray-800">{naam}</strong>.
         </p>
+        <a
+          href="/api/data-export"
+          className="w-full flex items-center justify-center gap-2 bg-neutral-100 hover:bg-amber-50 hover:text-amber-700 text-neutral-700 font-medium py-3 rounded-xl text-sm transition-colors"
+        >
+          <Download size={15} />
+          Mijn gegevens downloaden (AVG)
+        </a>
         <SignOutButton className="w-full flex items-center justify-center gap-2 bg-neutral-100 hover:bg-red-50 hover:text-red-600 text-neutral-700 font-medium py-3 rounded-xl text-sm transition-colors" />
       </div>
 

@@ -3,8 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ToestemmingForm from "./ToestemmingForm";
-import { ArrowLeft, Camera, Activity } from "lucide-react";
+import { ArrowLeft, Camera, Activity, ClipboardList } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
+import { getFotoUrl } from "@/lib/foto";
 
 export default async function BewonderDetail({
   params,
@@ -21,6 +22,10 @@ export default async function BewonderDetail({
       activiteiten: {
         orderBy: { createdAt: "desc" },
         include: { vrijwilliger: { select: { naam: true } } },
+      },
+      toestemmingsLog: {
+        orderBy: { createdAt: "desc" },
+        take: 10,
       },
     },
   });
@@ -65,6 +70,39 @@ export default async function BewonderDetail({
         />
       </div>
 
+      {/* Toestemmingslogboek (AVG-audit) */}
+      {bewoner.toestemmingsLog.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 space-y-3">
+          <div className="flex items-center gap-2">
+            <ClipboardList size={16} className="text-neutral-400" />
+            <h2 className="font-semibold text-gray-900 text-[15px]">Toestemmingshistorie</h2>
+          </div>
+          <div className="divide-y divide-neutral-50 -mx-5">
+            {bewoner.toestemmingsLog.map((log) => (
+              <div key={log.id} className="px-5 py-2.5 flex items-center gap-3">
+                <div className={`w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                  log.actie === "AAN" ? "bg-emerald-100" : "bg-red-100"
+                }`}>
+                  <span className={`text-[10px] font-bold ${
+                    log.actie === "AAN" ? "text-emerald-700" : "text-red-600"
+                  }`}>
+                    {log.actie}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-800">
+                    Toestemming <span className="font-semibold">{log.actie === "AAN" ? "aangezet" : "uitgezet"}</span>
+                  </p>
+                  <p className="text-[11px] text-neutral-400 mt-0.5">
+                    door {log.door} · {formatDatum(new Date(log.createdAt), { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Activiteiten */}
       <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
         <div className="px-4 py-3.5 border-b border-neutral-50 flex items-center gap-2">
@@ -104,7 +142,7 @@ export default async function BewonderDetail({
                   </div>
                   {a.fotoUrl && (
                     <img
-                      src={a.fotoUrl}
+                      src={getFotoUrl(a.fotoUrl, a.bewonerId) ?? ""}
                       alt=""
                       className="w-11 h-11 rounded-xl object-cover flex-shrink-0"
                     />

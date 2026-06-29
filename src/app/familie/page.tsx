@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Handshake, Users2 } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
+import { getFotoUrl } from "@/lib/foto";
 
 export default async function FamilieTijdlijn() {
   const session = await auth();
@@ -90,7 +91,7 @@ export default async function FamilieTijdlijn() {
                     </div>
                     {a.fotoUrl && bewoner.toestemmingFotos && (
                       <img
-                        src={a.fotoUrl}
+                        src={getFotoUrl(a.fotoUrl, bewoner.id) ?? ""}
                         alt=""
                         className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
                       />

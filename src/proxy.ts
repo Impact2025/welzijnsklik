@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import { authConfig } from "@/auth.config";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { checkRateLimit, keyFromRequest } from "@/lib/rate-limit";
 
 const { auth } = NextAuth(authConfig);
 
@@ -15,7 +16,22 @@ export default auth(
   async (req: NextRequest & { auth: { user?: { rol?: string } } | null }) => {
     const { pathname } = req.nextUrl;
 
-    if (pathname.startsWith("/login") || pathname === "/geen-toegang") {
+    // Rate limit op login — max 10 pagina-laden per minuut per IP
+    if (pathname.startsWith("/login")) {
+      const rl = checkRateLimit(keyFromRequest(req), { max: 10, windowSeconds: 60 });
+      if (!rl.allowed) {
+        return new NextResponse("Te veel verzoeken. Probeer het over een minuut opnieuw.", {
+          status: 429,
+          headers: {
+            "Retry-After": "60",
+            "X-RateLimit-Remaining": "0",
+          },
+        });
+      }
+      return NextResponse.next();
+    }
+
+    if (pathname === "/geen-toegang") {
       return NextResponse.next();
     }
 

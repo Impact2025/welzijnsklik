@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { ChevronRight, Activity, UserPlus, Users, UserCheck } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
+import { getFotoUrl } from "@/lib/foto";
 
 function ActiviteitIcon({ type }: { type: string }) {
   const cfg = ACTIVITEIT_ICON[type] ?? ACTIVITEIT_ICON.Anders;
@@ -104,7 +105,7 @@ export default async function CoordinatorDashboard() {
                 </div>
                 {a.fotoUrl && (
                   <img
-                    src={a.fotoUrl}
+                    src={getFotoUrl(a.fotoUrl, a.bewonerId) ?? ""}
                     alt=""
                     className="w-10 h-10 rounded-xl object-cover flex-shrink-0"
                   />
