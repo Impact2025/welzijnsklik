@@ -33,7 +33,6 @@ const NAV_COORDINATOR: NavItem[] = [
   { href: "/coordinator/bewoners", icon: Users, label: "Bewoners" },
   { href: "/coordinator/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/coordinator/berichten", icon: MessageSquare, label: "Chat" },
-  { href: "/coordinator/meldingen", icon: Bell, label: "Meldingen" },
 ];
 
 const NAV_VRIJWILLIGER: NavItem[] = [
@@ -42,14 +41,11 @@ const NAV_VRIJWILLIGER: NavItem[] = [
   { href: "/vrijwilliger/berichten", icon: MessageSquare, label: "Chat" },
   { href: "/vrijwilliger/nieuw", icon: PlusCircle, label: "Nieuw", exact: true },
   { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Activiteiten" },
-  { href: "/vrijwilliger/notificaties", icon: Bell, label: "Notificaties" },
-  { href: "/account", icon: Settings, label: "Instellingen" },
 ];
 
 const NAV_FAMILIE: NavItem[] = [
   { href: "/familie", icon: Heart, label: "Tijdlijn", exact: true },
   { href: "/familie/help-mee", icon: Handshake, label: "Help mee" },
-  { href: "/familie/notificaties", icon: Bell, label: "Notificaties" },
   { href: "/account", icon: Settings, label: "Instellingen" },
 ];
 
@@ -93,8 +89,6 @@ export default function AppShell({ rol, naam, profielFoto, children, notificatie
     "/coordinator/berichten": ongelezeBerichten,
     "/vrijwilliger/hulp-gevraagd": openHulpVragen,
     "/vrijwilliger/berichten": ongelezeBerichten,
-    "/vrijwilliger/notificaties": notificatieBadge,
-    "/familie/notificaties": notificatieBadge,
   };
 
   return (
