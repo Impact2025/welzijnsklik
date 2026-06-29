@@ -68,10 +68,19 @@ export async function POST(request: NextRequest) {
   const timestamp = Date.now();
   const filename = `activiteiten/${bewonerId}/${timestamp}.jpg`;
 
-  const { url } = await put(filename, blob, {
-    access: "public",
-    contentType: "image/jpeg",
-  });
+  let url: string;
+  try {
+    ({ url } = await put(filename, blob, {
+      access: "public",
+      contentType: "image/jpeg",
+    }));
+  } catch (err) {
+    console.error("[upload-foto] Vercel Blob put() mislukt:", err);
+    return NextResponse.json(
+      { error: "Foto opslaan mislukt. Probeer het opnieuw." },
+      { status: 500 }
+    );
+  }
 
   // AVG: log elke fotoupload
   await prisma.activiteitLog.create({

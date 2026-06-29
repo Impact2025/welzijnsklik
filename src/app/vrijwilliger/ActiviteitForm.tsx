@@ -116,8 +116,14 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
       body: blob,
     });
     if (!res.ok) {
-      const data = await res.json();
-      throw new Error(data.error ?? "Upload mislukt");
+      let message = "Upload mislukt";
+      try {
+        const data = await res.json();
+        if (data.error) message = data.error;
+      } catch {
+        // response was not JSON (e.g. HTML error page)
+      }
+      throw new Error(message);
     }
     return ((await res.json()) as { url: string }).url;
   }
@@ -129,24 +135,29 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
       setError("Vul alle verplichte velden in.");
       return;
     }
-    startTransition(async () => {
+
+    // Upload buiten startTransition: in React 19 werkt try-catch niet inside transitions
+    let fotoUrl: string | null = null;
+    if (fotoBlob && magFoto) {
       try {
-        let fotoUrl: string | null = null;
-        if (fotoBlob && magFoto) {
-          fotoUrl = await uploadFoto(fotoBlob);
-        }
-        const formData = new FormData();
-        formData.set("bewonerId", bewonerId);
-        formData.set("type", type);
-        formData.set("duurMinuten", duur);
-        if (notities) formData.set("notities", notities);
-        if (fotoUrl) formData.set("fotoUrl", fotoUrl);
-        await logActiviteit(formData);
-        setSuccess(true);
-        setBewonerId(""); setType(""); setDuur("30"); setNotities(""); setFotoDataUrl(null); setFotoBlob(null);
+        fotoUrl = await uploadFoto(fotoBlob);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Onbekende fout");
+        setError(err instanceof Error ? err.message : "Upload mislukt");
+        return;
       }
+    }
+
+    const formData = new FormData();
+    formData.set("bewonerId", bewonerId);
+    formData.set("type", type);
+    formData.set("duurMinuten", duur);
+    if (notities) formData.set("notities", notities);
+    if (fotoUrl) formData.set("fotoUrl", fotoUrl);
+
+    startTransition(async () => {
+      await logActiviteit(formData);
+      setSuccess(true);
+      setBewonerId(""); setType(""); setDuur("30"); setNotities(""); setFotoDataUrl(null); setFotoBlob(null);
     });
   }
 
