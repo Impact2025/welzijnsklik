@@ -71,7 +71,7 @@ export async function logActiviteit(formData: FormData) {
         duurMinuten,
         notities,
         koppeling.relatie,
-        vrijwilliger?.organisatie.naam ?? "Welzijnsklik"
+        vrijwilliger?.organisatie?.naam ?? "Welzijnsklik"
       );
       await sendEmail({
         to: koppeling.gebruiker.email,
@@ -82,7 +82,6 @@ export async function logActiviteit(formData: FormData) {
   }
 
   revalidatePath("/coordinator");
-  revalidatePath("/vrijwilliger");
   revalidatePath("/familie");
 }
 
