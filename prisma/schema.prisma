@@ -102,7 +102,18 @@ model Bewoner {
   toestemmingDatum   DateTime?
   activiteiten       Activiteit[]
   familieleden       FamilieKoppeling[]
+  toestemmingsLog    ToestemmingLog[]
   createdAt          DateTime    @default(now())
+}
+
+model ToestemmingLog {
+  id              String   @id @default(cuid())
+  bewonerId       String
+  bewoner         Bewoner  @relation(fields: [bewonerId], references: [id])
+  actie           String   // "AAN" of "UIT"
+  door            String   // wie gaf/verwijderde toestemming
+  uitgevoerdDoor  String   // userId van de coördinator
+  createdAt       DateTime @default(now())
 }
 
 model FamilieKoppeling {
@@ -125,6 +136,16 @@ model Activiteit {
   notities       String?
   fotoUrl        String?
   createdAt      DateTime  @default(now())
+}
+
+// AVG-logboek: elke fotoupload wordt gelogd voor audit trail
+model ActiviteitLog {
+  id              String   @id @default(cuid())
+  bewonerId       String
+  vrijwilligerId  String
+  actie           String   // "FOTO_UPLOAD" (uitbreidbaar)
+  details         String?  // bijv. de Blob URL
+  createdAt       DateTime @default(now())
 }
 
 model Wervingsinteresse {

@@ -1,4 +1,5 @@
 import { auth } from "@/auth";
+import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import SignOutButton from "@/components/SignOutButton";
 import { User, Building2, Shield } from "lucide-react";
@@ -19,6 +20,16 @@ export default async function AccountPage() {
     rol?: string;
     organisatieId?: string;
   };
+
+  // Dynamische organisatienaam uit de database
+  let organisatieNaam = "—";
+  if (organisatieId) {
+    const org = await prisma.organisatie.findUnique({
+      where: { id: organisatieId },
+      select: { naam: true },
+    });
+    if (org) organisatieNaam = org.naam;
+  }
 
   return (
     <div className="px-4 py-6 space-y-6">
@@ -55,7 +66,7 @@ export default async function AccountPage() {
             <Building2 size={16} className="text-neutral-400 flex-shrink-0" />
             <span className="text-sm text-neutral-500">Organisatie</span>
             <span className="ml-auto text-sm font-medium text-gray-800">
-              De Meerwende
+              {organisatieNaam}
             </span>
           </div>
           <div className="flex items-center gap-3 py-3">

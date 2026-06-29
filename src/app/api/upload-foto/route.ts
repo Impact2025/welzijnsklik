@@ -60,5 +60,18 @@ export async function POST(request: NextRequest) {
     contentType: "image/jpeg",
   });
 
+  // AVG: log elke fotoupload
+  await prisma.activiteitLog.create({
+    data: {
+      bewonerId,
+      vrijwilligerId: session.user.gebruikerId!,
+      actie: "FOTO_UPLOAD",
+      details: url,
+    },
+  }).catch(() => {
+    // Loggen mag niet de upload breken
+    console.warn("[upload-foto] Kon activiteitLog niet aanmaken");
+  });
+
   return NextResponse.json({ url });
 }

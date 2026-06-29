@@ -24,14 +24,25 @@ export async function updateToestemming(
 
   if (!bewoner) throw new Error("Bewoner niet gevonden");
 
-  await prisma.bewoner.update({
-    where: { id: bewonerId },
-    data: {
-      toestemmingFotos,
-      toestemmingDoor: toestemmingFotos ? toestemmingDoor : null,
-      toestemmingDatum: toestemmingFotos ? new Date() : null,
-    },
-  });
+  await prisma.$transaction([
+    prisma.bewoner.update({
+      where: { id: bewonerId },
+      data: {
+        toestemmingFotos,
+        toestemmingDoor: toestemmingFotos ? toestemmingDoor : null,
+        toestemmingDatum: toestemmingFotos ? new Date() : null,
+      },
+    }),
+    // AVG: bewaar elke toestemmingswijziging in het logboek
+    prisma.toestemmingLog.create({
+      data: {
+        bewonerId,
+        actie: toestemmingFotos ? "AAN" : "UIT",
+        door: toestemmingDoor || session.user.naam || session.user.email || "Onbekend",
+        uitgevoerdDoor: session.user.gebruikerId!,
+      },
+    }),
+  ]);
 
   revalidatePath(`/coordinator/bewoners/${bewonerId}`);
   revalidatePath("/coordinator");

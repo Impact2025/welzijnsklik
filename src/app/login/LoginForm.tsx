@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Mail, ArrowRight, Loader2 } from "lucide-react";
 
@@ -34,7 +35,8 @@ const DEV_ACCOUNTS = [
   },
 ];
 
-export default function LoginForm({ error, callbackUrl, isDev }: Props) {
+export default function LoginForm({ error: _error, callbackUrl, isDev }: Props) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -66,7 +68,7 @@ export default function LoginForm({ error, callbackUrl, isDev }: Props) {
         setDevLoading(null);
         return;
       }
-      window.location.href = callbackUrl ?? "/";
+      router.push(callbackUrl ?? "/");
     } catch (err) {
       setDevError(`Onverwachte fout: ${err}`);
       setDevLoading(null);
@@ -131,7 +133,7 @@ export default function LoginForm({ error, callbackUrl, isDev }: Props) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {error && (
+        {_error && (
           <p className="text-red-600 text-sm bg-red-50 rounded-xl p-3 border border-red-100">
             Er is iets misgegaan. Probeer opnieuw.
           </p>

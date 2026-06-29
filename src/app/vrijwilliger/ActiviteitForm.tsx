@@ -7,7 +7,7 @@ import {
   CheckCircle2,
   X,
 } from "lucide-react";
-import { ACTIVITEIT_TYPES, DUUR_OPTIES, formatDuur } from "@/lib/activiteit";
+import { ACTIVITEIT_TYPES, DUUR_OPTIES } from "@/lib/activiteit";
 
 interface Bewoner {
   id: string;
