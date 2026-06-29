@@ -30,9 +30,9 @@ async function main() {
   console.log(`Organisatie: ${organisatie.naam}`);
 
   const testGebruikers = [
-    { email: "coordinator@demeerwende.nl", naam: "Petra van den Berg", rol: "COORDINATOR" as const },
-    { email: "vrijwilliger@demeerwende.nl", naam: "Jan de Vries", rol: "VRIJWILLIGER" as const },
-    { email: "familie@example.nl", naam: "Maria Jansen", rol: "FAMILIE" as const },
+    { email: "coordinator@demeerwende.nl", naam: "Virginia van Munster", rol: "COORDINATOR" as const },
+    { email: "vrijwilliger@demeerwende.nl", naam: "Roderik Smits", rol: "VRIJWILLIGER" as const },
+    { email: "familie@example.nl", naam: "Jolanda Kamoschinski", rol: "FAMILIE" as const },
   ];
 
   const gemaakteGebruikers: Record<string, string> = {};
@@ -244,7 +244,7 @@ async function main() {
     console.log(`  Reactie op "${annieActiviteiten[3].type}" (Annie)`);
   }
 
-  // Wervingsinteresse van Maria om te helpen
+  // Wervingsinteresse van Jolanda om te helpen
   await prisma.wervingsinteresse.upsert({
     where: { id: "werving_maria" },
     update: {},
@@ -255,7 +255,7 @@ async function main() {
       status: "nieuw",
     },
   });
-  console.log("  Wervingsinteresse van Maria aangemaakt");
+  console.log("  Wervingsinteresse van Jolanda aangemaakt");
 
   console.log("\nSeed voltooid! Testaccounts:");
   console.log("  Coordinator:  coordinator@demeerwende.nl");
