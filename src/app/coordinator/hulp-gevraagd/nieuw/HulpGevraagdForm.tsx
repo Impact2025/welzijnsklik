@@ -6,14 +6,6 @@ import { maakHulpGevraagd } from "@/lib/actions/hulp-gevraagd";
 import { Camera, X, Loader2, CheckCircle2, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
-const DUUR_OPTIES = [
-  { label: "30 min", value: "30" },
-  { label: "1 uur", value: "60" },
-  { label: "1,5 uur", value: "90" },
-  { label: "2 uur", value: "120" },
-  { label: "3 uur", value: "180" },
-  { label: "4 uur", value: "240" },
-];
 
 export default function HulpGevraagdForm() {
   const router = useRouter();
@@ -171,9 +163,9 @@ export default function HulpGevraagdForm() {
         />
       </div>
 
-      {/* Datum & Tijd */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
+      {/* Datum, Starttijd, Eindtijd */}
+      <div className="grid grid-cols-3 gap-3">
+        <div className="col-span-3 sm:col-span-1">
           <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="datum">
             Datum <span className="text-red-400">*</span>
           </label>
@@ -188,7 +180,7 @@ export default function HulpGevraagdForm() {
         </div>
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="tijd">
-            Tijd <span className="text-red-400">*</span>
+            Starttijd <span className="text-red-400">*</span>
           </label>
           <input
             id="tijd"
@@ -199,23 +191,34 @@ export default function HulpGevraagdForm() {
             className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
           />
         </div>
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="eindtijd">
+            Eindtijd <span className="text-red-400">*</span>
+          </label>
+          <input
+            id="eindtijd"
+            name="eindtijd"
+            type="time"
+            required
+            defaultValue="15:00"
+            className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+          />
+        </div>
       </div>
 
-      {/* Duur */}
+      {/* Eindtijd */}
       <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Duur <span className="text-red-400">*</span>
+        <label className="block text-sm font-semibold text-gray-700 mb-1.5" htmlFor="eindtijd">
+          Eindtijd <span className="text-red-400">*</span>
         </label>
-        <div className="grid grid-cols-3 gap-2">
-          {DUUR_OPTIES.map((opt) => (
-            <label key={opt.value} className="cursor-pointer">
-              <input type="radio" name="duurMinuten" value={opt.value} defaultChecked={opt.value === "60"} className="sr-only peer" />
-              <div className="rounded-xl border border-neutral-200 bg-white px-3 py-2.5 text-sm text-center font-medium text-neutral-600 peer-checked:border-amber-400 peer-checked:bg-amber-50 peer-checked:text-amber-700 transition-colors">
-                {opt.label}
-              </div>
-            </label>
-          ))}
-        </div>
+        <input
+          id="eindtijd"
+          name="eindtijd"
+          type="time"
+          required
+          defaultValue="15:00"
+          className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+        />
       </div>
 
       {/* Aantal nodig */}
