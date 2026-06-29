@@ -75,7 +75,7 @@ export async function logActiviteit(formData: FormData) {
       );
       await sendEmail({
         to: koppeling.gebruiker.email,
-        subject: `🔄 ${vrijwilliger?.naam ?? "Iemand"} was ${type.toLowerCase()} bij ${bewoner.naam}`,
+        subject: `${vrijwilliger?.naam ?? "Iemand"} was ${type.toLowerCase()} bij ${bewoner.naam}`,
         html,
       });
     }

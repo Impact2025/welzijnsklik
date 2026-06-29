@@ -90,7 +90,7 @@ export default function EmailVoorkeurenForm({ initial }: Props) {
       </div>
 
       {saved && (
-        <p className="text-xs text-emerald-600 font-medium text-center">Voorkeuren opgeslagen ✓</p>
+        <p className="text-xs text-emerald-600 font-medium text-center">Voorkeuren opgeslagen</p>
       )}
     </div>
   );

@@ -29,15 +29,15 @@ export async function sendEmail({ to, subject, html, throwOnError = false }: Sen
     });
 
     if (error) {
-      console.error(`[email] ❌ Fout:`, error);
+      console.error(`[email] FOUT Fout:`, error);
       if (throwOnError) throw new Error(`Resend: ${error.message}`);
       return false;
     }
 
-    console.log(`[email] ✓ Verzonden in ${Date.now() - start}ms — id: ${data?.id}`);
+    console.log(`[email] OK Verzonden in ${Date.now() - start}ms — id: ${data?.id}`);
     return true;
   } catch (err) {
-    console.error(`[email] ❌ Uitzondering:`, err);
+    console.error(`[email] FOUT Uitzondering:`, err);
     if (throwOnError) throw err;
     return false;
   }
@@ -157,7 +157,7 @@ export function activiteitHtml(
     title: `Nieuwe activiteit: ${type}`,
     preheader: `${vrijwilligerNaam} was ${type.toLowerCase()} bij ${bewonerNaam}`,
     body: `
-      <h2>🔄 Nieuwe activiteit geregistreerd</h2>
+      <h2> Nieuwe activiteit geregistreerd</h2>
       <p>Beste familie,</p>
       <p>Er is zojuist een nieuwe activiteit geregistreerd voor <strong>${esc(bewonerNaam)}</strong>.</p>
       <div style="background:#f5f2ed; border-radius:12px; padding:16px; margin:16px 0;">
@@ -185,7 +185,7 @@ export function wervingHtml(
     title: "Nieuwe aanmelding samenzorg-vrijwilliger",
     preheader: `${naam} wil helpen bij ${organisatie}`,
     body: `
-      <h2>🙌 Nieuwe aanmelding</h2>
+      <h2> Nieuwe aanmelding</h2>
       <p><strong>${esc(naam)}</strong> heeft zich aangemeld als samenzorg-vrijwilliger.</p>
       <div style="background:#f5f2ed; border-radius:12px; padding:16px; margin:16px 0;">
         <table class="activity">
@@ -213,7 +213,7 @@ export function toestemmingHtml(
     title: `Toestemming fotografie ${isAan ? "aangezet" : "uitgezet"}`,
     preheader: `Toestemming voor ${bewonerNaam} is ${isAan ? "verleend" : "ingetrokken"}`,
     body: `
-      <h2>${isAan ? "✅" : "⛔"} Toestemming fotografie ${isAan ? "aangezet" : "uitgezet"}</h2>
+      <h2>${isAan ? "" : ""} Toestemming fotografie ${isAan ? "aangezet" : "uitgezet"}</h2>
       <p>Voor <strong>${esc(bewonerNaam)}</strong> is de toestemming voor fotografie bij activiteiten <strong>${isAan ? "aangezet" : "uitgezet"}</strong>.</p>
       <div style="background:#f5f2ed; border-radius:12px; padding:16px; margin:16px 0;">
         <table class="activity">
@@ -250,7 +250,7 @@ export function weekDigestHtml(
     title: "Wekelijkse samenvatting",
     preheader: `${stats.activiteiten} activiteiten · ${stats.uren} uur · ${stats.vrijwilligersActief} vrijwilligers`,
     body: `
-      <h2>Hoi ${esc(naam)}, 👋</h2>
+      <h2>Hoi ${esc(naam)},</h2>
       <p>Dit is je wekelijkse samenvatting van Welzijnsklik voor ${esc(organisatie)}.</p>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:16px 0;">

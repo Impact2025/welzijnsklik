@@ -63,7 +63,7 @@ export async function updateToestemming(
       );
       await sendEmail({
         to: fk.gebruiker.email,
-        subject: `📸 Toestemming ${toestemmingFotos ? "aangezet" : "uitgezet"} voor ${bewoner.naam}`,
+        subject: `Toestemming ${toestemmingFotos ? "aangezet" : "uitgezet"} voor ${bewoner.naam}`,
         html,
       });
     }

@@ -77,7 +77,7 @@ export default async function CoordinatorDashboard() {
     <div className="px-4 py-6 space-y-6">
       {/* Greeting */}
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Goeiedag, {voornaam} 👋</h1>
+        <h1 className="text-xl font-bold text-gray-900">Goeiedag, {voornaam}</h1>
         <p className="text-sm text-neutral-500 mt-0.5">Hier is een overzicht van vandaag</p>
       </div>
 

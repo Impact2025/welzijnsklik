@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welzijnsklik — Design Preview</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #faf8f5; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; padding: 2rem; -webkit-font-smoothing: antialiased; }
+
+  /* ─── Page shell ─── */
+  .page { max-width: 448px; margin: 0 auto 3rem; background: #faf8f5; border-radius: 1.5rem; box-shadow: 0 0 0 1px #e8e3db; overflow: hidden; position: relative; }
+  .page-header { padding-bottom: env(safe-area-inset-bottom); }
+
+  /* ─── Top bar ─── */
+  .topbar { height: 56px; display: flex; align-items: center; padding: 0 16px; background: rgba(255,255,255,0.95); backdrop-filter: blur(6px); border-bottom: 1px solid #e8e3db; gap: 8px; }
+  .topbar-logo { width: 28px; height: 28px; flex-shrink: 0; }
+  .topbar-title { font-size: 15px; font-weight: 600; color: #1a1714; letter-spacing: -0.01em; flex: 1; }
+  .topbar-actions { display: flex; align-items: center; gap: 2px; }
+  .topbar-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #a39b8e; transition: background 0.15s; }
+  .topbar-btn:hover { background: #f5f2ed; }
+  .avatar-sm { width: 32px; height: 32px; border-radius: 10px; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; margin-left: 4px; }
+
+  /* ─── Content area ─── */
+  .content { padding: 24px 16px 96px; }
+  .content-title { font-size: 20px; font-weight: 700; color: #1a1714; line-height: 1.2; }
+  .content-sub { font-size: 13px; color: #a39b8e; margin-top: 2px; }
+
+  /* ─── Cards ─── */
+  .card { background: #ffffff; border-radius: 1rem; border: 1px solid #edebe6; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+  .card-sm { padding: 16px; }
+  .card-md { padding: 20px; }
+  .card-lg { padding: 24px; }
+
+  /* ─── Sections ─── */
+  .section { margin-top: 24px; }
+  .section-title { font-size: 15px; font-weight: 600; color: #1a1714; margin-bottom: 12px; }
+
+  /* ─── Stat grid ─── */
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-card { background: #fff; border-radius: 1rem; border: 1px solid #edebe6; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+  .stat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .stat-value { font-size: 24px; font-weight: 700; color: #1a1714; font-variant-numeric: tabular-nums; }
+  .stat-label { font-size: 11px; color: #a39b8e; margin-top: 2px; font-weight: 500; }
+
+  /* ─── Chart bar ─── */
+  .chart-bar { display: flex; align-items: flex-end; gap: 3px; height: 80px; }
+  .chart-bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .chart-bar-fill { width: 100%; background: #e5a500; border-radius: 4px 4px 0 0; min-height: 2px; transition: background 0.15s; }
+  .chart-bar-fill:hover { background: #d97706; }
+  .chart-bar-label { font-size: 8px; color: #a39b8e; font-weight: 500; }
+  .chart-footer { display: flex; justify-content: space-between; font-size: 11px; color: #a39b8e; margin-top: 8px; }
+
+  /* ─── Progress bar ─── */
+  .progress-item { margin-bottom: 8px; }
+  .progress-header { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; }
+  .progress-label { font-weight: 500; color: #655e54; }
+  .progress-value { color: #a39b8e; font-weight: 600; }
+  .progress-track { height: 8px; background: #f5f2ed; border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #059669; border-radius: 999px; transition: width 0.3s; }
+
+  /* ─── Activity list ─── */
+  .activity-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+  .activity-item + .activity-item { border-top: 1px solid #f5f2ed; }
+  .activity-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .activity-body { flex: 1; min-width: 0; }
+  .activity-title { font-size: 13px; font-weight: 500; color: #1a1714; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .activity-meta { font-size: 11px; color: #a39b8e; margin-top: 2px; }
+  .activity-thumb { width: 40px; height: 40px; border-radius: 10px; background: #f5f2ed; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #a39b8e; font-size: 9px; }
+
+  /* ─── Demo page ─── */
+  .demo-grid { display: flex; flex-direction: column; gap: 8px; }
+  .demo-card { display: flex; align-items: center; gap: 16px; padding: 16px; border-radius: 1rem; border: 2px solid; transition: box-shadow 0.15s; cursor: default; }
+  .demo-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+  .demo-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .demo-info { flex: 1; min-width: 0; }
+  .demo-name { font-weight: 700; color: #1a1714; font-size: 14px; }
+  .demo-name span { font-size: 10px; font-weight: 700; color: #fff; padding: 1px 8px; border-radius: 999px; margin-left: 6px; }
+  .demo-desc { font-size: 11px; color: #a39b8e; margin-top: 2px; }
+  .demo-arrow { color: #d4cdc2; font-size: 18px; }
+
+  /* ─── Login page ─── */
+  .login-input { width: 100%; padding: 12px 16px 12px 40px; border: 1px solid #e8e3db; border-radius: 1rem; font-size: 13px; background: #faf8f5; color: #1a1714; outline: none; }
+  .login-input:focus { border-color: #e5a500; box-shadow: 0 0 0 3px rgba(229,165,0,0.12); }
+  .login-input-wrap { position: relative; }
+  .login-input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #a39b8e; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 12px 24px; border-radius: 1rem; border: none; cursor: default; transition: background 0.15s; }
+  .btn-primary { background: #e5a500; color: #fff; width: 100%; }
+  .btn-primary:hover { background: #d97706; }
+  .btn-outline { background: #fff; border: 2px solid #e8e3db; color: #655e54; width: 100%; }
+  .btn-outline:hover { border-color: #fcd34d; background: #fffbeb; color: #b45309; }
+
+  /* ─── Account page ─── */
+  .profile-row { display: flex; align-items: center; gap: 16px; }
+  .profile-avatar { width: 56px; height: 56px; border-radius: 1rem; background: #fef3c7; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #b45309; }
+  .profile-name { font-weight: 600; color: #1a1714; }
+  .profile-email { font-size: 13px; color: #a39b8e; margin-top: 2px; }
+  .info-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+  .info-row + .info-row { border-top: 1px solid #f5f2ed; }
+  .info-label { font-size: 13px; color: #a39b8e; }
+  .info-value { margin-left: auto; font-size: 13px; font-weight: 500; color: #655e54; }
+
+  /* ─── Bottom nav ─── */
+  .bottom-nav { position: absolute; bottom: 0; left: 0; right: 0; height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(6px); border-top: 1px solid #e8e3db; display: flex; align-items: center; justify-content: space-around; padding: 0 8px; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 20px; border-radius: 1rem; color: #a39b8e; transition: color 0.15s; }
+  .nav-item.active { color: #d97706; }
+  .nav-item svg { width: 22px; height: 22px; }
+  .nav-item span { font-size: 10px; font-weight: 600; letter-spacing: 0.02em; }
+
+  /* ─── Tags ─── */
+  .tag { display: inline-flex; font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 999px; }
+  .tag-coordinator { background: #eef2ff; color: #4338ca; }
+  .tag-vrijwilliger { background: #ecfdf5; color: #047857; }
+  .tag-familie { background: #f0f9ff; color: #0369a1; }
+
+  /* ─── Toggle ─── */
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; }
+  .toggle-row + .toggle-row { border-top: 1px solid #f5f2ed; }
+  .toggle-info { display: flex; align-items: center; gap: 12px; }
+  .toggle-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .toggle-label { font-size: 13px; font-weight: 500; color: #1a1714; }
+  .toggle-desc { font-size: 11px; color: #a39b8e; }
+  .toggle { width: 44px; height: 24px; border-radius: 999px; background: #e5a500; position: relative; cursor: default; flex-shrink: 0; }
+  .toggle-knob { width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.12); position: absolute; top: 2px; right: 2px; }
+
+  /* ─── Toast / states ─── */
+  .toast { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: #047857; padding: 8px 16px; background: #ecfdf5; border-radius: 999px; }
+
+  /* ─── Badge notification ─── */
+  .badge-dot { position: relative; }
+  .badge-count { position: absolute; top: -2px; right: -2px; width: 16px; height: 16px; background: #dc2626; color: #fff; font-size: 9px; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+
+  /* ─── Section label ─── */
+  .section-label { font-size: 10px; font-weight: 700; color: #a39b8e; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+
+  /* ─── Divider ─── */
+  .divider { height: 1px; background: #e8e3db; margin: 20px 0; }
+
+  /* ─── Role grid (demo page) ─── */
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 24px; }
+  .role-card { background: rgba(255,255,255,0.8); border-radius: 10px; padding: 12px; text-align: center; border: 1px solid #edebe6; }
+  .role-card-title { font-size: 11px; font-weight: 700; }
+  .role-card-desc { font-size: 9px; color: #a39b8e; margin-top: 2px; }
+
+  /* ─── Page label ─── */
+  .page-label { font-size: 10px; font-weight: 600; color: #655e54; letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 16px; background: #f5f2ed; border-bottom: 1px solid #e8e3db; }
+
+  /* ─── Section spacing ─── */
+  .mt-1 { margin-top: 4px; }
+  .mt-2 { margin-top: 8px; }
+  .mt-3 { margin-top: 12px; }
+  .mt-4 { margin-top: 16px; }
+  .mt-5 { margin-top: 20px; }
+  .mt-6 { margin-top: 24px; }
+  .mb-2 { margin-bottom: 8px; }
+  .mb-3 { margin-bottom: 12px; }
+  .space-y-2 > * + * { margin-top: 8px; }
+  .space-y-3 > * + * { margin-top: 12px; }
+  .space-y-4 > * + * { margin-top: 16px; }
+  .space-y-5 > * + * { margin-top: 20px; }
+  .space-y-6 > * + * { margin-top: 24px; }
+  .text-center { text-align: center; }
+  .text-xs { font-size: 11px; }
+  .text-sm { font-size: 13px; }
+  .text-muted { color: #a39b8e; }
+  .text-brand { color: #e5a500; }
+  .flex { display: flex; }
+  .flex-1 { flex: 1; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .gap-1 { gap: 4px; }
+  .gap-2 { gap: 8px; }
+  .gap-3 { gap: 12px; }
+  .w-full { width: 100%; }
+
+  /* ─── H1 page header ─── */
+  .page h1 { font-size: 20px; font-weight: 700; color: #1a1714; letter-spacing: -0.01em; }
+  .page p { color: #655e54; }
+
+  /* ─── Colors per role ─── */
+  .c-violet { color: #4338ca; }
+  .c-emerald { color: #047857; }
+  .c-sky { color: #0369a1; }
+  .bg-violet-light { background: #eef2ff; }
+  .bg-emerald-light { background: #ecfdf5; }
+  .bg-sky-light { background: #f0f9ff; }
+  .border-violet { border-color: #c7d2fe; }
+  .border-emerald { border-color: #a7f3d0; }
+  .border-sky { border-color: #bae6fd; }
+
+  /* ─── SVG icons inline ─── */
+  .icon { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .icon-sm { width: 14px; height: 14px; }
+  .icon-lg { width: 22px; height: 22px; }
+
+  /* ─── Role label badges ─── */
+  .role-label { display: inline-flex; font-size: 10px; font-weight: 700; padding: 1px 8px; border-radius: 999px; color: #fff; }
+
+  /* ─── Logo center ─── */
+  .logo-center { text-align: center; }
+  .logo-center img { width: 64px; height: 64px; }
+  .logo-center h1 { font-size: 24px; margin-top: 12px; }
+  .logo-center p { font-size: 13px; color: #a39b8e; margin-top: 4px; }
+
+  /* ─── Responsive grid ─── */
+  @media (min-width: 960px) {
+    .preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; max-width: 960px; margin: 0 auto; }
+    .page { margin-bottom: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- DESIGN TITLE                               -->
+<!-- ═══════════════════════════════════════════ -->
+
+<div class="text-center" style="margin-bottom: 3rem;">
+  <h1 style="font-size: 32px; font-weight: 700; color: #1a1714; letter-spacing: -0.02em;">Welzijnsklik</h1>
+  <p style="font-size: 13px; color: #a39b8e; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 4px;">Design System &middot; Pagina-overzicht</p>
+  <div style="width: 40px; height: 2px; background: #e5a500; margin: 16px auto; border-radius: 2px;"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- GRID: alle paginas                         -->
+<!-- ═══════════════════════════════════════════ -->
+
+<div class="preview-grid">
+
+<!-- ─── 1. /login ───────────────────────────────────────────── -->
+<div class="page">
+  <div class="page-label">Login</div>
+  <div class="content text-center" style="padding-top: 32px;">
+    <div class="logo-center">
+      <img src="/logo.svg" alt="">
+      <h1>Welzijnsklik</h1>
+      <p>Welzijn dichtbij, altijd verbonden</p>
+    </div>
+
+    <div class="card card-md mt-6 text-left">
+      <!-- Demo accounts (shown in dev/demo) -->
+      <div class="section-label"><span>Klik en ontdek</span></div>
+      <div class="demo-grid">
+        <div class="demo-card border-violet bg-violet-light">
+          <div class="demo-icon bg-violet-light"><svg class="icon-lg c-violet" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+          <div class="demo-info">
+            <div class="demo-name">Petra van den Berg <span class="role-label" style="background:#4338ca;">Coordinator</span></div>
+            <div class="demo-desc">Dashboard, bewoners beheren, team</div>
+          </div>
+          <div class="demo-arrow">&rarr;</div>
+        </div>
+        <div class="demo-card border-emerald bg-emerald-light">
+          <div class="demo-icon bg-emerald-light"><svg class="icon-lg c-emerald" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div>
+          <div class="demo-info">
+            <div class="demo-name">Jan de Vries <span class="role-label" style="background:#047857;">Vrijwilliger</span></div>
+            <div class="demo-desc">Activiteiten registreren, fotos maken</div>
+          </div>
+          <div class="demo-arrow">&rarr;</div>
+        </div>
+        <div class="demo-card border-sky bg-sky-light">
+          <div class="demo-icon bg-sky-light"><svg class="icon-lg c-sky" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="demo-info">
+            <div class="demo-name">Maria Jansen <span class="role-label" style="background:#0369a1;">Familie</span></div>
+            <div class="demo-desc">Tijdlijn, meehelpen</div>
+          </div>
+          <div class="demo-arrow">&rarr;</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="login-input-wrap">
+        <span class="login-input-icon"><svg class="icon-sm" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span>
+        <input class="login-input" type="text" placeholder="naam@organisatie.nl" value="" readonly>
+      </div>
+      <div style="margin-top: 12px;">
+        <span class="btn btn-primary">Stuur inloglink <svg class="icon-sm" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>
+      </div>
+    </div>
+
+    <div class="mt-5 text-center">
+      <p class="text-xs text-muted">De Meerwende &middot; Badhoevedorp</p>
+      <a style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #e5a500; font-weight: 600; text-decoration: none; margin-top: 8px;" href="#">
+        <svg class="icon-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Verken de demo
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 2. /demo ──────────────────────────────────────────── -->
+<div class="page">
+  <div class="page-label">Demo</div>
+  <div class="content text-center" style="padding-top: 32px;">
+    <div class="logo-center">
+      <img src="/logo.svg" alt="">
+      <h1 style="font-size: 20px;">Verken Welzijnsklik</h1>
+      <p>Kies een rol en ontdek de app &mdash; geen registratie nodig.</p>
+    </div>
+
+    <div class="card card-md mt-5 text-left">
+      <div class="section-label"><svg class="icon-sm" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Klik en ontdek</div>
+      <div class="demo-grid">
+        <div class="demo-card border-violet bg-violet-light">
+          <div class="demo-icon bg-violet-light"><svg class="icon-lg c-violet" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+          <div class="demo-info">
+            <div class="demo-name">Petra van den Berg <span style="background:#4338ca;">Coordinator</span></div>
+            <div class="demo-desc">Dashboard, bewoners beheren, team</div>
+          </div>
+          <div class="demo-arrow">&rarr;</div>
+        </div>
+        <div class="demo-card border-emerald bg-emerald-light">
+          <div class="demo-icon bg-emerald-light"><svg class="icon-lg c-emerald" viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></div>
+          <div class="demo-info">
+            <div class="demo-name">Jan de Vries <span style="background:#047857;">Vrijwilliger</span></div>
+            <div class="demo-desc">Activiteiten registreren, fotos maken</div>
+          </div>
+          <div class="demo-arrow">&rarr;</div>
+        </div>
+        <div class="demo-card border-sky bg-sky-light">
+          <div class="demo-icon bg-sky-light"><svg class="icon-lg c-sky" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="demo-info">
+            <div class="demo-name">Maria Jansen <span style="background:#0369a1;">Familie</span></div>
+            <div class="demo-desc">Tijdlijn, meehelpen</div>
+          </div>
+          <div class="demo-arrow">&rarr;</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <span class="btn btn-outline"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Inloggen met e-mail</span>
+    </div>
+
+    <div class="role-grid">
+      <div class="role-card"><p class="role-card-title c-violet">Coordinator</p><p class="role-card-desc">Dashboard, bewoners, rapportages</p></div>
+      <div class="role-card"><p class="role-card-title c-emerald">Vrijwilliger</p><p class="role-card-desc">Activiteiten, fotos, notities</p></div>
+      <div class="role-card"><p class="role-card-title c-sky">Familie</p><p class="role-card-desc">Tijdlijn, meehelpen</p></div>
+    </div>
+
+    <p class="text-xs text-muted" style="margin-top: 20px;">Welzijnsklik &middot; De Meerwende &middot; Badhoevedorp</p>
+  </div>
+</div>
+
+<!-- ─── 3. /coordinator (dashboard) ─────────────────────── -->
+<div class="page">
+  <div class="topbar">
+    <img class="topbar-logo" src="/logo.svg" alt="">
+    <span class="topbar-title">Welzijnsklik</span>
+    <div class="topbar-actions">
+      <div class="topbar-btn badge-dot"><svg class="icon" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><div class="badge-count">3</div></div>
+      <div class="topbar-btn"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+      <div class="avatar-sm">PB</div>
+    </div>
+  </div>
+  <div class="content">
+    <h1>Goeiedag, Petra</h1>
+    <p class="content-sub">Hier is een overzicht van vandaag</p>
+
+    <div class="stat-grid section">
+      <div class="stat-card">
+        <div class="stat-icon bg-violet-light"><svg class="icon-sm c-violet" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div class="stat-value">12</div>
+        <div class="stat-label">Bewoners</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-emerald-light"><svg class="icon-sm c-emerald" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/></svg></div>
+        <div class="stat-value">8</div>
+        <div class="stat-label">Vrijwilligers</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon bg-amber-50" style="background:#fffbeb;"><svg class="icon-sm" style="color:#d97706;" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="stat-value">34</div>
+        <div class="stat-label">Activiteiten</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#f5f3ff;"><svg class="icon-sm" style="color:#6d28d9;" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg></div>
+        <div class="stat-value">3</div>
+        <div class="stat-label">Aanmeldingen</div>
+      </div>
+    </div>
+
+    <!-- Activiteiten deze maand -->
+    <div class="section">
+      <h2 class="section-title">Activiteiten deze maand</h2>
+      <div class="card card-sm">
+        <div class="chart-bar">
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:30%"></div><span class="chart-bar-label">1</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:45%"></div><span class="chart-bar-label">2</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:20%"></div><span class="chart-bar-label">3</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:60%"></div><span class="chart-bar-label">4</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:85%"></div><span class="chart-bar-label">5</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:40%"></div><span class="chart-bar-label">6</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:55%"></div><span class="chart-bar-label">7</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:70%"></div><span class="chart-bar-label">8</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:35%"></div><span class="chart-bar-label">9</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:50%"></div><span class="chart-bar-label">10</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:25%"></div><span class="chart-bar-label">11</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:100%"></div><span class="chart-bar-label">12</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:15%"></div><span class="chart-bar-label">13</span></div>
+          <div class="chart-bar-item"><div class="chart-bar-fill" style="height:40%"></div><span class="chart-bar-label">14</span></div>
+        </div>
+        <div class="chart-footer"><span>18 activiteiten deze maand</span><span>14u totaal</span></div>
+      </div>
+    </div>
+
+    <!-- Uren per vrijwilliger -->
+    <div class="section">
+      <h2 class="section-title">Uren per vrijwilliger</h2>
+      <div class="card card-sm">
+        <div class="progress-item"><div class="progress-header"><span class="progress-label">Jan de Vries</span><span class="progress-value">6u</span></div><div class="progress-track"><div class="progress-fill" style="width:100%"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="progress-label">Anouk Timmer</span><span class="progress-value">4.5u</span></div><div class="progress-track"><div class="progress-fill" style="width:75%"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="progress-label">Bram de Wit</span><span class="progress-value">3u</span></div><div class="progress-track"><div class="progress-fill" style="width:50%"></div></div></div>
+        <div class="progress-item"><div class="progress-header"><span class="progress-label">Carla Visser</span><span class="progress-value">2u</span></div><div class="progress-track"><div class="progress-fill" style="width:33%"></div></div></div>
+      </div>
+    </div>
+
+    <!-- Recente activiteiten -->
+    <div class="section">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="section-title" style="margin-bottom:0;">Recente activiteiten</h2>
+        <a style="font-size: 11px; font-weight: 600; color: #e5a500; text-decoration: none; display: flex; align-items: center; gap: 2px;" href="#">Alles <svg class="icon-sm" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg></a>
+      </div>
+      <div class="card card-sm">
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#ecfdf5;"><svg class="icon-sm" style="color:#059669;" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <div class="activity-body">
+            <div class="activity-title">Jan de Vries bij <span class="text-muted">Mevr. Dekker</span></div>
+            <div class="activity-meta">Wandelen &middot; 30 min &middot; 24 jun</div>
+          </div>
+          <div class="activity-thumb"><svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#fffbeb;"><svg class="icon-sm" style="color:#d97706;" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+          <div class="activity-body">
+            <div class="activity-title">Jan de Vries bij <span class="text-muted">Dhr. Smit</span></div>
+            <div class="activity-meta">Koffiedrinken &middot; 45 min &middot; 24 jun</div>
+          </div>
+          <div class="activity-thumb"><svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#fdf2f8;"><svg class="icon-sm" style="color:#db2777;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="activity-body">
+            <div class="activity-title">Anouk Timmer bij <span class="text-muted">Mevr. Dekker</span></div>
+            <div class="activity-meta">Muziek &middot; 60 min &middot; 23 jun</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Bewoners</span></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg><span>Briefjes</span></div>
+    <div class="nav-item badge-dot"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg><span>Meldingen</span><div class="badge-count">3</div></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Team</span></div>
+  </div>
+</div>
+
+<!-- ─── 4. /vrijwilliger ─────────────────────────────────── -->
+<div class="page">
+  <div class="topbar">
+    <img class="topbar-logo" src="/logo.svg" alt="">
+    <span class="topbar-title">Welzijnsklik</span>
+    <div class="topbar-actions">
+      <div class="topbar-btn"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+      <div class="avatar-sm">JV</div>
+    </div>
+  </div>
+  <div class="content">
+    <h1>Hoi Jan</h1>
+    <p class="content-sub">Leg een activiteit vast</p>
+
+    <div class="card card-md section">
+      <p class="section-title">Nieuwe activiteit</p>
+      <div class="space-y-3">
+        <div>
+          <label style="font-size: 13px; font-weight: 500; color: #655e54; display: block; margin-bottom: 6px;">Bewoner</label>
+          <select style="width:100%; padding:12px 14px; border:1px solid #e8e3db; border-radius:1rem; font-size:13px; background:#faf8f5; color:#1a1714;">
+            <option>Kies een bewoner</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 13px; font-weight: 500; color: #655e54; display: block; margin-bottom: 6px;">Activiteit</label>
+          <select style="width:100%; padding:12px 14px; border:1px solid #e8e3db; border-radius:1rem; font-size:13px; background:#faf8f5; color:#1a1714;">
+            <option>Kies een type</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size: 13px; font-weight: 500; color: #655e54; display: block; margin-bottom: 6px;">Duur (minuten)</label>
+          <input class="login-input" style="padding-left: 14px;" type="text" placeholder="30" readonly>
+        </div>
+        <div>
+          <label style="font-size: 13px; font-weight: 500; color: #655e54; display: block; margin-bottom: 6px;">Notities</label>
+          <textarea style="width:100%; padding:12px 14px; border:1px solid #e8e3db; border-radius:1rem; font-size:13px; background:#faf8f5; color:#1a1714; min-height:80px; resize:none;" placeholder="Optioneel" readonly></textarea>
+        </div>
+      </div>
+      <div class="mt-4">
+        <span class="btn btn-primary"><svg class="icon-sm" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Activiteit registreren</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Registreren</span></div>
+  </div>
+</div>
+
+<!-- ─── 5. /familie (tijdlijn) ──────────────────────────── -->
+<div class="page">
+  <div class="topbar">
+    <img class="topbar-logo" src="/logo.svg" alt="">
+    <span class="topbar-title">Welzijnsklik</span>
+    <div class="topbar-actions">
+      <div class="topbar-btn"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+      <div class="avatar-sm">MJ</div>
+    </div>
+  </div>
+  <div class="content">
+    <h1>Tijdlijn</h1>
+    <p class="content-sub">Jouw geliefde meemaken</p>
+
+    <!-- Bewoner selector -->
+    <div class="card card-sm section">
+      <div class="flex items-center gap-3">
+        <div style="width:40px;height:40px;border-radius:10px;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#b45309;flex-shrink:0;">MD</div>
+        <div class="flex-1"><p style="font-weight:600;color:#1a1714;font-size:14px;">Mevr. Dekker</p><p style="font-size:11px;color:#a39b8e;">Familie</p></div>
+        <span class="tag" style="background:#fef3c7;color:#b45309;">5 activiteiten</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">Recente activiteiten</h2>
+      <div class="card card-sm">
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#ecfdf5;"><svg class="icon-sm" style="color:#059669;" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+          <div class="activity-body">
+            <div class="activity-title">Jan de Vries &middot; Wandelen</div>
+            <div class="activity-meta">30 min &middot; vanmiddag 14:30</div>
+          </div>
+          <div class="activity-thumb"><svg class="icon-sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#fffbeb;"><svg class="icon-sm" style="color:#d97706;" viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div>
+          <div class="activity-body">
+            <div class="activity-title">Jan de Vries &middot; Koffiedrinken</div>
+            <div class="activity-meta">45 min &middot; gisteren 10:15</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon" style="background:#fdf2f8;"><svg class="icon-sm" style="color:#db2777;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="activity-body">
+            <div class="activity-title">Anouk Timmer &middot; Muziek</div>
+            <div class="activity-meta">60 min &middot; 2 dagen geleden</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active"><svg viewBox="0 0 24 24"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg><span>Tijdlijn</span></div>
+    <div class="nav-item"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><span>Help mee</span></div>
+  </div>
+</div>
+
+<!-- ─── 6. /account ──────────────────────────────────────── -->
+<div class="page">
+  <div class="topbar">
+    <img class="topbar-logo" src="/logo.svg" alt="">
+    <span class="topbar-title">Welzijnsklik</span>
+    <div class="topbar-actions">
+      <div class="topbar-btn"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div>
+      <div class="avatar-sm">PB</div>
+    </div>
+  </div>
+  <div class="content">
+    <h1>Account</h1>
+    <p class="content-sub">Jouw profiel en instellingen</p>
+
+    <!-- Profiel -->
+    <div class="card card-md section">
+      <div class="profile-row">
+        <div class="profile-avatar">PB</div>
+        <div>
+          <div class="profile-name">Petra van den Berg</div>
+          <div class="profile-email">coordinator@demeerwende.nl</div>
+        </div>
+      </div>
+      <div style="margin-top: 16px;">
+        <div class="info-row"><svg class="icon-sm text-muted" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span class="info-label">Rol</span><span class="info-value"><span class="tag" style="background:#eef2ff;color:#4338ca;">Coordinator</span></span></div>
+        <div class="info-row"><svg class="icon-sm text-muted" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg><span class="info-label">Organisatie</span><span class="info-value">De Meerwende</span></div>
+        <div class="info-row"><svg class="icon-sm text-muted" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><span class="info-label">E-mail</span><span class="info-value">coordinator@demeerwende.nl</span></div>
+      </div>
+    </div>
+
+    <!-- Email voorkeuren -->
+    <div class="card section">
+      <div class="flex items-center gap-2" style="padding: 16px 20px 0;">
+        <svg class="icon-sm text-muted" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+        <span class="section-title" style="margin:0;">E-mailnotificaties</span>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <div class="toggle-icon" style="background:#fffbeb;"><svg class="icon-sm" style="color:#d97706;" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+          <div><div class="toggle-label">Nieuwe activiteiten</div><div class="toggle-desc">Ontvang een e-mail bij elke nieuwe activiteit</div></div>
+        </div>
+        <div class="toggle"><div class="toggle-knob"></div></div>
+      </div>
+      <div class="toggle-row" style="border-bottom: none; padding-bottom: 20px;">
+        <div class="toggle-info">
+          <div class="toggle-icon" style="background:#ecfdf5;"><svg class="icon-sm" style="color:#047857;" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div><div class="toggle-label">Wekelijkse samenvatting</div><div class="toggle-desc">Elke maandag een overzicht van de week</div></div>
+        </div>
+        <div class="toggle"><div class="toggle-knob"></div></div>
+      </div>
+    </div>
+
+    <!-- Data export + uitloggen -->
+    <div class="card card-md section">
+      <p class="text-xs text-muted mb-3">Je bent ingelogd als <strong style="color:#1a1714;">Petra van den Berg</strong>.</p>
+      <span class="btn btn-outline" style="margin-bottom: 8px;"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Mijn gegevens downloaden (AVG)</span>
+      <span class="btn" style="background:#fef2f2; color:#dc2626; width:100%;"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Uitloggen</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /preview-grid -->
+
+<div class="text-center" style="margin-top: 3rem; font-size: 12px; color: #a39b8e;">
+  Welzijnsklik Design Preview &middot; Alle paginas op een rij &middot; Amber brand &middot; Warm palette
+</div>
+
+</body>
+</html>

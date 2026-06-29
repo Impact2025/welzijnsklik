@@ -24,22 +24,22 @@ export async function validateEnv(): Promise<string[]> {
 
   for (const [key, hint] of Object.entries(VERPLICHT)) {
     if (!process.env[key]) {
-      warnings.push(`❌ ${key} ontbreekt — ${hint}`);
+      warnings.push(`[MISS] ${key} ontbreekt — ${hint}`);
     }
   }
 
   if (!isDev) {
     for (const [key, hint] of Object.entries(PRODUCTIE_VERPLICHT)) {
       if (!process.env[key]) {
-        warnings.push(`❌ ${key} ontbreekt — ${hint}`);
+        warnings.push(`[MISS] ${key} ontbreekt — ${hint}`);
       }
     }
   }
 
   if (warnings.length > 0) {
-    console.warn("\n⚠️  Environment validatie:\n" + warnings.map((w) => `  ${w}`).join("\n") + "\n");
+    console.warn("\nEnvironment validatie:\n" + warnings.map((w) => `  ${w}`).join("\n") + "\n");
   } else {
-    console.log("✅ Environment validatie geslaagd");
+    console.log("[env] Environment validatie geslaagd");
   }
 
   return warnings;

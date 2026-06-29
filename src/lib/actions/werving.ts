@@ -46,7 +46,7 @@ export async function meldWervingsinteresse(bericht: string) {
 
     await sendEmail({
       to: coordinatoren.map((c) => c.email),
-      subject: `🙌 Nieuwe aanmelding: ${gebruiker.naam ?? "Iemand"} wil helpen`,
+      subject: `Nieuwe aanmelding: ${gebruiker.naam ?? "Iemand"} wil helpen`,
       html,
     });
   }
