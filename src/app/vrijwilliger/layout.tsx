@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { getOpenHulpVragenCount } from "@/lib/actions/hulp-gevraagd";
+import { getOngelezeBerichten } from "@/lib/actions/berichten";
 import AppShell from "@/components/AppShell";
 
 export default async function VrijwilligerLayout({
@@ -13,7 +14,10 @@ export default async function VrijwilligerLayout({
     redirect("/geen-toegang");
   }
 
-  const openHulpVragen = await getOpenHulpVragenCount();
+  const [openHulpVragen, ongelezeBerichten] = await Promise.all([
+    getOpenHulpVragenCount(),
+    getOngelezeBerichten(),
+  ]);
 
   return (
     <AppShell
@@ -23,6 +27,7 @@ export default async function VrijwilligerLayout({
       notificatieHref="/vrijwilliger/meldingen"
       notificatieBadge={openHulpVragen}
       openHulpVragen={openHulpVragen}
+      ongelezeBerichten={ongelezeBerichten}
     >
       {children}
     </AppShell>

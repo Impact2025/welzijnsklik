@@ -98,6 +98,8 @@ model Gebruiker {
   emailVoorkeur    EmailVoorkeur?
   reacties         Reactie[]
   hulpReacties     HulpReactie[]
+  berichtenVan     Bericht[]     @relation("BerichtenVan")
+  berichtenAan     Bericht[]     @relation("BerichtenAan")
 }
 
 model EmailVoorkeur {
@@ -210,6 +212,19 @@ model HulpReactie {
   createdAt      DateTime     @default(now())
 
   @@unique([hulpGevraagdId, vrijwilligerId])
+}
+
+model Bericht {
+  id            String    @id @default(cuid())
+  organisatieId String
+  vanId         String
+  aanId         String
+  inhoud        String    @db.Text
+  gelezen       Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+
+  van           Gebruiker @relation("BerichtenVan", fields: [vanId], references: [id])
+  aan           Gebruiker @relation("BerichtenAan", fields: [aanId], references: [id])
 }
 
 model Wervingsinteresse {
