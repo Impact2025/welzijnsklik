@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 import { getOpenHulpVragenCount } from "@/lib/actions/hulp-gevraagd";
 import { getOngelezeBerichten } from "@/lib/actions/berichten";
 import AppShell from "@/components/AppShell";
@@ -14,9 +15,22 @@ export default async function VrijwilligerLayout({
     redirect("/geen-toegang");
   }
 
-  const [openHulpVragen, ongelezeBerichten] = await Promise.all([
+  const weekGeleden = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const gebruikerId = session.user.gebruikerId;
+
+  const [openHulpVragen, ongelezeBerichten, nieuweReacties] = await Promise.all([
     getOpenHulpVragenCount(),
     getOngelezeBerichten(),
+    gebruikerId
+      ? prisma.reactie
+          .count({
+            where: {
+              activiteit: { vrijwilligerId: gebruikerId },
+              createdAt: { gte: weekGeleden },
+            },
+          })
+          .catch(() => 0)
+      : Promise.resolve(0),
   ]);
 
   return (
@@ -24,8 +38,7 @@ export default async function VrijwilligerLayout({
       rol="VRIJWILLIGER"
       naam={session.user.naam ?? session.user.name ?? undefined}
       profielFoto={session.user.profielFoto}
-      notificatieHref="/vrijwilliger/meldingen"
-      notificatieBadge={openHulpVragen}
+      notificatieBadge={nieuweReacties}
       openHulpVragen={openHulpVragen}
       ongelezeBerichten={ongelezeBerichten}
     >
