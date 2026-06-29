@@ -1,4 +1,6 @@
 import LoginForm from "./LoginForm";
+import Link from "next/link";
+import { Sparkles } from "lucide-react";
 
 export default async function LoginPage({
   searchParams,
@@ -29,9 +31,18 @@ export default async function LoginPage({
           <LoginForm error={error} callbackUrl={callbackUrl} isDev={isDev} />
         </div>
 
-        <p className="text-center text-xs text-neutral-400">
-          De Meerwende · Badhoevedorp
-        </p>
+        <div className="text-center space-y-3">
+          <p className="text-center text-xs text-neutral-400">
+            De Meerwende · Badhoevedorp
+          </p>
+          <Link
+            href="/demo"
+            className="inline-flex items-center gap-1.5 text-xs text-amber-600 hover:text-amber-700 font-semibold transition-colors"
+          >
+            <Sparkles size={12} />
+            Verken de demo
+          </Link>
+        </div>
       </div>
     </main>
   );

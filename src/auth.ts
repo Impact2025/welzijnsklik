@@ -6,8 +6,10 @@ import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/auth.config";
 import type { Rol } from "@/generated/prisma/client";
 
-const devProviders =
-  process.env.NODE_ENV === "development"
+const isDevOrDemo =
+  process.env.NODE_ENV === "development" || process.env.DEMO_MODE === "true";
+
+const devProviders = isDevOrDemo
     ? [
         Credentials({
           id: "dev-login",

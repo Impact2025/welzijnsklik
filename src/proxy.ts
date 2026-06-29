@@ -17,7 +17,7 @@ export default auth(
     const { pathname } = req.nextUrl;
 
     // Rate limit op login — max 10 pagina-laden per minuut per IP
-    if (pathname.startsWith("/login")) {
+    if (pathname.startsWith("/login") || pathname === "/demo") {
       const rl = checkRateLimit(keyFromRequest(req), { max: 10, windowSeconds: 60 });
       if (!rl.allowed) {
         return new NextResponse("Te veel verzoeken. Probeer het over een minuut opnieuw.", {
