@@ -38,9 +38,9 @@ export default async function CoordinatorDashboard() {
 
   const stats = [
     { label: "Bewoners", value: bewoners, icon: Users, href: "/coordinator/bewoners", kleur: "text-sky-600", bg: "bg-sky-50" },
-    { label: "Vrijwilligers", value: vrijwilligers, icon: UserCheck, href: "#", kleur: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "Vrijwilligers", value: vrijwilligers, icon: UserCheck, href: "/coordinator/gebruikers", kleur: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "Activiteiten", value: activiteiten.length, icon: Activity, href: "/coordinator/briefjes", kleur: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Aanmeldingen", value: interesses, icon: UserPlus, href: "#", kleur: "text-violet-600", bg: "bg-violet-50" },
+    { label: "Aanmeldingen", value: interesses, icon: UserPlus, href: "/coordinator/meldingen", kleur: "text-violet-600", bg: "bg-violet-50" },
   ];
 
   return (

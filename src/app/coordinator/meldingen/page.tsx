@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Bell, Handshake, Mail, UserCheck, XCircle, CheckCircle2 } from "lucide-react";
+import { Bell, Mail, UserCheck, CheckCircle2, XCircle } from "lucide-react";
 import MarkeerBehandeld from "./MarkeerBehandeld";
 import Link from "next/link";
 

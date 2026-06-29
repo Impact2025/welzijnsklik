@@ -2,12 +2,25 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { put } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
 
   if (!session?.user?.gebruikerId || session.user.rol !== "VRIJWILLIGER") {
     return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
+  }
+
+  // Rate limit: max 10 uploads per 5 minuten per vrijwilliger
+  const rl = checkRateLimit(`upload:${session.user.gebruikerId}`, { max: 10, windowSeconds: 300 });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "Te veel uploads. Probeer het over 5 minuten opnieuw." },
+      {
+        status: 429,
+        headers: { "Retry-After": "300", "X-RateLimit-Remaining": "0" },
+      }
+    );
   }
 
   const { searchParams } = new URL(request.url);

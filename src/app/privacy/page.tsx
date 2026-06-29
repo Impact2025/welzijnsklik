@@ -27,9 +27,9 @@ export default function PrivacyPage() {
               <h2 className="font-semibold text-gray-900 text-[15px]">Welke gegevens verzamelen we?</h2>
             </div>
             <ul className="space-y-2 text-sm text-neutral-600 ml-1">
-              <li className="flex gap-2"><span className="text-emerald-500 font-bold mt-0.5">•</span> Naam, e-mailadres en rol (coördinator, vrijwilliger, familie)</li>
+              <li className="flex gap-2"><span className="text-emerald-500 font-bold mt-0.5">&bull;</span> Naam, e-mailadres en rol (coördinator, vrijwilliger, familie)</li>
               <li className="flex gap-2"><span className="text-emerald-500 font-bold mt-0.5">•</span> Naam van bewoners en fototoestemming (met datum + door wie gegeven)</li>
-              <li className="flex gap-2"><span className="text-emerald-500 font-bold mt-0.5">•</span> Geregistreerde activiteiten (type, duur, notities, foto's)</li>
+              <li className="flex gap-2"><span className="text-emerald-500 font-bold mt-0.5">&bull;</span> Geregistreerde activiteiten (type, duur, notities, foto&apos;s)</li>
               <li className="flex gap-2"><span className="text-emerald-500 font-bold mt-0.5">•</span> Familiekoppelingen (relatie tot bewoner)</li>
               <li className="flex gap-2"><span className="text-emerald-500 font-bold mt-0.5">•</span> Wervingsinteresse voor samenzorg-vrijwilligerswerk</li>
             </ul>

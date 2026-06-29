@@ -1,8 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import Link from "next/link";
-import { Users, UserPlus, Shield, Mail, ChevronRight } from "lucide-react";
+import { Users } from "lucide-react";
 import { UitnodigForm } from "./UitnodigForm";
 
 const ROL_LABELS: Record<string, string> = {

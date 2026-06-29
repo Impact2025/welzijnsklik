@@ -14,7 +14,7 @@ const ROL_OPTIES = [
   { value: "COORDINATOR", label: "Coördinator" },
 ];
 
-export function UitnodigForm({ organisatieId }: Props) {
+export function UitnodigForm({}: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
@@ -33,10 +33,6 @@ export function UitnodigForm({ organisatieId }: Props) {
     }
     startTransition(async () => {
       try {
-        const { koppelGebruikerAanOrganisatie } = await import("@/lib/actions/organisaties");
-        // We moeten eerst de user vinden — we laten de uitnodiging via Resend verlopen
-        // en de coordinator krijgt een bevestiging.
-        // Voor nu gebruiken we signIn om een magic link te sturen.
         const { signIn } = await import("next-auth/react");
         const res = await signIn("resend", {
           email,
