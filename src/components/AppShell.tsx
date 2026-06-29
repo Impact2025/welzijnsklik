@@ -6,12 +6,13 @@ import {
   LayoutDashboard,
   Users,
   FileText,
-  PlusSquare,
+  PlusCircle,
   Heart,
   Handshake,
   Bell,
   Settings,
   LogOut,
+  Clock,
   type LucideIcon,
 } from "lucide-react";
 import { Avatar } from "@/components/ui";
@@ -33,7 +34,8 @@ const NAV_COORDINATOR: NavItem[] = [
 ];
 
 const NAV_VRIJWILLIGER: NavItem[] = [
-  { href: "/vrijwilliger", icon: PlusSquare, label: "Registreren", exact: true },
+  { href: "/vrijwilliger/nieuw", icon: PlusCircle, label: "Nieuw", exact: true },
+  { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Mijn activiteiten" },
 ];
 
 const NAV_FAMILIE: NavItem[] = [
@@ -45,6 +47,12 @@ const NAV_MAP: Record<string, NavItem[]> = {
   COORDINATOR: NAV_COORDINATOR,
   VRIJWILLIGER: NAV_VRIJWILLIGER,
   FAMILIE: NAV_FAMILIE,
+};
+
+const ROL_HOME: Record<string, string> = {
+  COORDINATOR: "/coordinator",
+  VRIJWILLIGER: "/vrijwilliger",
+  FAMILIE: "/familie",
 };
 
 interface Props {
@@ -62,22 +70,24 @@ export default function AppShell({ rol, naam, children, nieuweAanmeldingen = 0 }
     <div className="min-h-screen bg-warm-50 flex flex-col">
       {/* Top bar */}
       <header className="fixed top-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-b border-warm-200 h-14 flex items-center px-4 max-w-lg mx-auto w-full">
-        <div className="flex items-center gap-2 flex-1">
+        <Link href={ROL_HOME[rol] ?? "/"} className="flex items-center gap-2 flex-1">
           <img src="/logo.svg" alt="Welzijnsklik" className="w-7 h-7" />
           <span className="font-semibold text-warm-900 text-[15px] tracking-tight">Welzijnsklik</span>
-        </div>
+        </Link>
         <div className="flex items-center gap-0.5">
-          <Link
-            href="/coordinator/meldingen"
-            className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
-          >
-            <Bell size={18} />
-            {nieuweAanmeldingen > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
-                {nieuweAanmeldingen > 9 ? "9+" : nieuweAanmeldingen}
-              </span>
-            )}
-          </Link>
+          {rol === "COORDINATOR" && (
+            <Link
+              href="/coordinator/meldingen"
+              className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
+            >
+              <Bell size={18} />
+              {nieuweAanmeldingen > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                  {nieuweAanmeldingen > 9 ? "9+" : nieuweAanmeldingen}
+                </span>
+              )}
+            </Link>
+          )}
           <Link
             href="/account"
             className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"

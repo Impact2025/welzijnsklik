@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
+import Link from "next/link";
 import { logActiviteit } from "@/lib/actions/activiteiten";
 import {
   Camera,
@@ -28,7 +29,7 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isRecording, setIsRecording] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<{ stop: () => void } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -53,19 +54,32 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
 
   // ─── Spraak-naar-tekst ───────────────────────────────────────────
   function startSpraakHerkenning() {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    const w = window as unknown as Record<string, unknown>;
+    const SpeechRecognitionCtor = (w.SpeechRecognition ?? w.webkitSpeechRecognition) as new () => {
+      start: () => void;
+      stop: () => void;
+      lang: string;
+      continuous: boolean;
+      interimResults: boolean;
+      maxAlternatives: number;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onresult: ((event: any) => void) | null;
+      onerror: (() => void) | null;
+      onend: (() => void) | null;
+    } | undefined;
+
+    if (!SpeechRecognitionCtor) {
       setError("Spraakherkenning wordt niet ondersteund in deze browser. Gebruik Chrome, Edge of Safari.");
       return;
     }
 
-    const recognition = new SpeechRecognition();
+    const recognition = new SpeechRecognitionCtor();
     recognition.lang = "nl-NL";
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     recognition.onresult = (event: any) => {
       let transcript = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -83,7 +97,7 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
       setIsRecording(false);
     };
 
-    recognitionRef.current = recognition;
+    recognitionRef.current = recognition as { stop: () => void };
     recognition.start();
     setIsRecording(true);
   }
@@ -152,6 +166,12 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
         >
           Nog een activiteit
         </button>
+        <Link
+          href="/vrijwilliger"
+          className="text-sm text-warm-400 hover:text-warm-600 transition-colors"
+        >
+          Terug naar overzicht
+        </Link>
       </div>
     );
   }
