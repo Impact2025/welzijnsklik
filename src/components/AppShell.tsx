@@ -65,6 +65,12 @@ const ROL_HOME: Record<string, string> = {
   FAMILIE: "/familie",
 };
 
+const ROL_NOTIFICATIES: Record<string, string> = {
+  COORDINATOR: "/coordinator/meldingen",
+  VRIJWILLIGER: "/vrijwilliger/meldingen",
+  FAMILIE: "/familie/notificaties",
+};
+
 interface Props {
   rol: string;
   naam?: string;
@@ -100,19 +106,17 @@ export default function AppShell({ rol, naam, profielFoto, children, notificatie
           <span className="font-semibold text-warm-900 text-[15px] tracking-tight">Welzijnsklik</span>
         </Link>
         <div className="flex items-center gap-0.5">
-          {notificatieHref && (
-            <Link
-              href={notificatieHref}
-              className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
-            >
-              <Bell size={18} />
-              {notificatieBadge > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
-                  {notificatieBadge > 9 ? "9+" : notificatieBadge}
-                </span>
-              )}
-            </Link>
-          )}
+          <Link
+            href={notificatieHref ?? (ROL_NOTIFICATIES[rol] ?? "#")}
+            className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
+          >
+            <Bell size={18} />
+            {notificatieBadge > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                {notificatieBadge > 9 ? "9+" : notificatieBadge}
+              </span>
+            )}
+          </Link>
           <Link
             href="/account"
             className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
