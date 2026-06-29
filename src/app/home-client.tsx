@@ -14,7 +14,7 @@ export default function HomeClient() {
             Welzijnsklik.nl
           </h1>
           <p className="text-neutral-500 text-base mt-2 max-w-sm mx-auto">
-            Verbindt vrijwilligers, bewoners en familie met één klik.
+            Verbindt vrijwilligers, bewoners en familie met één klik
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

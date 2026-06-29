@@ -9,7 +9,7 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: "Welzijnsklik — welzijn dichtbij",
-  description: "Vrijwilligers, bewoners en familie verbonden in de ouderenzorg",
+  description: "Verbindt vrijwilligers, bewoners en familie met één klik",
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Welzijnsklik",
-    description: "Welzijn dichtbij, altijd verbonden",
+    description: "Verbindt vrijwilligers, bewoners en familie met één klik",
     siteName: "Welzijnsklik",
     type: "website",
     locale: "nl_NL",

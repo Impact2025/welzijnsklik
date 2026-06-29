@@ -22,7 +22,7 @@ export default function DemoPage() {
             />
             <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Welzijnsklik</h1>
             <p className="text-warm-500 text-[15px] mt-2 leading-relaxed max-w-[240px]">
-              Verbindt ouderen, vrijwilligers&nbsp;&amp;&nbsp;familie
+              Verbindt vrijwilligers, bewoners en familie met één klik
             </p>
           </div>
 
