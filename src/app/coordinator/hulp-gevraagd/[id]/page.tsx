@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Users, Clock, Calendar, MessageSquare, UserCheck } from "lucide-react";
+import { ChevronLeft, Users, Clock, Calendar, MessageSquare, UserCheck, Pencil } from "lucide-react";
 import { ReactieKnopjes, StatusKnop } from "./ReactieActies";
 
 const STATUS_CFG: Record<string, { label: string; bg: string; kleur: string }> = {
@@ -63,14 +63,23 @@ export default async function HulpGevraagdDetailPage({
 
   return (
     <div className="px-4 py-6 space-y-5">
-      {/* Back */}
-      <Link
-        href="/coordinator/hulp-gevraagd"
-        className="inline-flex items-center gap-1 text-neutral-400 hover:text-neutral-600 text-sm transition-colors"
-      >
-        <ChevronLeft size={15} />
-        Hulp gevraagd
-      </Link>
+      {/* Back + bewerken */}
+      <div className="flex items-center justify-between">
+        <Link
+          href="/coordinator/hulp-gevraagd"
+          className="inline-flex items-center gap-1 text-neutral-400 hover:text-neutral-600 text-sm transition-colors"
+        >
+          <ChevronLeft size={15} />
+          Hulp gevraagd
+        </Link>
+        <Link
+          href={`/coordinator/hulp-gevraagd/${hulp.id}/bewerken`}
+          className="inline-flex items-center gap-1.5 text-sm font-semibold text-amber-600 hover:text-amber-700 transition-colors"
+        >
+          <Pencil size={14} />
+          Bewerken
+        </Link>
+      </div>
 
       {/* Hero foto */}
       {hulp.fotoUrl && (
