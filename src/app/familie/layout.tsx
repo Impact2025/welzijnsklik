@@ -13,7 +13,7 @@ export default async function FamilieLayout({
   }
 
   return (
-    <AppShell rol="FAMILIE" naam={session.user.naam ?? session.user.name ?? undefined}>
+    <AppShell rol="FAMILIE" naam={session.user.naam ?? session.user.name ?? undefined} profielFoto={session.user.profielFoto}>
       {children}
     </AppShell>
   );

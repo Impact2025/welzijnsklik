@@ -58,11 +58,12 @@ const ROL_HOME: Record<string, string> = {
 interface Props {
   rol: string;
   naam?: string;
+  profielFoto?: string | null;
   children: React.ReactNode;
   nieuweAanmeldingen?: number;
 }
 
-export default function AppShell({ rol, naam, children, nieuweAanmeldingen = 0 }: Props) {
+export default function AppShell({ rol, naam, profielFoto, children, nieuweAanmeldingen = 0 }: Props) {
   const pathname = usePathname();
   const navItems = NAV_MAP[rol] ?? [];
 
@@ -102,7 +103,7 @@ export default function AppShell({ rol, naam, children, nieuweAanmeldingen = 0 }
             <LogOut size={18} />
           </button>
           <Link href="/account" className="ml-1">
-            <Avatar naam={naam} size="sm" />
+            <Avatar naam={naam} src={profielFoto} size="sm" />
           </Link>
         </div>
       </header>

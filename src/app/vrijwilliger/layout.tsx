@@ -13,7 +13,7 @@ export default async function VrijwilligerLayout({
   }
 
   return (
-    <AppShell rol="VRIJWILLIGER" naam={session.user.naam ?? session.user.name ?? undefined}>
+    <AppShell rol="VRIJWILLIGER" naam={session.user.naam ?? session.user.name ?? undefined} profielFoto={session.user.profielFoto}>
       {children}
     </AppShell>
   );

@@ -92,6 +92,7 @@ model Gebruiker {
   userId        String      @unique
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  profielFoto      String?
   wervingsInteresses Wervingsinteresse[]
   emailVoorkeur    EmailVoorkeur?
   reacties         Reactie[]

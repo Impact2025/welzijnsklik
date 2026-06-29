@@ -11,6 +11,7 @@ declare module "next-auth" {
       rol?: Rol;
       organisatieId?: string;
       naam?: string;
+      profielFoto?: string | null;
     };
   }
 }

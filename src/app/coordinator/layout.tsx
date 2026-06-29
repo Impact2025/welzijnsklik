@@ -19,6 +19,7 @@ export default async function CoordinatorLayout({
     <AppShell
       rol="COORDINATOR"
       naam={session.user.naam ?? session.user.name ?? undefined}
+      profielFoto={session.user.profielFoto}
       nieuweAanmeldingen={nieuweAanmeldingen}
     >
       {children}

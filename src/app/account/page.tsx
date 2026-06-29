@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import SignOutButton from "@/components/SignOutButton";
 import EmailVoorkeurenForm from "@/components/EmailVoorkeurenForm";
+import ProfielFotoUpload from "@/components/ProfielFotoUpload";
 import { User, Building2, Shield, Download } from "lucide-react";
 
 const ROL_LABELS: Record<string, string> = {
@@ -56,13 +57,7 @@ export default async function AccountPage() {
       {/* Profile card */}
       <div className="bg-white rounded-2xl p-5 shadow-sm border border-neutral-100 space-y-4">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-amber-100 flex items-center justify-center">
-            <span className="text-amber-700 font-bold text-xl">
-              {naam
-                ? naam.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("")
-                : "?"}
-            </span>
-          </div>
+          <ProfielFotoUpload naam={naam} huidigeFoto={session.user.profielFoto} />
           <div>
             <p className="font-semibold text-gray-900">{naam ?? "—"}</p>
             <p className="text-sm text-neutral-500">{email ?? "—"}</p>

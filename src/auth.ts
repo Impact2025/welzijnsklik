@@ -43,13 +43,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   callbacks: {
     ...authConfig.callbacks,
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session: sessionData }) {
+      // session.update({ profielFoto: url }) vanuit client
+      if (trigger === "update" && sessionData?.profielFoto !== undefined) {
+        token.profielFoto = sessionData.profielFoto;
+        return token;
+      }
       if (user?.id && !token.gebruikerId) {
         console.log("[auth] jwt callback: userId =", user.id);
         try {
           const gebruiker = await prisma.gebruiker.findUnique({
             where: { userId: user.id },
-            select: { id: true, rol: true, organisatieId: true, naam: true },
+            select: { id: true, rol: true, organisatieId: true, naam: true, profielFoto: true },
           });
           console.log("[auth] jwt callback: gebruiker =", gebruiker);
           if (gebruiker) {
@@ -57,6 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.rol = gebruiker.rol as Rol;
             token.organisatieId = gebruiker.organisatieId;
             token.naam = gebruiker.naam;
+            token.profielFoto = gebruiker.profielFoto ?? null;
           }
         } catch (err) {
           console.error("[auth] jwt callback fout:", err);
@@ -71,6 +77,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.rol = token.rol as Rol | undefined;
         session.user.organisatieId = token.organisatieId as string | undefined;
         session.user.naam = token.naam as string | undefined;
+        session.user.profielFoto = token.profielFoto as string | null | undefined;
       }
       return session;
     },
