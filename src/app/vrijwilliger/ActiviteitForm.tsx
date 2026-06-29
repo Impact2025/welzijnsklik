@@ -6,6 +6,8 @@ import {
   Camera,
   CheckCircle2,
   X,
+  Mic,
+  StopCircle,
 } from "lucide-react";
 import { ACTIVITEIT_TYPES, DUUR_OPTIES } from "@/lib/activiteit";
 
@@ -25,6 +27,8 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -45,6 +49,49 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
   function verwijderFoto() {
     setFotoDataUrl(null);
     setFotoBlob(null);
+  }
+
+  // ─── Spraak-naar-tekst ───────────────────────────────────────────
+  function startSpraakHerkenning() {
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setError("Spraakherkenning wordt niet ondersteund in deze browser. Gebruik Chrome, Edge of Safari.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = "nl-NL";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event: any) => {
+      let transcript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        transcript += event.results[i][0].transcript;
+      }
+      setNotities((prev) => (prev + " " + transcript).trim());
+    };
+
+    recognition.onerror = () => {
+      setIsRecording(false);
+      setError("Spraakherkenning mislukt. Probeer opnieuw.");
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsRecording(true);
+  }
+
+  function stopSpraakHerkenning() {
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+    setIsRecording(false);
   }
 
   async function uploadFoto(blob: Blob): Promise<string> {
@@ -189,13 +236,33 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
         <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest">
           Notities <span className="text-neutral-300 font-normal normal-case">(optioneel)</span>
         </label>
-        <textarea
-          value={notities}
-          onChange={(e) => setNotities(e.target.value)}
-          rows={3}
-          placeholder="Bijzonderheden, sfeer, opmerkingen…"
-          className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50 resize-none"
-        />
+        <div className="relative">
+          <textarea
+            value={notities}
+            onChange={(e) => setNotities(e.target.value)}
+            rows={3}
+            placeholder="Bijzonderheden, sfeer, opmerkingen..."
+            className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50 resize-none"
+          />
+          <button
+            type="button"
+            onClick={isRecording ? stopSpraakHerkenning : startSpraakHerkenning}
+            className={`absolute bottom-2.5 right-2.5 w-8 h-8 flex items-center justify-center rounded-lg transition-all ${
+              isRecording
+                ? "bg-red-500 text-white shadow-sm animate-pulse"
+                : "text-neutral-400 hover:text-amber-600 hover:bg-amber-50"
+            }`}
+            title={isRecording ? "Stop opname" : "Spreek in plaats van typen"}
+          >
+            {isRecording ? <StopCircle size={16} /> : <Mic size={16} />}
+          </button>
+        </div>
+        {isRecording && (
+          <div className="flex items-center gap-2 text-xs text-red-500 font-medium">
+            <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+            Aan het luisteren... spreek rustig in
+          </div>
+        )}
       </div>
 
       {/* Foto — alleen als toestemmingFotos = true */}
