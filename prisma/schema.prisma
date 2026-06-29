@@ -91,6 +91,7 @@ model Gebruiker {
 
   wervingsInteresses Wervingsinteresse[]
   emailVoorkeur    EmailVoorkeur?
+  reacties         Reactie[]
 }
 
 model EmailVoorkeur {
@@ -146,6 +147,20 @@ model Activiteit {
   notities       String?
   fotoUrl        String?
   createdAt      DateTime  @default(now())
+  reacties       Reactie[]
+}
+
+model Reactie {
+  id            String    @id @default(cuid())
+  activiteitId  String
+  activiteit    Activiteit @relation(fields: [activiteitId], references: [id], onDelete: Cascade)
+  gebruikerId   String
+  gebruiker     Gebruiker @relation(fields: [gebruikerId], references: [id])
+  emoji         String    // bijv. "❤️", "😊", "👍"
+  bericht       String?   // optioneel tekstbericht
+  createdAt     DateTime  @default(now())
+
+  @@unique([activiteitId, gebruikerId, emoji]) // 1x dezelfde emoji per persoon
 }
 
 // AVG-logboek: elke fotoupload wordt gelogd voor audit trail

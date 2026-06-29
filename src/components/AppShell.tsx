@@ -11,9 +11,11 @@ import {
   Handshake,
   Bell,
   Settings,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
 import { Avatar } from "@/components/ui";
+import { signOut } from "next-auth/react";
 
 interface NavItem {
   href: string;
@@ -82,6 +84,13 @@ export default function AppShell({ rol, naam, children, nieuweAanmeldingen = 0 }
           >
             <Settings size={18} />
           </Link>
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-red-50 transition-colors text-warm-400 hover:text-red-500"
+            title="Uitloggen"
+          >
+            <LogOut size={18} />
+          </button>
           <Link href="/account" className="ml-1">
             <Avatar naam={naam} size="sm" />
           </Link>

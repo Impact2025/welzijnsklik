@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Handshake, Users2 } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
+import Reacties from "@/components/Reacties";
 
 export default async function FamilieTijdlijn() {
   const session = await auth();
@@ -19,6 +20,10 @@ export default async function FamilieTijdlijn() {
             take: 50,
             include: {
               vrijwilliger: { select: { naam: true } },
+              reacties: {
+                orderBy: { createdAt: "asc" },
+                include: { gebruiker: { select: { id: true, naam: true } } },
+              },
             },
           },
         },
@@ -74,28 +79,42 @@ export default async function FamilieTijdlijn() {
                 return (
                   <div
                     key={a.id}
-                    className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 flex gap-3"
+                    className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4"
                   >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg}`}>
-                      <Icon size={16} className={cfg.kleur} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-900 text-sm">{a.type}</p>
-                      <p className="text-xs text-neutral-500 mt-0.5">
-                        met {a.vrijwilliger.naam} · {a.duurMinuten} min ·{" "}
-                        {formatDatum(new Date(a.createdAt), { weekday: "short", day: "numeric", month: "short" })}
-                      </p>
-                      {a.notities && (
-                        <p className="text-sm text-gray-700 mt-1.5 leading-snug">{a.notities}</p>
+                    <div className="flex gap-3">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.bg}`}>
+                        <Icon size={16} className={cfg.kleur} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 text-sm">{a.type}</p>
+                        <p className="text-xs text-neutral-500 mt-0.5">
+                          met {a.vrijwilliger.naam} · {a.duurMinuten} min ·{" "}
+                          {formatDatum(new Date(a.createdAt), { weekday: "short", day: "numeric", month: "short" })}
+                        </p>
+                        {a.notities && (
+                          <p className="text-sm text-gray-700 mt-1.5 leading-snug">{a.notities}</p>
+                        )}
+                      </div>
+                      {a.fotoUrl && bewoner.toestemmingFotos && (
+                        <img
+                          src={getFotoUrl(a.fotoUrl, bewoner.id) ?? ""}
+                          alt=""
+                          className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
+                        />
                       )}
                     </div>
-                    {a.fotoUrl && bewoner.toestemmingFotos && (
-                      <img
-                        src={getFotoUrl(a.fotoUrl, bewoner.id) ?? ""}
-                        alt=""
-                        className="w-14 h-14 rounded-xl object-cover flex-shrink-0"
-                      />
-                    )}
+                    <Reacties
+                      activiteitId={a.id}
+                      reacties={a.reacties.map((r) => ({
+                        id: r.id,
+                        emoji: r.emoji,
+                        bericht: r.bericht,
+                        createdAt: r.createdAt,
+                        gebruiker: { id: r.gebruiker.id, naam: r.gebruiker.naam },
+                      }))}
+                      gebruikersId={session!.user.gebruikerId!}
+                      gebruikersNaam={session!.user.naam ?? session!.user.name ?? "Ik"}
+                    />
                   </div>
                 );
               })}
