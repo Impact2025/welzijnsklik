@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ToestemmingForm from "./ToestemmingForm";
-import { ArrowLeft, Camera, Activity, ClipboardList } from "lucide-react";
+import { FamilieSection } from "./FamilieSection";
+import { ArrowLeft, Camera, Activity, ClipboardList, Home } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
 
@@ -26,6 +27,11 @@ export default async function BewonderDetail({
       toestemmingsLog: {
         orderBy: { createdAt: "desc" },
         take: 10,
+      },
+      familieleden: {
+        include: {
+          gebruiker: { select: { id: true, naam: true, email: true, telefoon: true } },
+        },
       },
     },
   });
@@ -51,10 +57,43 @@ export default async function BewonderDetail({
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900">{bewoner.naam}</h1>
-            <p className="text-sm text-neutral-500">{bewoner.activiteiten.length} activiteiten</p>
+            <div className="flex items-center gap-3 mt-0.5">
+              {bewoner.kamer && (
+                <span className="text-sm text-neutral-500 flex items-center gap-1">
+                  <Home size={12} />
+                  {bewoner.kamer}
+                </span>
+              )}
+              {bewoner.geboortedatum && (
+                <span className="text-sm text-neutral-500">
+                  {new Date().getFullYear() - new Date(bewoner.geboortedatum).getFullYear()} jaar
+                </span>
+              )}
+              <span className="text-sm text-neutral-500">{bewoner.activiteiten.length} activiteiten</span>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Notities */}
+      {bewoner.notities && (
+        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4">
+          <p className="text-xs font-semibold text-amber-700 uppercase tracking-widest mb-1">Bijzonderheden</p>
+          <p className="text-sm text-amber-900">{bewoner.notities}</p>
+        </div>
+      )}
+
+      {/* Familie */}
+      <FamilieSection
+        bewonerId={bewoner.id}
+        familieleden={bewoner.familieleden.map((fk) => ({
+          id: fk.gebruiker.id,
+          naam: fk.gebruiker.naam,
+          email: fk.gebruiker.email,
+          telefoon: fk.gebruiker.telefoon,
+          relatie: fk.relatie,
+        }))}
+      />
 
       {/* Toestemming */}
       <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 space-y-4">

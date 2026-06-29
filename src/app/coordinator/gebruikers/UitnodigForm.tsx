@@ -2,7 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { UserPlus, Loader2, CheckCircle2, X } from "lucide-react";
+import { UserPlus, Loader2, X } from "lucide-react";
+import { nodigGebruikerUit } from "@/lib/actions/gebruikers";
+import { signIn } from "next-auth/react";
 
 interface Props {
   organisatieId: string;
@@ -10,45 +12,30 @@ interface Props {
 
 const ROL_OPTIES = [
   { value: "VRIJWILLIGER", label: "Vrijwilliger" },
-  { value: "FAMILIE", label: "Familie" },
   { value: "COORDINATOR", label: "Coördinator" },
 ];
 
 export function UitnodigForm({}: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [naam, setNaam] = useState("");
-  const [rol, setRol] = useState("VRIJWILLIGER");
-  const [isPending, startTransition] = useTransition();
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    if (!email.trim() || !naam.trim()) {
-      setError("Vul alle velden in.");
-      return;
-    }
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+
     startTransition(async () => {
       try {
-        const { signIn } = await import("next-auth/react");
-        const res = await signIn("resend", {
-          email,
-          redirect: false,
-        });
-        if (res?.error) {
-          setError(`Kon geen e-mail sturen: ${res.error}`);
-          return;
-        }
+        await nodigGebruikerUit(formData);
+        await signIn("resend", { email, redirect: false });
         setSuccess(true);
         setTimeout(() => {
           setOpen(false);
           setSuccess(false);
-          setEmail("");
-          setNaam("");
-          setRol("VRIJWILLIGER");
           router.refresh();
         }, 2000);
       } catch (err) {
@@ -85,10 +72,9 @@ export function UitnodigForm({}: Props) {
         {success ? (
           <div className="py-6 text-center space-y-2">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-2xl">
-              <CheckCircle2 size={22} className="text-emerald-600" />
+              <span className="text-2xl">✓</span>
             </div>
             <p className="font-semibold text-gray-900">Uitnodiging verstuurd!</p>
-            <p className="text-sm text-neutral-500">{email} ontvangt een inloglink.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-3">
@@ -97,37 +83,45 @@ export function UitnodigForm({}: Props) {
             )}
             <div>
               <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1.5">
-                E-mailadres
+                Naam <span className="text-red-400">*</span>
               </label>
               <input
-                type="email"
+                name="naam"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="naam@organisatie.nl"
-                className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1.5">
-                Volledige naam
-              </label>
-              <input
-                type="text"
-                required
-                value={naam}
-                onChange={(e) => setNaam(e.target.value)}
                 placeholder="bijv. Jan de Vries"
                 className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
               />
             </div>
             <div>
               <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1.5">
-                Rol
+                E-mailadres <span className="text-red-400">*</span>
+              </label>
+              <input
+                name="email"
+                type="email"
+                required
+                placeholder="naam@email.nl"
+                className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1.5">
+                Telefoonnummer
+              </label>
+              <input
+                name="telefoon"
+                type="tel"
+                placeholder="06-12345678"
+                className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest mb-1.5">
+                Rol <span className="text-red-400">*</span>
               </label>
               <select
-                value={rol}
-                onChange={(e) => setRol(e.target.value)}
+                name="rol"
+                defaultValue="VRIJWILLIGER"
                 className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
               >
                 {ROL_OPTIES.map((r) => (

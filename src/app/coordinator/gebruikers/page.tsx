@@ -1,7 +1,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Users } from "lucide-react";
+import { Users, ChevronRight } from "lucide-react";
+import Link from "next/link";
 import { UitnodigForm } from "./UitnodigForm";
 
 const ROL_LABELS: Record<string, string> = {
@@ -57,7 +58,11 @@ export default async function GebruikersBeheerPage() {
         ) : (
           <div className="divide-y divide-neutral-50">
             {gebruikers.map((g) => (
-              <div key={g.id} className="flex items-center gap-3 px-4 py-3.5">
+              <Link
+                key={g.id}
+                href={`/coordinator/gebruikers/${g.id}`}
+                className="flex items-center gap-3 px-4 py-3.5 hover:bg-neutral-50 transition-colors group"
+              >
                 <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
                   <span className="text-amber-700 font-bold text-xs">
                     {g.naam.split(" ").filter(Boolean).slice(0, 2).map((w) => w[0].toUpperCase()).join("")}
@@ -73,7 +78,8 @@ export default async function GebruikersBeheerPage() {
                 {!g.user.emailVerified && (
                   <span className="text-[10px] text-amber-600 font-semibold flex-shrink-0">Nog niet ingelogd</span>
                 )}
-              </div>
+                <ChevronRight size={14} className="text-neutral-300 group-hover:text-neutral-400 flex-shrink-0" />
+              </Link>
             ))}
           </div>
         )}

@@ -81,6 +81,9 @@ model Gebruiker {
   rol           Rol
   organisatieId String
   organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  telefoon      String?
+  voorkeurActiviteiten String[]
+  interneNotities      String?   @db.Text
   activiteiten  Activiteit[]       @relation("VrijwilligerActiviteiten")
   familieVan    FamilieKoppeling[]
   createdAt     DateTime    @default(now())
@@ -108,6 +111,9 @@ model Bewoner {
   naam               String
   organisatieId      String
   organisatie        Organisatie @relation(fields: [organisatieId], references: [id])
+  kamer              String?
+  geboortedatum      DateTime?
+  notities           String?     @db.Text
   toestemmingFotos   Boolean     @default(false)
   toestemmingDoor    String?
   toestemmingDatum   DateTime?

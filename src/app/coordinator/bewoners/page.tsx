@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Users, Camera, ChevronRight, Activity } from "lucide-react";
+import { NieuwBewonersForm } from "./NieuwBewonersForm";
 
 export default async function BewonersOverzicht() {
   const session = await auth();
@@ -17,9 +18,12 @@ export default async function BewonersOverzicht() {
 
   return (
     <div className="px-4 py-6 space-y-5">
-      <div>
-        <h1 className="text-xl font-bold text-gray-900">Bewoners</h1>
-        <p className="text-sm text-neutral-500 mt-0.5">{bewoners.length} bewoners in De Meerwende</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900">Bewoners</h1>
+          <p className="text-sm text-neutral-500 mt-0.5">{bewoners.length} bewoners in De Meerwende</p>
+        </div>
+        <NieuwBewonersForm />
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">

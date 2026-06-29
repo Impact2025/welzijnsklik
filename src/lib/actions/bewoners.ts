@@ -73,6 +73,37 @@ export async function updateToestemming(
   revalidatePath("/coordinator");
 }
 
+export async function maakBewoner(formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.organisatieId || session.user.rol !== "COORDINATOR") {
+    throw new Error("Niet geautoriseerd");
+  }
+
+  const naam = (formData.get("naam") as string | null)?.trim() ?? "";
+  const kamer = (formData.get("kamer") as string | null)?.trim() || null;
+  const geboortedatumRaw = (formData.get("geboortedatum") as string | null)?.trim();
+  const notities = (formData.get("notities") as string | null)?.trim() || null;
+
+  if (!naam) throw new Error("Naam is verplicht");
+
+  const geboortedatum = geboortedatumRaw ? new Date(geboortedatumRaw) : null;
+
+  const bewoner = await prisma.bewoner.create({
+    data: {
+      naam,
+      kamer,
+      geboortedatum,
+      notities,
+      organisatieId: session.user.organisatieId,
+    },
+  });
+
+  revalidatePath("/coordinator/bewoners");
+  revalidatePath("/coordinator");
+
+  return bewoner.id;
+}
+
 export async function getBewonersVoorOrganisatie() {
   const session = await auth();
   if (!session?.user?.organisatieId) throw new Error("Niet geautoriseerd");
