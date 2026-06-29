@@ -26,8 +26,8 @@ interface NavItem {
 
 const NAV_COORDINATOR: NavItem[] = [
   { href: "/coordinator", icon: LayoutDashboard, label: "Dashboard", exact: true },
+  { href: "/coordinator/tijdlijn", icon: FileText, label: "Tijdlijn" },
   { href: "/coordinator/bewoners", icon: Users, label: "Bewoners" },
-  { href: "/coordinator/briefjes", icon: FileText, label: "Briefjes" },
   { href: "/coordinator/meldingen", icon: Bell, label: "Meldingen" },
   { href: "/coordinator/gebruikers", icon: Settings, label: "Team" },
 ];

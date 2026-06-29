@@ -1,8 +1,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { ChevronRight, Activity, UserPlus, Users, UserCheck } from "lucide-react";
-import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
+import { ChevronRight, Activity, UserPlus, Users, UserCheck, Clock } from "lucide-react";
+import { ACTIVITEIT_ICON, formatDatum, formatDuur } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
 import { StatCard, EmptyState } from "@/components/ui";
 
@@ -19,7 +19,7 @@ function ActiviteitIcon({ type }: { type: string }) {
 export default async function CoordinatorDashboard() {
   const session = await auth();
   const organisatieId = session!.user.organisatieId!;
-  const naam = session!.user.naam ?? session!.user.name ?? "Coördinator";
+  const naam = session!.user.naam ?? session!.user.name ?? "Coordinator";
   const voornaam = naam.split(" ")[0];
 
   const now = new Date();
@@ -29,7 +29,7 @@ export default async function CoordinatorDashboard() {
     prisma.activiteit.findMany({
       where: { bewoner: { organisatieId } },
       include: {
-        bewoner: { select: { naam: true } },
+        bewoner: { select: { naam: true, toestemmingFotos: true } },
         vrijwilliger: { select: { naam: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -39,6 +39,11 @@ export default async function CoordinatorDashboard() {
     prisma.gebruiker.count({ where: { organisatieId, rol: "VRIJWILLIGER" } }),
     prisma.wervingsinteresse.count({ where: { status: "nieuw", gebruiker: { organisatieId } } }),
   ]);
+
+  // Nieuwste activiteit met foto
+  const laatsteMetFoto = activiteiten.find(
+    (a) => a.fotoUrl && a.bewoner.toestemmingFotos
+  );
 
   // Grafiek data: activiteiten per dag (deze maand)
   const activiteitenDezeMaand = activiteiten.filter(
@@ -69,7 +74,7 @@ export default async function CoordinatorDashboard() {
   const stats = [
     { label: "Bewoners", value: bewoners, icon: Users, href: "/coordinator/bewoners", variant: "info" as const },
     { label: "Vrijwilligers", value: vrijwilligers, icon: UserCheck, href: "/coordinator/gebruikers", variant: "success" as const },
-    { label: "Activiteiten", value: activiteiten.length, icon: Activity, href: "/coordinator/briefjes", variant: "warning" as const },
+    { label: "Activiteiten", value: activiteiten.length, icon: Activity, href: "/coordinator/tijdlijn", variant: "warning" as const },
     { label: "Aanmeldingen", value: interesses, icon: UserPlus, href: "/coordinator/meldingen", variant: "violet" as const },
   ];
 
@@ -80,6 +85,77 @@ export default async function CoordinatorDashboard() {
         <h1 className="text-xl font-bold text-gray-900">Goeiedag, {voornaam}</h1>
         <p className="text-sm text-neutral-500 mt-0.5">Hier is een overzicht van vandaag</p>
       </div>
+
+      {/* ─── Laatste foto — groot en pro ─── */}
+      {laatsteMetFoto && (
+        <Link
+          href="/coordinator/tijdlijn"
+          className="block bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden hover:shadow-md transition-shadow group"
+        >
+          <div className="relative w-full aspect-[16/9] bg-warm-100 overflow-hidden">
+            <img
+              src={getFotoUrl(laatsteMetFoto.fotoUrl, laatsteMetFoto.bewonerId) ?? ""}
+              alt=""
+              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+            />
+            {/* Type badge */}
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-white/90 backdrop-blur rounded-full px-3 py-1.5 shadow-sm">
+              {(() => {
+                const cfg = ACTIVITEIT_ICON[laatsteMetFoto.type] ?? ACTIVITEIT_ICON.Anders;
+                const Icon = cfg.icon;
+                return (
+                  <>
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${cfg.bg}`}>
+                      <Icon size={12} className={cfg.kleur} />
+                    </div>
+                    <span className="text-xs font-bold text-gray-800">{laatsteMetFoto.type}</span>
+                  </>
+                );
+              })()}
+            </div>
+            {/* Gradient onderaan */}
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
+            {/* Naam en tijd op de foto */}
+            <div className="absolute bottom-3 left-3 right-3">
+              <p className="text-white font-bold text-sm drop-shadow-sm">
+                {laatsteMetFoto.vrijwilliger.naam}
+                <span className="font-normal opacity-80"> bij </span>
+                {laatsteMetFoto.bewoner.naam}
+              </p>
+              <p className="text-white/80 text-xs mt-0.5 drop-shadow-sm flex items-center gap-1.5">
+                <Clock size={11} />
+                {formatDuur(laatsteMetFoto.duurMinuten)}
+                <span className="opacity-50">·</span>
+                {formatDatum(new Date(laatsteMetFoto.createdAt), {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+            </div>
+          </div>
+          {/* Notities */}
+          {laatsteMetFoto.notities && (
+            <div className="p-4">
+              <div className="bg-warm-50 rounded-xl p-3.5 border border-warm-100">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-1 h-full min-h-[20px] bg-brand-500 rounded-full flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] font-semibold text-warm-500 uppercase tracking-wider mb-0.5">
+                      {laatsteMetFoto.vrijwilliger.naam}
+                    </p>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {laatsteMetFoto.notities}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </Link>
+      )}
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3">
@@ -153,7 +229,7 @@ export default async function CoordinatorDashboard() {
         <div className="px-4 py-3.5 flex items-center justify-between border-b border-neutral-50">
           <h2 className="font-semibold text-gray-900 text-[15px]">Recente activiteiten</h2>
           <Link
-            href="/coordinator/briefjes"
+            href="/coordinator/tijdlijn"
             className="text-amber-600 text-xs font-semibold flex items-center gap-0.5"
           >
             Alles <ChevronRight size={13} />
@@ -163,7 +239,7 @@ export default async function CoordinatorDashboard() {
           <EmptyState icon={Activity} title="Nog geen activiteiten geregistreerd." />
         ) : (
           <div className="divide-y divide-neutral-50">
-            {activiteiten.map((a) => (
+            {activiteiten.slice(0, 5).map((a) => (
               <div key={a.id} className="px-4 py-3 flex items-center gap-3">
                 <ActiviteitIcon type={a.type} />
                 <div className="flex-1 min-w-0">
