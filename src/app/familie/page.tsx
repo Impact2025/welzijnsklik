@@ -1,8 +1,8 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Handshake, Users2 } from "lucide-react";
-import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
+import { Handshake, Users2, Clock } from "lucide-react";
+import { ACTIVITEIT_ICON, formatDatum, formatDuur } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
 import Reacties from "@/components/Reacties";
 
@@ -41,7 +41,7 @@ export default async function FamilieTijdlijn() {
           <div>
             <p className="font-semibold text-gray-900">Nog niet gekoppeld</p>
             <p className="text-neutral-500 text-sm mt-1">
-              Neem contact op met de coördinator om gekoppeld te worden aan een bewoner.
+              Neem contact op met de coordinator om gekoppeld te worden aan een bewoner.
             </p>
           </div>
         </div>
@@ -49,8 +49,80 @@ export default async function FamilieTijdlijn() {
     );
   }
 
+  // Vind de nieuwste activiteit met foto over al je gekoppelde bewoners
+  const alleActiviteiten = koppelingen.flatMap((k) =>
+    k.bewoner.activiteiten.map((a) => ({ ...a, bewonerNaam: k.bewoner.naam, toestemmingFotos: k.bewoner.toestemmingFotos }))
+  );
+  const laatsteMetFoto = alleActiviteiten.find(
+    (a) => a.fotoUrl && a.toestemmingFotos
+  );
+  const laatsteCfg = laatsteMetFoto
+    ? ACTIVITEIT_ICON[laatsteMetFoto.type] ?? ACTIVITEIT_ICON.Anders
+    : null;
+  const LaatsteIcon = laatsteCfg?.icon;
+
   return (
     <div className="px-4 py-6 space-y-6">
+
+      {/* ─── Laatste foto — groot en pro ─── */}
+      {laatsteMetFoto && (
+        <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
+          <div className="relative w-full aspect-[16/9] bg-warm-100 overflow-hidden">
+            <img
+              src={getFotoUrl(laatsteMetFoto.fotoUrl, laatsteMetFoto.bewonerId) ?? ""}
+              alt=""
+              className="w-full h-full object-cover"
+            />
+            {/* Type badge */}
+            <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-white/90 backdrop-blur rounded-full px-3 py-1.5 shadow-sm">
+              <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${laatsteCfg!.bg}`}>
+                {LaatsteIcon && <LaatsteIcon size={12} className={laatsteCfg!.kleur} />}
+              </div>
+              <span className="text-xs font-bold text-gray-800">{laatsteMetFoto.type}</span>
+            </div>
+            {/* Gradient onderaan */}
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
+            <div className="absolute bottom-3 left-3 right-3">
+              <p className="text-white font-bold text-sm drop-shadow-sm">
+                {laatsteMetFoto.vrijwilliger.naam}
+                <span className="font-normal opacity-80"> bij </span>
+                {laatsteMetFoto.bewonerNaam}
+              </p>
+              <p className="text-white/80 text-xs mt-0.5 drop-shadow-sm flex items-center gap-1.5">
+                <Clock size={11} />
+                {formatDuur(laatsteMetFoto.duurMinuten)}
+                <span className="opacity-50">·</span>
+                {formatDatum(new Date(laatsteMetFoto.createdAt), {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+            </div>
+          </div>
+          {/* Notities */}
+          {laatsteMetFoto.notities && (
+            <div className="p-4">
+              <div className="bg-warm-50 rounded-xl p-3.5 border border-warm-100">
+                <div className="flex items-start gap-2.5">
+                  <div className="w-1 h-full min-h-[20px] bg-brand-500 rounded-full flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-[10px] font-semibold text-warm-500 uppercase tracking-wider mb-0.5">
+                      {laatsteMetFoto.vrijwilliger.naam}
+                    </p>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      {laatsteMetFoto.notities}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {koppelingen.map(({ bewoner, relatie }) => (
         <div key={bewoner.id} className="space-y-4">
           {/* Bewoner header */}
