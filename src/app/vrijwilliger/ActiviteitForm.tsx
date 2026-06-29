@@ -55,7 +55,7 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
   // ─── Spraak-naar-tekst ───────────────────────────────────────────
   function startSpraakHerkenning() {
     const w = window as unknown as Record<string, unknown>;
-    const SpeechRecognitionCtor = (w.SpeechRecognition ?? w.webkitSpeechRecognition) as new () => {
+    const SpeechRecognitionCtor = (w.SpeechRecognition ?? w.webkitSpeechRecognition) as (new () => {
       start: () => void;
       stop: () => void;
       lang: string;
@@ -66,7 +66,7 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
       onresult: ((event: any) => void) | null;
       onerror: (() => void) | null;
       onend: (() => void) | null;
-    } | undefined;
+    }) | undefined;
 
     if (!SpeechRecognitionCtor) {
       setError("Spraakherkenning wordt niet ondersteund in deze browser. Gebruik Chrome, Edge of Safari.");
