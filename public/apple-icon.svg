@@ -1,5 +1,12 @@
-<svg width="180" height="180" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <circle cx="60" cy="60" r="58" fill="#e5a500"/>
-  <path d="M 60 20 C 40 20, 22 35, 22 55 C 22 65, 26 74, 33 81 L 48 96 C 50 98, 53 98, 55 96 L 60 91 L 65 96 C 67 98, 70 98, 72 96 L 87 81 C 94 74, 98 65, 98 55 C 98 35, 80 20, 60 20 Z" fill="white" opacity="0.95"/>
-  <path d="M 48 45 L 52 62 L 56 50 L 60 62 L 64 50 L 68 62 L 72 45" stroke="#e5a500" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Subtiele achtergrondcirkel -->
+  <circle cx="60" cy="60" r="58" fill="#f5f2ed" stroke="#e8e3db" stroke-width="1"/>
+  <!-- Hart-cursor hybride -->
+  <path d="M 60 20 C 40 20, 22 35, 22 55 C 22 65, 26 74, 33 81 L 48 96 C 50 98, 53 98, 55 96 L 60 91 L 65 96 C 67 98, 70 98, 72 96 L 87 81 C 94 74, 98 65, 98 55 C 98 35, 80 20, 60 20 Z" fill="#e5a500" opacity="0.85"/>
+  <!-- Cursor-accent -->
+  <path d="M 35 38 L 28 45 C 26 47, 26 50, 28 52 L 35 59 C 37 61, 40 61, 42 59 L 49 52 C 51 50, 51 47, 49 45 L 42 38 C 40 36, 37 36, 35 38 Z" fill="#d97706" opacity="0.6"/>
+  <!-- Verborgen W in negatieve ruimte -->
+  <path d="M 48 45 L 52 62 L 56 50 L 60 62 L 64 50 L 68 62 L 72 45" stroke="#faf8f5" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Hartpuntje -->
+  <path d="M 60 82 C 56 86, 50 90, 48 92 C 44 95, 42 98, 48 100 C 54 102, 58 98, 60 95 C 62 98, 66 102, 72 100 C 78 98, 76 95, 72 92 C 70 90, 64 86, 60 82 Z" fill="#d97706" opacity="0.7"/>
 </svg>

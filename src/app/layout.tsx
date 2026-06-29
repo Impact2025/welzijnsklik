@@ -22,6 +22,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "nl_NL",
   },
+  alternates: {
+    canonical: "/",
+  },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -31,6 +40,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="nl" className={`${geist.variable} h-full antialiased`}>
+      <head>
+        <link rel="icon" type="image/png" href="/logo.png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
+      </head>
       <body className="min-h-full flex flex-col font-sans">{children}</body>
     </html>
   );
