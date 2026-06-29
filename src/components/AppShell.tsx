@@ -14,6 +14,7 @@ import {
   LogOut,
   Clock,
   Megaphone,
+  MessageSquare,
   type LucideIcon,
 } from "lucide-react";
 import { Avatar } from "@/components/ui";
@@ -31,12 +32,14 @@ const NAV_COORDINATOR: NavItem[] = [
   { href: "/coordinator/agenda", icon: CalendarDays, label: "Agenda" },
   { href: "/coordinator/bewoners", icon: Users, label: "Bewoners" },
   { href: "/coordinator/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
+  { href: "/coordinator/berichten", icon: MessageSquare, label: "Chat" },
   { href: "/coordinator/meldingen", icon: Bell, label: "Meldingen" },
 ];
 
 const NAV_VRIJWILLIGER: NavItem[] = [
   { href: "/vrijwilliger", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/vrijwilliger/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
+  { href: "/vrijwilliger/berichten", icon: MessageSquare, label: "Chat" },
   { href: "/vrijwilliger/nieuw", icon: PlusCircle, label: "Nieuw", exact: true },
   { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Activiteiten" },
 ];
@@ -69,16 +72,19 @@ interface Props {
   notificatieBadge?: number;
   nieuweHulpReacties?: number;
   openHulpVragen?: number;
+  ongelezeBerichten?: number;
 }
 
-export default function AppShell({ rol, naam, profielFoto, children, notificatieHref, notificatieBadge = 0, nieuweHulpReacties = 0, openHulpVragen = 0 }: Props) {
+export default function AppShell({ rol, naam, profielFoto, children, notificatieHref, notificatieBadge = 0, nieuweHulpReacties = 0, openHulpVragen = 0, ongelezeBerichten = 0 }: Props) {
   const pathname = usePathname();
   const navItems = NAV_MAP[rol] ?? [];
 
   const navBadge: Record<string, number> = {
     "/coordinator/meldingen": notificatieBadge,
     "/coordinator/hulp-gevraagd": nieuweHulpReacties,
+    "/coordinator/berichten": ongelezeBerichten,
     "/vrijwilliger/hulp-gevraagd": openHulpVragen,
+    "/vrijwilliger/berichten": ongelezeBerichten,
     "/familie/notificaties": notificatieBadge,
   };
 
