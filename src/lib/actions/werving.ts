@@ -2,15 +2,23 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import { sendEmail, wervingHtml } from "@/lib/email";
 
 export async function meldWervingsinteresse(bericht: string) {
   const session = await auth();
   if (!session?.user?.gebruikerId || session.user.rol !== "FAMILIE") {
     throw new Error("Niet geautoriseerd");
   }
+
+  // Haal organisatienaam op
+  const gebruiker = await prisma.gebruiker.findUnique({
+    where: { id: session.user.gebruikerId },
+    select: {
+      organisatie: { select: { naam: true } },
+      naam: true,
+      email: true,
+    },
+  });
 
   const interesse = await prisma.wervingsinteresse.create({
     data: {
@@ -19,7 +27,7 @@ export async function meldWervingsinteresse(bericht: string) {
     },
   });
 
-  // Stuur notificatie naar alle coördinatoren van de organisatie
+  // Stuur prachtige notificatie naar alle coördinatoren
   const coordinatoren = await prisma.gebruiker.findMany({
     where: {
       organisatieId: session.user.organisatieId,
@@ -28,17 +36,18 @@ export async function meldWervingsinteresse(bericht: string) {
     select: { email: true, naam: true },
   });
 
-  if (coordinatoren.length > 0) {
-    await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL ?? "noreply@welzijnsklik.nl",
+  if (coordinatoren.length > 0 && gebruiker) {
+    const html = wervingHtml(
+      gebruiker.naam ?? session.user.naam ?? "Onbekend",
+      gebruiker.email ?? session.user.email ?? "",
+      bericht,
+      gebruiker.organisatie.naam
+    );
+
+    await sendEmail({
       to: coordinatoren.map((c) => c.email),
-      subject: "Nieuwe aanmelding samenzorg-vrijwilliger — Welzijnsklik",
-      html: `
-        <h2>Nieuwe wervingsinteresse</h2>
-        <p><strong>${session.user.naam ?? session.user.email}</strong> heeft zich aangemeld als samenzorg-vrijwilliger.</p>
-        ${bericht ? `<p><em>Bericht:</em><br>${bericht}</p>` : ""}
-        <p>Log in op Welzijnsklik om op te volgen.</p>
-      `,
+      subject: `🙌 Nieuwe aanmelding: ${gebruiker.naam ?? "Iemand"} wil helpen`,
+      html,
     });
   }
 

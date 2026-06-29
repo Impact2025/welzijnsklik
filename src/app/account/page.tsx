@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import SignOutButton from "@/components/SignOutButton";
+import EmailVoorkeurenForm from "@/components/EmailVoorkeurenForm";
 import { User, Building2, Shield, Download } from "lucide-react";
 
 const ROL_LABELS: Record<string, string> = {
@@ -14,14 +15,15 @@ export default async function AccountPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const { naam, email, rol, organisatieId } = session.user as {
+  const { naam, email, rol, organisatieId, gebruikerId } = session.user as {
     naam?: string;
     email?: string;
     rol?: string;
     organisatieId?: string;
+    gebruikerId?: string;
   };
 
-  // Dynamische organisatienaam uit de database
+  // Dynamische organisatienaam
   let organisatieNaam = "—";
   if (organisatieId) {
     const org = await prisma.organisatie.findUnique({
@@ -31,8 +33,21 @@ export default async function AccountPage() {
     if (org) organisatieNaam = org.naam;
   }
 
+  // Email voorkeuren
+  let emailActiviteiten = true;
+  let emailDigest = true;
+  if (gebruikerId) {
+    const voorkeur = await prisma.emailVoorkeur.findUnique({
+      where: { gebruikerId },
+    });
+    if (voorkeur) {
+      emailActiviteiten = voorkeur.activiteiten;
+      emailDigest = voorkeur.wekelijkseDigest;
+    }
+  }
+
   return (
-    <div className="px-4 py-6 space-y-6">
+    <div className="px-4 py-6 space-y-5">
       <div>
         <h1 className="text-xl font-bold text-gray-900">Account</h1>
         <p className="text-sm text-neutral-500 mt-0.5">Jouw profiel en instellingen</p>
@@ -79,7 +94,10 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      {/* Uitloggen & Data-export */}
+      {/* Email voorkeuren */}
+      <EmailVoorkeurenForm initial={{ activiteiten: emailActiviteiten, wekelijkseDigest: emailDigest }} />
+
+      {/* AVG export */}
       <div className="bg-white rounded-2xl p-5 shadow-sm border border-neutral-100 space-y-3">
         <p className="text-sm text-neutral-500 mb-1">
           Je bent ingelogd als <strong className="text-gray-800">{naam}</strong>.
@@ -93,8 +111,6 @@ export default async function AccountPage() {
         </a>
         <SignOutButton className="w-full flex items-center justify-center gap-2 bg-neutral-100 hover:bg-red-50 hover:text-red-600 text-neutral-700 font-medium py-3 rounded-xl text-sm transition-colors" />
       </div>
-
-      <p className="text-center text-xs text-neutral-400">Welzijnsklik MVP · De Meerwende</p>
     </div>
   );
 }

@@ -90,6 +90,16 @@ model Gebruiker {
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   wervingsInteresses Wervingsinteresse[]
+  emailVoorkeur    EmailVoorkeur?
+}
+
+model EmailVoorkeur {
+  id              String   @id @default(cuid())
+  gebruikerId     String   @unique
+  gebruiker       Gebruiker @relation(fields: [gebruikerId], references: [id], onDelete: Cascade)
+  activiteiten    Boolean  @default(true)  // notificatie bij nieuwe activiteiten (familie)
+  wekelijkseDigest Boolean @default(true)  // wekelijkse samenvatting (coordinators)
+  gewijzigdOp     DateTime @default(now()) @updatedAt
 }
 
 model Bewoner {

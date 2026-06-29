@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sendEmail, toestemmingHtml, welkomHtml } from "@/lib/email";
 
 export async function updateToestemming(
   bewonerId: string,
@@ -14,14 +15,9 @@ export async function updateToestemming(
     throw new Error("Niet geautoriseerd");
   }
 
-  // Controleer dat bewoner tot dezelfde organisatie behoort
   const bewoner = await prisma.bewoner.findFirst({
-    where: {
-      id: bewonerId,
-      organisatieId: session.user.organisatieId,
-    },
+    where: { id: bewonerId, organisatieId: session.user.organisatieId },
   });
-
   if (!bewoner) throw new Error("Bewoner niet gevonden");
 
   await prisma.$transaction([
@@ -33,7 +29,6 @@ export async function updateToestemming(
         toestemmingDatum: toestemmingFotos ? new Date() : null,
       },
     }),
-    // AVG: bewaar elke toestemmingswijziging in het logboek
     prisma.toestemmingLog.create({
       data: {
         bewonerId,
@@ -43,6 +38,36 @@ export async function updateToestemming(
       },
     }),
   ]);
+
+  // ─── Notificatie naar familieleden ─────────────────────────────────
+  const organisatie = await prisma.organisatie.findUnique({
+    where: { id: session.user.organisatieId },
+    select: { naam: true },
+  });
+
+  const familieleden = await prisma.familieKoppeling.findMany({
+    where: { bewonerId },
+    include: {
+      gebruiker: { select: { email: true } },
+    },
+  });
+
+  for (const fk of familieleden) {
+    if (fk.gebruiker.email) {
+      const html = toestemmingHtml(
+        bewoner.naam,
+        toestemmingFotos ? "AAN" : "UIT",
+        toestemmingDoor || "Onbekend",
+        session.user.naam ?? session.user.email ?? "Onbekend",
+        organisatie?.naam ?? "Welzijnsklik"
+      );
+      await sendEmail({
+        to: fk.gebruiker.email,
+        subject: `📸 Toestemming ${toestemmingFotos ? "aangezet" : "uitgezet"} voor ${bewoner.naam}`,
+        html,
+      });
+    }
+  }
 
   revalidatePath(`/coordinator/bewoners/${bewonerId}`);
   revalidatePath("/coordinator");
@@ -55,5 +80,31 @@ export async function getBewonersVoorOrganisatie() {
   return prisma.bewoner.findMany({
     where: { organisatieId: session.user.organisatieId },
     orderBy: { naam: "asc" },
+  });
+}
+
+/**
+ * Stuur een welkom-mail naar een nieuwe gebruiker.
+ * Wordt aangeroepen nadat een coordinator een gebruiker heeft toegevoegd.
+ */
+export async function stuurWelkomMail(userId: string) {
+  const session = await auth();
+  if (!session?.user?.gebruikerId || session.user.rol !== "COORDINATOR") {
+    throw new Error("Niet geautoriseerd");
+  }
+
+  const gebruiker = await prisma.gebruiker.findUnique({
+    where: { userId },
+    include: { organisatie: { select: { naam: true } } },
+  });
+
+  if (!gebruiker?.email) throw new Error("Gebruiker of e-mail niet gevonden");
+
+  const html = welkomHtml(gebruiker.naam, gebruiker.rol, gebruiker.organisatie.naam);
+  return sendEmail({
+    to: gebruiker.email,
+    subject: `Welkom bij Welzijnsklik, ${gebruiker.naam}!`,
+    html,
+    throwOnError: true,
   });
 }

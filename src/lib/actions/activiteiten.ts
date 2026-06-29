@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { sendEmail, activiteitHtml } from "@/lib/email";
 
 export async function logActiviteit(formData: FormData) {
   const session = await auth();
@@ -44,9 +45,45 @@ export async function logActiviteit(formData: FormData) {
     },
   });
 
+  // ─── Notificatie naar familieleden ────────────────────────────────
+  const vrijwilliger = await prisma.gebruiker.findUnique({
+    where: { id: session.user.gebruikerId },
+    select: { naam: true, organisatie: { select: { naam: true } } },
+  });
+
+  const familieleden = await prisma.familieKoppeling.findMany({
+    where: { bewonerId },
+    include: {
+      gebruiker: {
+        select: { email: true, naam: true },
+        include: { emailVoorkeur: { select: { activiteiten: true } } },
+      },
+    },
+  });
+
+  for (const koppeling of familieleden) {
+    const magNotificatie = koppeling.gebruiker.emailVoorkeur?.activiteiten !== false;
+    if (magNotificatie && koppeling.gebruiker.email) {
+      const html = activiteitHtml(
+        bewoner.naam,
+        vrijwilliger?.naam ?? "Onbekend",
+        type,
+        duurMinuten,
+        notities,
+        koppeling.relatie,
+        vrijwilliger?.organisatie.naam ?? "Welzijnsklik"
+      );
+      await sendEmail({
+        to: koppeling.gebruiker.email,
+        subject: `🔄 ${vrijwilliger?.naam ?? "Iemand"} was ${type.toLowerCase()} bij ${bewoner.naam}`,
+        html,
+      });
+    }
+  }
+
   revalidatePath("/coordinator");
   revalidatePath("/vrijwilliger");
-  revalidatePath(`/familie`);
+  revalidatePath("/familie");
 }
 
 export async function getActiviteitenVoorOrganisatie() {
