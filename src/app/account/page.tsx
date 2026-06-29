@@ -89,8 +89,8 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      {/* Email voorkeuren */}
-      <EmailVoorkeurenForm initial={{ activiteiten: emailActiviteiten, wekelijkseDigest: emailDigest }} />
+      {/* Email voorkeuren — gefilterd op rol */}
+      <EmailVoorkeurenForm initial={{ activiteiten: emailActiviteiten, wekelijkseDigest: emailDigest }} rol={rol} />
 
       {/* AVG export */}
       <div className="bg-white rounded-2xl p-5 shadow-sm border border-neutral-100 space-y-3">
