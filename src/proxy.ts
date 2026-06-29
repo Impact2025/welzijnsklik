@@ -16,7 +16,12 @@ export default auth(
   async (req: NextRequest & { auth: { user?: { rol?: string } } | null }) => {
     const { pathname } = req.nextUrl;
 
-    // Rate limit op login — max 10 pagina-laden per minuut per IP
+    // Publieke routes — geen auth vereist
+    if (pathname === "/" || pathname === "/geen-toegang") {
+      return NextResponse.next();
+    }
+
+    // Rate limit op login/demo — max 10 pagina-laden per minuut per IP
     if (pathname.startsWith("/login") || pathname === "/demo") {
       const rl = checkRateLimit(keyFromRequest(req), { max: 10, windowSeconds: 60 });
       if (!rl.allowed) {
@@ -28,10 +33,6 @@ export default auth(
           },
         });
       }
-      return NextResponse.next();
-    }
-
-    if (pathname === "/geen-toegang") {
       return NextResponse.next();
     }
 
@@ -57,6 +58,6 @@ export default auth(
 
 export const config = {
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|favicon.ico).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon\\.ico|.*\\.png$|.*\\.svg$|.*\\.jpg$|.*\\.webp$|.*\\.ico$).*)",
   ],
 };
