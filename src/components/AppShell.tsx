@@ -25,6 +25,8 @@ const NAV_COORDINATOR: NavItem[] = [
   { href: "/coordinator", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/coordinator/bewoners", icon: Users, label: "Bewoners" },
   { href: "/coordinator/briefjes", icon: FileText, label: "Briefjes" },
+  { href: "/coordinator/meldingen", icon: Bell, label: "Meldingen" },
+  { href: "/coordinator/gebruikers", icon: Settings, label: "Team" },
 ];
 
 const NAV_VRIJWILLIGER: NavItem[] = [
@@ -75,14 +77,17 @@ export default function AppShell({ rol, naam, children, nieuweAanmeldingen = 0 }
           <span className="font-semibold text-gray-900 text-[15px] tracking-tight">Welzijnsklik</span>
         </div>
         <div className="flex items-center gap-0.5">
-          <button className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors text-neutral-400">
+          <Link
+            href="/coordinator/meldingen"
+            className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors text-neutral-400"
+          >
             <Bell size={18} />
             {nieuweAanmeldingen > 0 && (
               <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
                 {nieuweAanmeldingen > 9 ? "9+" : nieuweAanmeldingen}
               </span>
             )}
-          </button>
+          </Link>
           <Link
             href="/account"
             className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors text-neutral-400"

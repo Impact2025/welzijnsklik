@@ -2,6 +2,24 @@
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+
+/**
+ * Markeer een wervingsinteresse als "behandeld".
+ */
+export async function markeerBehandeld(id: string) {
+  const session = await auth();
+  if (!session?.user?.gebruikerId || session.user.rol !== "COORDINATOR") {
+    throw new Error("Niet geautoriseerd");
+  }
+
+  await prisma.wervingsinteresse.update({
+    where: { id },
+    data: { status: "behandeld" },
+  });
+
+  revalidatePath("/coordinator/meldingen");
+}
 
 /**
  * Haal het aantal nieuwe (ongelezen) wervingsinteresses op voor de ingelogde coordinator.

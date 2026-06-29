@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { FileText, Clock } from "lucide-react";
+import { FileText, Clock, Download } from "lucide-react";
 
 export default async function BriefjesPage({
   searchParams,
@@ -16,6 +16,13 @@ export default async function BriefjesPage({
 
   const van = vanParam ? new Date(vanParam) : eersteVanMaand;
   const tot = totParam ? new Date(totParam) : nu;
+
+  // Bouw export URL
+  const exportParams = new URLSearchParams();
+  if (vanParam) exportParams.set("van", vanParam);
+  if (totParam) exportParams.set("tot", totParam);
+  if (vrijwilligerId) exportParams.set("vrijwilligerId", vrijwilligerId);
+  const exportUrl = `/api/export-briefjes?${exportParams.toString()}`;
 
   const vrijwilligers = await prisma.gebruiker.findMany({
     where: { organisatieId, rol: "VRIJWILLIGER" },
@@ -94,6 +101,14 @@ export default async function BriefjesPage({
         >
           Toepassen
         </button>
+        <a
+          href={exportUrl}
+          target="_blank"
+          className="w-full flex items-center justify-center gap-2 bg-white border border-amber-200 hover:bg-amber-50 text-amber-700 text-sm font-semibold py-2.5 rounded-xl transition-colors"
+        >
+          <Download size={14} />
+          Exporteer als PDF
+        </a>
       </form>
 
       {/* Rapportage */}
