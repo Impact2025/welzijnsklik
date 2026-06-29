@@ -44,6 +44,8 @@ const NAV_VRIJWILLIGER: NavItem[] = [
 const NAV_FAMILIE: NavItem[] = [
   { href: "/familie", icon: Heart, label: "Tijdlijn", exact: true },
   { href: "/familie/help-mee", icon: Handshake, label: "Help mee" },
+  { href: "/familie/notificaties", icon: Bell, label: "Notificaties" },
+  { href: "/account", icon: Settings, label: "Instellingen" },
 ];
 
 const NAV_MAP: Record<string, NavItem[]> = {
@@ -77,6 +79,7 @@ export default function AppShell({ rol, naam, profielFoto, children, notificatie
     "/coordinator/meldingen": notificatieBadge,
     "/coordinator/hulp-gevraagd": nieuweHulpReacties,
     "/vrijwilliger/hulp-gevraagd": openHulpVragen,
+    "/familie/notificaties": notificatieBadge,
   };
 
   return (
@@ -84,7 +87,7 @@ export default function AppShell({ rol, naam, profielFoto, children, notificatie
       {/* Top bar */}
       <header className="fixed top-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-b border-warm-200 h-14 flex items-center px-4 max-w-lg mx-auto w-full">
         <Link href={ROL_HOME[rol] ?? "/"} className="flex items-center gap-2 flex-1">
-          <img src="/logo.svg" alt="Welzijnsklik" className="w-7 h-7" />
+          <img src="/logo.png" alt="Welzijnsklik" className="w-7 h-7" />
           <span className="font-semibold text-warm-900 text-[15px] tracking-tight">Welzijnsklik</span>
         </Link>
         <div className="flex items-center gap-0.5">

@@ -11,8 +11,9 @@ export const metadata: Metadata = {
   title: "Welzijnsklik — welzijn dichtbij",
   description: "Vrijwilligers, bewoners en familie verbonden in de ouderenzorg",
   icons: {
-    icon: "/favicon.svg",
-    apple: "/apple-icon.svg",
+    icon: "/logo.png",
+    apple: "/logo.png",
+    shortcut: "/logo.png",
   },
   openGraph: {
     title: "Welzijnsklik",
