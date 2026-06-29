@@ -21,6 +21,9 @@ export default async function CoordinatorDashboard() {
   const naam = session!.user.naam ?? session!.user.name ?? "Coördinator";
   const voornaam = naam.split(" ")[0];
 
+  const now = new Date();
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+
   const [activiteiten, bewoners, vrijwilligers, interesses] = await Promise.all([
     prisma.activiteit.findMany({
       where: { bewoner: { organisatieId } },
@@ -29,12 +32,38 @@ export default async function CoordinatorDashboard() {
         vrijwilliger: { select: { naam: true } },
       },
       orderBy: { createdAt: "desc" },
-      take: 10,
+      take: 50,
     }),
     prisma.bewoner.count({ where: { organisatieId } }),
     prisma.gebruiker.count({ where: { organisatieId, rol: "VRIJWILLIGER" } }),
     prisma.wervingsinteresse.count({ where: { status: "nieuw", gebruiker: { organisatieId } } }),
   ]);
+
+  // Grafiek data: activiteiten per dag (deze maand)
+  const activiteitenDezeMaand = activiteiten.filter(
+    (a) => new Date(a.createdAt) >= firstDay
+  );
+  const activiteitPerDag: { dag: string; totaal: number; uren: number }[] = [];
+  for (let d = 1; d <= now.getDate(); d++) {
+    const dagAct = activiteitenDezeMaand.filter(
+      (a) => new Date(a.createdAt).getDate() === d
+    );
+    activiteitPerDag.push({
+      dag: `${d}`,
+      totaal: dagAct.length,
+      uren: dagAct.reduce((s, a) => s + a.duurMinuten, 0),
+    });
+  }
+
+  // Uren per vrijwilliger (deze maand)
+  const urenPerVrijwilliger = Object.entries(
+    activiteitenDezeMaand.reduce<Record<string, number>>((acc, a) => {
+      acc[a.vrijwilliger.naam] = (acc[a.vrijwilliger.naam] ?? 0) + a.duurMinuten;
+      return acc;
+    }, {})
+  )
+    .map(([naam, min]) => ({ naam, uren: Math.round((min / 60) * 10) / 10 }))
+    .sort((a, b) => b.uren - a.uren);
 
   const stats = [
     { label: "Bewoners", value: bewoners, icon: Users, href: "/coordinator/bewoners", kleur: "text-sky-600", bg: "bg-sky-50" },
@@ -70,6 +99,66 @@ export default async function CoordinatorDashboard() {
           );
         })}
       </div>
+
+      {/* Grafiek: activiteiten per dag */}
+      {activiteitPerDag.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 space-y-3">
+          <h2 className="font-semibold text-gray-900 text-[15px]">Activiteiten deze maand</h2>
+          <div className="flex items-end gap-[3px] h-20">
+            {activiteitPerDag.map((d) => {
+              const max = Math.max(...activiteitPerDag.map((x) => x.totaal), 1);
+              const hoogte = (d.totaal / max) * 100;
+              return (
+                <div
+                  key={d.dag}
+                  className="flex-1 flex flex-col items-center gap-0.5 group relative"
+                >
+                  <div
+                    className="w-full bg-amber-500 rounded-t-md transition-all hover:bg-amber-600 min-h-[2px]"
+                    style={{ height: `${Math.max(hoogte, 2)}%` }}
+                  />
+                  <span className="text-[8px] text-neutral-400 font-medium">
+                    {d.dag}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="flex items-center justify-between text-xs text-neutral-400">
+            <span>{activiteitenDezeMaand.length} activiteiten deze maand</span>
+            <span>
+              {Math.floor(activiteitenDezeMaand.reduce((s, a) => s + a.duurMinuten, 0) / 60)}u totaal
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Grafiek: uren per vrijwilliger */}
+      {urenPerVrijwilliger.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 space-y-3">
+          <h2 className="font-semibold text-gray-900 text-[15px]">Uren per vrijwilliger</h2>
+          <div className="space-y-2">
+            {urenPerVrijwilliger.slice(0, 5).map((v) => {
+              const max = Math.max(...urenPerVrijwilliger.map((x) => x.uren), 1);
+              const breedte = (v.uren / max) * 100;
+              return (
+                <div key={v.naam} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-gray-700 truncate">{v.naam}</span>
+                    <span className="text-neutral-400 font-medium">{v.uren}u</span>
+                  </div>
+                  <div className="w-full h-2 bg-neutral-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-emerald-500 rounded-full transition-all"
+                      style={{ width: `${breedte}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Recente activiteiten */}
       <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
