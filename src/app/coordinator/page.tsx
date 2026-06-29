@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight, Activity, UserPlus, Users, UserCheck } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
+import { StatCard, EmptyState } from "@/components/ui";
 
 function ActiviteitIcon({ type }: { type: string }) {
   const cfg = ACTIVITEIT_ICON[type] ?? ACTIVITEIT_ICON.Anders;
@@ -66,10 +67,10 @@ export default async function CoordinatorDashboard() {
     .sort((a, b) => b.uren - a.uren);
 
   const stats = [
-    { label: "Bewoners", value: bewoners, icon: Users, href: "/coordinator/bewoners", kleur: "text-sky-600", bg: "bg-sky-50" },
-    { label: "Vrijwilligers", value: vrijwilligers, icon: UserCheck, href: "/coordinator/gebruikers", kleur: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Activiteiten", value: activiteiten.length, icon: Activity, href: "/coordinator/briefjes", kleur: "text-amber-600", bg: "bg-amber-50" },
-    { label: "Aanmeldingen", value: interesses, icon: UserPlus, href: "/coordinator/meldingen", kleur: "text-violet-600", bg: "bg-violet-50" },
+    { label: "Bewoners", value: bewoners, icon: Users, href: "/coordinator/bewoners", variant: "info" as const },
+    { label: "Vrijwilligers", value: vrijwilligers, icon: UserCheck, href: "/coordinator/gebruikers", variant: "success" as const },
+    { label: "Activiteiten", value: activiteiten.length, icon: Activity, href: "/coordinator/briefjes", variant: "warning" as const },
+    { label: "Aanmeldingen", value: interesses, icon: UserPlus, href: "/coordinator/meldingen", variant: "violet" as const },
   ];
 
   return (
@@ -82,22 +83,9 @@ export default async function CoordinatorDashboard() {
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 gap-3">
-        {stats.map((s) => {
-          const Icon = s.icon;
-          return (
-            <Link
-              key={s.label}
-              href={s.href}
-              className="bg-white rounded-2xl p-4 shadow-sm border border-neutral-100 hover:shadow-md transition-shadow group"
-            >
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${s.bg}`}>
-                <Icon size={17} className={s.kleur} />
-              </div>
-              <p className="text-2xl font-bold text-gray-900 tabular-nums">{s.value}</p>
-              <p className="text-xs text-neutral-500 mt-0.5 font-medium">{s.label}</p>
-            </Link>
-          );
-        })}
+        {stats.map((s) => (
+          <StatCard key={s.label} {...s} />
+        ))}
       </div>
 
       {/* Grafiek: activiteiten per dag */}
@@ -172,10 +160,7 @@ export default async function CoordinatorDashboard() {
           </Link>
         </div>
         {activiteiten.length === 0 ? (
-          <div className="px-4 py-8 text-center">
-            <Activity size={24} className="text-neutral-300 mx-auto mb-2" />
-            <p className="text-neutral-400 text-sm">Nog geen activiteiten geregistreerd.</p>
-          </div>
+          <EmptyState icon={Activity} title="Nog geen activiteiten geregistreerd." />
         ) : (
           <div className="divide-y divide-neutral-50">
             {activiteiten.map((a) => (
