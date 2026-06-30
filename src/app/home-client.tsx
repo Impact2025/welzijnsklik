@@ -447,13 +447,6 @@ export default function HomeClient() {
               diepgaande kennis van de werkvloer met het vermogen om zelf werkende, innovatieve
               softwareoplossingen te bouwen.
             </p>
-            <p style={{ fontSize: 16, color: '#404751', lineHeight: '26px', marginBottom: 40 }}>
-              De eerste pilot wordt momenteel voorbereid op een afdeling van ouderenzorglocatie
-              De Meerwende in Badhoevedorp. Om de validatie breder door te zetten, zoeken wij
-              proactief naar een tweede, onafhankelijke organisatie — of dit nu binnen de
-              ouderenzorg, gehandicaptenzorg of thuiszorg is.
-            </p>
-
             <a
               href="mailto:v.munster@weareimpact.nl"
               className="inline-flex items-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"

@@ -1,6 +1,5 @@
 import MarketingHeader from '@/components/marketing/MarketingHeader';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
-import Link from 'next/link';
 import { Target, Briefcase } from 'lucide-react';
 import type { Metadata } from 'next';
 
@@ -195,50 +194,6 @@ export default function OverOnsPage() {
                 </p>
               </div>
             </div>
-          </div>
-        </section>
-
-        {/* Pilot section */}
-        <section style={{ background: '#f3f4f5', padding: sectionPadding }}>
-          <div style={{ maxWidth: 800, margin: '0 auto' }}>
-            <h2
-              style={{
-                fontSize: 'clamp(24px,3vw,36px)',
-                fontWeight: 700,
-                color: '#1D3557',
-                marginBottom: 20,
-              }}
-            >
-              De eerste pilot: De Meerwende, Badhoevedorp
-            </h2>
-            <p
-              style={{
-                fontSize: 'clamp(16px,2vw,18px)',
-                color: '#404751',
-                lineHeight: 1.7,
-                marginBottom: 36,
-              }}
-            >
-              De eerste pilot wordt momenteel voorbereid op een afdeling van ouderenzorglocatie De
-              Meerwende in Badhoevedorp. Om de validatie breder door te zetten, zoeken wij
-              proactief naar een tweede, onafhankelijke organisatie — of dit nu binnen de
-              ouderenzorg, gehandicaptenzorg of thuiszorg is.
-            </p>
-            <Link
-              href="/pilot"
-              style={{
-                display: 'inline-block',
-                background: '#FFB800',
-                color: '#191c1d',
-                fontWeight: 700,
-                fontSize: 16,
-                padding: '14px 32px',
-                borderRadius: 100,
-                textDecoration: 'none',
-              }}
-            >
-              Bekijk de pilotprogramma
-            </Link>
           </div>
         </section>
 
