@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html lang="nl"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zorgklik.nl | Verbind familie met geluk in de zorg</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary": "#485f84",
+                    "on-secondary": "#ffffff",
+                    "inverse-surface": "#2e3132",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#9fcaff",
+                    "surface-tint": "#0061a5",
+                    "outline": "#717783",
+                    "on-secondary-fixed": "#001b3c",
+                    "on-tertiary-fixed": "#271900",
+                    "primary": "#005e9f",
+                    "primary-container": "#0077c8",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#f8f9fa",
+                    "on-background": "#191c1d",
+                    "inverse-on-surface": "#f0f1f2",
+                    "secondary-container": "#bbd3fd",
+                    "outline-variant": "#c0c7d3",
+                    "on-primary-fixed-variant": "#00497e",
+                    "surface-container-high": "#e7e8e9",
+                    "on-primary-container": "#fbfbff",
+                    "on-secondary-fixed-variant": "#30476a",
+                    "surface-container-highest": "#e1e3e4",
+                    "surface-container": "#edeeef",
+                    "background": "#f8f9fa",
+                    "primary-fixed": "#d2e4ff",
+                    "on-primary-fixed": "#001d36",
+                    "error-container": "#ffdad6",
+                    "on-surface-variant": "#404751",
+                    "surface-dim": "#d9dadb",
+                    "on-secondary-container": "#445a7f",
+                    "surface-container-low": "#f3f4f5",
+                    "on-tertiary-fixed-variant": "#5e4200",
+                    "on-primary": "#ffffff",
+                    "secondary-fixed": "#d5e3ff",
+                    "surface-variant": "#e1e3e4",
+                    "tertiary": "#785500",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#9fcaff",
+                    "secondary-fixed-dim": "#b0c7f1",
+                    "on-surface": "#191c1d",
+                    "tertiary-container": "#986c00",
+                    "on-tertiary-container": "#fffbf9",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f8f9fa",
+                    "tertiary-fixed-dim": "#ffba20",
+                    "tertiary-fixed": "#ffdea8",
+                    "cta-gold": "#FFB800",
+                    "navy-deep": "#1D3557"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "2xl": "1rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "margin-desktop": "48px",
+                    "base": "4px",
+                    "sm": "16px",
+                    "xl": "64px",
+                    "margin-mobile": "16px",
+                    "lg": "40px",
+                    "xs": "8px",
+                    "gutter": "24px",
+                    "md": "24px"
+            },
+            "fontFamily": {
+                    "display-lg": ["Outfit"],
+                    "display-lg-mobile": ["Outfit"],
+                    "body-lg": ["Outfit"],
+                    "title-lg": ["Outfit"],
+                    "label-md": ["Outfit"],
+                    "headline-md": ["Outfit"],
+                    "caption": ["Outfit"],
+                    "body-md": ["Outfit"]
+            },
+            "fontSize": {
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "title-lg": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "caption": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Outfit', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .soft-shadow { box-shadow: 0px 4px 20px rgba(29, 53, 87, 0.05); }
+        .deep-shadow { box-shadow: 0px 12px 32px rgba(29, 53, 87, 0.12); }
+        .bento-hover:hover { transform: translateY(-4px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface shadow-sm flex items-center justify-between px-margin-mobile md:px-margin-desktop h-16 transition-all duration-300" id="top-app-bar">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary text-[32px]">favorite</span>
+<span class="font-title-lg text-title-lg font-black text-primary">Zorgklik.nl</span>
+</div>
+<nav class="hidden md:flex items-center gap-lg">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Product</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Oplossingen</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors" href="#">Contact</a>
+<button class="bg-primary hover:bg-primary-container text-on-primary font-label-md text-label-md px-6 py-2 rounded-xl transition-all active:scale-95">
+                Inloggen
+            </button>
+</nav>
+<button class="md:hidden p-2 text-on-surface-variant active:scale-95 duration-150">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+<main class="pt-16">
+<!-- Hero Section -->
+<section class="relative overflow-hidden px-margin-mobile md:px-margin-desktop py-xl md:py-[120px] flex flex-col md:flex-row items-center gap-xl max-w-[1440px] mx-auto">
+<div class="flex-1 space-y-md z-10">
+<div class="inline-flex items-center gap-2 bg-secondary-container/30 px-4 py-1.5 rounded-full border border-secondary-container">
+<span class="material-symbols-outlined text-secondary text-sm">spark</span>
+<span class="text-secondary font-label-md text-[13px] uppercase tracking-wider">Innovatie in de zorg</span>
+</div>
+<h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-navy-deep">
+                    Verbind familie met het dagelijkse <span class="text-primary">geluk in de zorg.</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-[540px]">
+                    Wij maken de zorg menselijker. Deel momenten van blijdschap, versterk het familie-netwerk en verhoog de kwaliteit van zorg voor elke bewoner.
+                </p>
+<div class="flex flex-col sm:flex-row gap-sm pt-xs">
+<button class="bg-cta-gold text-navy-deep font-title-lg text-body-md px-8 py-4 rounded-xl shadow-lg hover:shadow-xl hover:translate-y-[-2px] transition-all active:scale-95 flex items-center justify-center gap-2">
+                        Ontdek de app
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+<button class="border-2 border-primary text-primary font-title-lg text-body-md px-8 py-4 rounded-xl hover:bg-primary/5 transition-all flex items-center justify-center gap-2">
+                        Demo aanvragen
+                    </button>
+</div>
+</div>
+<div class="flex-1 relative w-full md:w-auto h-[400px] md:h-[600px]">
+<div class="absolute -top-12 -right-12 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-12 -left-12 w-64 h-64 bg-secondary-container/20 rounded-full blur-3xl"></div>
+<div class="relative w-full h-full rounded-[32px] overflow-hidden deep-shadow border-8 border-white">
+<img alt="Groep ouderen en een zorgverlener rond een houten tafel die samen knutselen en lachen in een lichte woonkamer met grote ramen." class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida/AP1WRLsfixes5OyvADO7FAZgVc2otFHYfWn7mmp21IGcN-aCkSBpWHr-KWcnLEUnjOi89Gwt2NZr9A0Qkww7Hie7ApdccrQfgDCssVjO-MkFbeYklHosdROr1--y3fdNOlIk-fU-3C3v0ulE8-NSnh4z4BaGqYkTC8PEM4IYozwKCzZpv341p-A9EqoyauyF0ZVC67w2llyoOhgH3N7ucqvkADIBIe9EXRaPGbxJUeoqp4tiVmHqI0wAoeOiOI7d"/>
+</div>
+<!-- Floating Interaction Card -->
+<div class="absolute bottom-6 -left-4 md:-left-8 bg-white/90 backdrop-blur-md p-sm rounded-2xl soft-shadow border border-outline-variant/30 flex items-center gap-md animate-bounce-slow">
+<div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<div>
+<p class="font-label-md text-primary-fixed-variant">Nieuw geluksmoment!</p>
+<p class="font-caption text-on-surface-variant">Bewoner Mevr. Janssen heeft genoten</p>
+</div>
+</div>
+</div>
+</section>
+<!-- How it works (Bento Style) -->
+<section class="bg-surface-container-low px-margin-mobile md:px-margin-desktop py-xl">
+<div class="max-w-[1440px] mx-auto">
+<div class="text-center mb-xl space-y-xs">
+<h2 class="font-headline-md text-headline-md text-navy-deep">Hoe Zorgklik de zorg verrijkt</h2>
+<p class="font-body-md text-on-surface-variant max-w-2xl mx-auto">Drie krachtige pijlers die de kloof tussen zorginstelling en familie overbruggen.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<!-- Column 1: Geluksmomenten -->
+<div class="bg-white p-lg rounded-[24px] soft-shadow border border-outline-variant/20 bento-hover flex flex-col items-start gap-md">
+<div class="w-16 h-16 bg-primary-container/10 rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl">photo_camera</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-navy-deep">Geluksmomenten delen</h3>
+<p class="font-body-md text-on-surface-variant">Leg die kleine glimlach of die activiteit vast. Deel het direct via de tijdlijn zodat familieleden altijd betrokken blijven bij het dagelijks leven.</p>
+<div class="mt-auto w-full pt-md flex justify-between items-center border-t border-surface-container">
+<span class="font-label-md text-primary">Lees meer</span>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+<!-- Column 2: Familie betrekken -->
+<div class="bg-white p-lg rounded-[24px] soft-shadow border border-outline-variant/20 bento-hover flex flex-col items-start gap-md">
+<div class="w-16 h-16 bg-secondary-container/20 rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-3xl">groups</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-navy-deep">Familie betrekken</h3>
+<p class="font-body-md text-on-surface-variant">Bouw een hecht digitaal netwerk rondom de cliënt. Communiceer efficiënt met familieleden en deel belangrijke updates zonder extra administratieve last.</p>
+<div class="mt-auto w-full pt-md flex justify-between items-center border-t border-surface-container">
+<span class="font-label-md text-secondary">Lees meer</span>
+<span class="material-symbols-outlined text-secondary">chevron_right</span>
+</div>
+</div>
+<!-- Column 3: Zorgkwaliteit -->
+<div class="bg-white p-lg rounded-[24px] soft-shadow border border-outline-variant/20 bento-hover flex flex-col items-start gap-md">
+<div class="w-16 h-16 bg-primary-container/10 rounded-2xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl">analytics</span>
+</div>
+<h3 class="font-title-lg text-title-lg text-navy-deep">Zorgkwaliteit verhogen</h3>
+<p class="font-body-md text-on-surface-variant">Verkrijg inzichten via rapportages. Gebruik feedback van familieleden om de zorgstandaard continu te verbeteren en de transparantie te vergroten.</p>
+<div class="mt-auto w-full pt-md flex justify-between items-center border-t border-surface-container">
+<span class="font-label-md text-primary">Lees meer</span>
+<span class="material-symbols-outlined text-primary">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats / Proof Section -->
+<section class="px-margin-mobile md:px-margin-desktop py-xl">
+<div class="max-w-[1440px] mx-auto bg-navy-deep rounded-[40px] p-lg md:p-xl flex flex-col md:flex-row justify-around items-center gap-xl text-white">
+<div class="text-center group">
+<div class="font-display-lg text-display-lg-mobile md:text-display-lg text-cta-gold group-hover:scale-110 transition-transform">500+</div>
+<div class="font-label-md uppercase tracking-widest text-secondary-fixed">Zorglocaties</div>
+</div>
+<div class="w-px h-16 bg-outline-variant/20 hidden md:block"></div>
+<div class="text-center group">
+<div class="font-display-lg text-display-lg-mobile md:text-display-lg text-cta-gold group-hover:scale-110 transition-transform">15k</div>
+<div class="font-label-md uppercase tracking-widest text-secondary-fixed">Familieleden</div>
+</div>
+<div class="w-px h-16 bg-outline-variant/20 hidden md:block"></div>
+<div class="text-center group">
+<div class="font-display-lg text-display-lg-mobile md:text-display-lg text-cta-gold group-hover:scale-110 transition-transform">98%</div>
+<div class="font-label-md uppercase tracking-widest text-secondary-fixed">Tevredenheid</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest pt-xl pb-md px-margin-mobile md:px-margin-desktop">
+<div class="max-w-[1440px] mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-xl mb-xl">
+<div class="col-span-1 md:col-span-1">
+<div class="flex items-center gap-xs mb-sm">
+<span class="material-symbols-outlined text-primary text-[28px]">favorite</span>
+<span class="font-title-lg text-title-lg font-black text-primary">Zorgklik.nl</span>
+</div>
+<p class="font-body-md text-on-surface-variant">De human-centered SaaS oplossing voor de moderne ouderenzorg. Wij verbinden, ontzorgen en verblijden.</p>
+</div>
+<div>
+<h4 class="font-title-lg text-body-lg text-navy-deep mb-md">Product</h4>
+<ul class="space-y-xs font-body-md text-on-surface-variant">
+<li><a class="hover:text-primary transition-colors" href="#">Functionaliteiten</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Mobiele App</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Beveiliging</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Prijzen</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-title-lg text-body-lg text-navy-deep mb-md">Organisatie</h4>
+<ul class="space-y-xs font-body-md text-on-surface-variant">
+<li><a class="hover:text-primary transition-colors" href="#">Over ons</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Vacatures</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Nieuws</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Support</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-title-lg text-body-lg text-navy-deep mb-md">Nieuwsbrief</h4>
+<p class="font-caption text-on-surface-variant mb-sm">Blijf op de hoogte van innovaties in de zorg.</p>
+<form class="flex gap-2">
+<input class="flex-1 bg-white border border-outline-variant rounded-xl px-4 py-2 text-label-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" placeholder="Email" type="email"/>
+<button class="bg-navy-deep text-white p-2 rounded-xl active:scale-95 duration-150">
+<span class="material-symbols-outlined">send</span>
+</button>
+</form>
+</div>
+</div>
+<div class="border-t border-outline-variant pt-md flex flex-col md:flex-row justify-between items-center gap-md">
+<p class="font-caption text-on-surface-variant">© 2024 Zorgklik.nl. Alle rechten voorbehouden.</p>
+<div class="flex gap-lg font-caption text-on-surface-variant">
+<a class="hover:text-primary" href="#">Privacy Policy</a>
+<a class="hover:text-primary" href="#">Algemene Voorwaarden</a>
+<a class="hover:text-primary" href="#">Cookies</a>
+</div>
+</div>
+</div>
+</footer>
+<script>
+        // Simple header background change on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('top-app-bar');
+            if (window.scrollY > 20) {
+                header.classList.add('bg-white/90', 'backdrop-blur-md', 'shadow-md');
+                header.classList.remove('bg-surface', 'shadow-sm');
+            } else {
+                header.classList.remove('bg-white/90', 'backdrop-blur-md', 'shadow-md');
+                header.classList.add('bg-surface', 'shadow-sm');
+            }
+        });
+
+        // Small animation trigger for bento cards
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in', 'fade-in', 'slide-in-from-bottom-4');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.bento-hover').forEach(el => observer.observe(el));
+    </script>
+</body></html>

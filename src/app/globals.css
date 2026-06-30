@@ -54,6 +54,26 @@
   --shadow-elevated: 0 10px 25px -5px rgb(0 0 0 / 0.08), 0 4px 10px -6px rgb(0 0 0 / 0.04);
 
   --max-width-app: 28rem;   /* 448px — mobile-first */
+
+  /* ─── Welzijnsklik Marketing Design System ──── */
+  --color-md-primary:                  #005e9f;
+  --color-md-on-primary:               #ffffff;
+  --color-md-primary-container:        #0077c8;
+  --color-md-on-primary-container:     #fbfbff;
+  --color-md-secondary:                #485f84;
+  --color-md-on-secondary:             #ffffff;
+  --color-md-secondary-container:      #bbd3fd;
+  --color-md-on-secondary-container:   #445a7f;
+  --color-md-surface:                  #f8f9fa;
+  --color-md-on-surface:               #191c1d;
+  --color-md-on-surface-variant:       #404751;
+  --color-md-outline-variant:          #c0c7d3;
+  --color-md-surface-container-low:    #f3f4f5;
+  --color-md-surface-container:        #edeeef;
+  --color-md-surface-container-highest:#e1e3e4;
+  --color-md-secondary-fixed:          #d5e3ff;
+  --color-md-cta-gold:                 #FFB800;
+  --color-md-navy:                     #1D3557;
 }
 
 /* ══════════════════════════════════════════════════

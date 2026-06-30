@@ -17,7 +17,8 @@ export default auth(
     const { pathname } = req.nextUrl;
 
     // Publieke routes — geen auth vereist
-    if (pathname === "/" || pathname === "/geen-toegang") {
+    const publicRoutes = ["/", "/geen-toegang", "/over-ons", "/pilot", "/support", "/algemene-voorwaarden", "/cookies", "/privacy"];
+    if (publicRoutes.includes(pathname)) {
       return NextResponse.next();
     }
 
