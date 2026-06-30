@@ -91,9 +91,9 @@ export default function OverOnsPage() {
                   marginBottom: 20,
                 }}
               >
-                "Traditionele adviseurs schrijven een beleidsplan. Mijn aanpak is anders: ik
+                &ldquo;Traditionele adviseurs schrijven een beleidsplan. Mijn aanpak is anders: ik
                 implementeer een werkende oplossing en automatiseer het proces, zodat uw
-                professionals weer tijd krijgen voor menselijk contact."
+                professionals weer tijd krijgen voor menselijk contact.&rdquo;
               </p>
               <footer
                 style={{ fontSize: 15, fontWeight: 600, color: '#404751', fontStyle: 'normal' }}

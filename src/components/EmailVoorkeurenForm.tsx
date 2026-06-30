@@ -9,12 +9,13 @@ interface Props {
 }
 
 export default function EmailVoorkeurenForm({ initial, rol }: Props) {
-  // Vrijwilliger ontvangt geen geautomatiseerde e-mails
-  if (rol === "VRIJWILLIGER") return null;
   const [activiteiten, setActiviteiten] = useState(initial.activiteiten);
   const [wekelijkseDigest, setWekelijkseDigest] = useState(initial.wekelijkseDigest);
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
+
+  // Vrijwilliger ontvangt geen geautomatiseerde e-mails
+  if (rol === "VRIJWILLIGER") return null;
 
   function handleToggle(type: "activiteiten" | "digest") {
     const nieuweActiviteiten = type === "activiteiten" ? !activiteiten : activiteiten;

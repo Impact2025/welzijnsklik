@@ -10,8 +10,10 @@ export default async function VrijwilligerNotificatiesPage() {
   const gebruikerId = session?.user?.gebruikerId;
   if (!gebruikerId) redirect("/login");
 
-  const dertigDagenGeleden = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-  const weekGeleden = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const dertigDagenGeleden = new Date();
+  dertigDagenGeleden.setDate(dertigDagenGeleden.getDate() - 30);
+  const weekGeleden = new Date();
+  weekGeleden.setDate(weekGeleden.getDate() - 7);
 
   const reacties = await prisma.reactie.findMany({
     where: {

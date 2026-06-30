@@ -52,13 +52,13 @@ export default function MarketingHeader() {
           >
             Inloggen
           </Link>
-          <a
+          <Link
             href="/#contact"
             style={{ fontSize: 14, fontWeight: 600, color: '#fff', background: '#005e9f', borderRadius: 12, padding: '9px 20px' }}
             className="hover:bg-[#0077c8] transition-colors active:scale-95"
           >
             Aanmelden
-          </a>
+          </Link>
         </nav>
 
         <button
@@ -87,10 +87,10 @@ export default function MarketingHeader() {
               style={{ textAlign: 'center', padding: '14px', borderRadius: 12, fontWeight: 600, border: '2px solid #005e9f', color: '#005e9f' }}>
               Inloggen
             </Link>
-            <a href="/#contact" onClick={() => setMenuOpen(false)}
+            <Link href="/#contact" onClick={() => setMenuOpen(false)}
               style={{ textAlign: 'center', padding: '14px', borderRadius: 12, fontWeight: 600, background: '#005e9f', color: '#fff' }}>
               Aanmelden
-            </a>
+            </Link>
           </div>
         </div>
       )}

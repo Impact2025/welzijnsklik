@@ -153,13 +153,7 @@ export default function HomeClient() {
     transition: `opacity 0.55s ease ${(i % 4) * 80}ms, transform 0.55s ease ${(i % 4) * 80}ms`,
   });
 
-  let cardIdx = 0;
-  const nextRef = (el: HTMLDivElement | null) => {
-    cardRefs.current[cardIdx] = el;
-  };
-  // We'll use a counter per section, so let me use a different approach:
-  // Pre-assign index ranges per section
-  // why: 0-3, flows: 4-6, sectors: 7-9, pilot: 10-12
+  // Pre-assigned index ranges per section: why: 0-3, flows: 4-6, sectors: 7-9, pilot: 10-12
 
   return (
     <div style={{ fontFamily: 'var(--font-outfit, Outfit, sans-serif)', color: '#191c1d', background: '#f8f9fa' }}>
@@ -438,9 +432,9 @@ export default function HomeClient() {
             <div style={{ background: '#f3f4f5', borderRadius: 20, padding: '36px 40px', marginBottom: 36, textAlign: 'left', border: '1px solid rgba(192,199,211,0.3)', position: 'relative' }}>
               <Quote size={32} color="rgba(0,94,159,0.15)" style={{ position: 'absolute', top: 20, left: 20 }} />
               <p style={{ fontSize: 18, color: '#1D3557', lineHeight: '30px', fontStyle: 'italic', fontWeight: 500, paddingLeft: 16 }}>
-                "Traditionele adviseurs schrijven een beleidsplan. Mijn aanpak is anders: ik
+                &ldquo;Traditionele adviseurs schrijven een beleidsplan. Mijn aanpak is anders: ik
                 implementeer een werkende oplossing en automatiseer het proces, zodat uw
-                professionals weer tijd krijgen voor menselijk contact."
+                professionals weer tijd krijgen voor menselijk contact.&rdquo;
               </p>
               <p style={{ fontSize: 14, fontWeight: 600, color: '#485f84', marginTop: 20, paddingLeft: 16 }}>
                 Vincent van Munster — WeAreImpact B.V.

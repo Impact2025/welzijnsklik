@@ -213,7 +213,7 @@ export default function AlgemeneVoorwaardenPage() {
                 </h2>
                 <p style={{ fontSize: 15, color: '#404751' }}>
                   Alle intellectuele eigendomsrechten op het Welzijnsklik platform, inclusief maar
-                  niet beperkt tot broncode, ontwerpen, logo's, teksten en datastructuren, berusten
+                  niet beperkt tot broncode, ontwerpen, logo&apos;s, teksten en datastructuren, berusten
                   uitsluitend bij WeAreImpact B.V. Het is de opdrachtgever niet toegestaan het
                   platform te kopiëren, reverse engineeren, door te verkopen of op enige andere
                   wijze te exploiteren zonder uitdrukkelijke schriftelijke toestemming van

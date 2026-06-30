@@ -14,7 +14,8 @@ export default async function FamilieLayout({
   }
 
   // Nieuwe activiteiten (afgelopen 7 dagen) van gekoppelde bewoners
-  const weekGeleden = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const weekGeleden = new Date();
+  weekGeleden.setDate(weekGeleden.getDate() - 7);
   const nieuweActiviteiten = await prisma.activiteit.count({
     where: {
       bewoner: {
