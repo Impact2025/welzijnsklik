@@ -28,8 +28,8 @@ export default function NieuweNieuwsbriefForm() {
 
       router.push("/admin/nieuwsbrieven");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Er ging iets mis");
     } finally {
       setLoading(false);
     }

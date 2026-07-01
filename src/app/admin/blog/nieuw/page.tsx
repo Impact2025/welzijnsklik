@@ -26,8 +26,8 @@ export default function NieuweBlogPostForm() {
       
       const inhoudEl = document.getElementById("inhoud") as HTMLTextAreaElement;
       if (inhoudEl) inhoudEl.value = content;
-    } catch (err: any) {
-      setError(err.message || "AI content generatie mislukt");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "AI content generatie mislukt");
     } finally {
       setAiLoading(false);
     }
@@ -50,8 +50,8 @@ export default function NieuweBlogPostForm() {
 
       router.push("/admin/blog");
       router.refresh();
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Er ging iets mis");
     } finally {
       setLoading(false);
     }

@@ -19,7 +19,7 @@ export default async function AdminDashboard() {
     prisma.activiteit.count({
       where: {
         bewoner: { organisatieId },
-        createdAt: { gte: new Date(new Date().getTime() - 30 * 24 * 60 * 60 * 1000) },
+        createdAt: { gte: (() => { const d = new Date(); d.setDate(d.getDate() - 30); return d; })() },
       },
     }),
   ]);

@@ -12,29 +12,33 @@ const ROUTE_ROLES: Record<string, string[]> = {
   "/familie": ["FAMILIE"],
 };
 
+function nextWithPath(req: NextRequest, pathname: string) {
+  const headers = new Headers(req.headers);
+  headers.set("x-pathname", pathname);
+  return NextResponse.next({ request: { headers } });
+}
+
 export default auth(
   async (req: NextRequest & { auth: { user?: { rol?: string } } | null }) => {
     const { pathname } = req.nextUrl;
 
-    // Publieke routes — geen auth vereist
-    const publicRoutes = ["/", "/geen-toegang", "/over-ons", "/pilot", "/support", "/algemene-voorwaarden", "/cookies", "/privacy"];
+    const publicRoutes = [
+      "/", "/geen-toegang", "/over-ons", "/pilot", "/support",
+      "/algemene-voorwaarden", "/cookies", "/privacy", "/admin/login",
+    ];
     if (publicRoutes.includes(pathname)) {
-      return NextResponse.next();
+      return nextWithPath(req, pathname);
     }
 
-    // Rate limit op login/demo — max 10 pagina-laden per minuut per IP
     if (pathname.startsWith("/login") || pathname === "/demo") {
       const rl = checkRateLimit(keyFromRequest(req), { max: 10, windowSeconds: 60 });
       if (!rl.allowed) {
         return new NextResponse("Te veel verzoeken. Probeer het over een minuut opnieuw.", {
           status: 429,
-          headers: {
-            "Retry-After": "60",
-            "X-RateLimit-Remaining": "0",
-          },
+          headers: { "Retry-After": "60", "X-RateLimit-Remaining": "0" },
         });
       }
-      return NextResponse.next();
+      return nextWithPath(req, pathname);
     }
 
     const session = req.auth;
@@ -53,7 +57,7 @@ export default auth(
       }
     }
 
-    return NextResponse.next();
+    return nextWithPath(req, pathname);
   }
 );
 

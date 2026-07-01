@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
   try {
     const content = await generateContent({ prompt, type: "blog" });
     return NextResponse.json({ content });
-  } catch (error: any) {
+  } catch (error) {
     console.error("[API] blog generate error:", error);
     return NextResponse.json({ error: "AI generatie fout" }, { status: 500 });
   }

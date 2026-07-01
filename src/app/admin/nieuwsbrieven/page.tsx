@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { Mail, Plus, Send, Users, Calendar, Trash2, Edit, Eye } from "lucide-react";
+import { Mail, Plus, Send, Users, Calendar, Edit, Eye } from "lucide-react";
 import { Card, PageHeader, Badge, EmptyState } from "@/components/ui";
 import Link from "next/link";
 
@@ -11,12 +11,13 @@ export default async function NieuwsbrievenDashboard({
 }) {
   const session = await auth();
   const organisatieId = session!.user.organisatieId!;
-  
+
   const statusFilter = searchParams.status ?? "alle";
 
-  const whereClause = statusFilter === "alle" 
-    ? { organisatieId }
-    : { organisatieId, status: statusFilter.toUpperCase() } as any;
+  const whereClause = {
+    organisatieId,
+    ...(statusFilter !== "alle" ? { status: statusFilter.toUpperCase() } : {}),
+  };
 
   const nieuwsbrieven = await prisma.nieuwsbrief.findMany({
     where: whereClause,
@@ -31,10 +32,16 @@ export default async function NieuwsbrievenDashboard({
   });
 
   const counts = {
-    alle: nieuwsbrieven.length,
+    alle: statusCounts.reduce((s, c) => s + c._count.status, 0),
     concept: statusCounts.find((s) => s.status === "CONCEPT")?._count.status ?? 0,
     verzonden: statusCounts.find((s) => s.status === "VERZONDEN")?._count.status ?? 0,
   };
+
+  const tabItems = [
+    { key: "alle", label: "Alle", count: counts.alle },
+    { key: "concept", label: "Concept", count: counts.concept, variant: "warning" as const },
+    { key: "verzonden", label: "Verzonden", count: counts.verzonden, variant: "success" as const },
+  ];
 
   return (
     <div className="p-6 space-y-6">
@@ -44,7 +51,7 @@ export default async function NieuwsbrievenDashboard({
         action={
           <Link
             href="/admin/nieuwsbrieven/nieuw"
-            className="flex items-center gap-2 px-4 py-2 bg-brand-500 text-white rounded-xl font-medium text-sm hover:bg-brand-600 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-brand-500 text-white rounded-xl font-semibold text-sm hover:bg-brand-600 transition-colors"
           >
             <Plus size={16} />
             Nieuwe nieuwsbrief
@@ -53,21 +60,25 @@ export default async function NieuwsbrievenDashboard({
       />
 
       <div className="flex items-center gap-2 border-b border-warm-200">
-        <button className={`px-3 py-2 rounded-t-lg text-sm font-medium transition-colors ${
-          statusFilter === "alle" ? "bg-white border border-b-0 border-warm-200 text-brand-700" : "text-warm-600 hover:text-warm-900"
-        }`}>
-          Alle <Badge variant="default" className="ml-1">{counts.alle}</Badge>
-        </button>
-        <button className={`px-3 py-2 rounded-t-lg text-sm font-medium transition-colors ${
-          statusFilter === "concept" ? "bg-white border border-b-0 border-warm-200 text-brand-700" : "text-warm-600 hover:text-warm-900"
-        }`}>
-          Concept <Badge variant="warning" className="ml-1">{counts.concept}</Badge>
-        </button>
-        <button className={`px-3 py-2 rounded-t-lg text-sm font-medium transition-colors ${
-          statusFilter === "verzonden" ? "bg-white border border-b-0 border-warm-200 text-brand-700" : "text-warm-600 hover:text-warm-900"
-        }`}>
-          Verzonden <Badge variant="success" className="ml-1">{counts.verzonden}</Badge>
-        </button>
+        {tabItems.map((tab) => {
+          const isActive = statusFilter === tab.key;
+          return (
+            <Link
+              key={tab.key}
+              href={`/admin/nieuwsbrieven${tab.key !== "alle" ? `?status=${tab.key}` : ""}`}
+              className={`flex items-center gap-2 px-3 py-2 rounded-t-lg text-sm font-medium transition-colors ${
+                isActive
+                  ? "bg-white border border-b-0 border-warm-200 text-brand-700"
+                  : "text-warm-600 hover:text-warm-900"
+              }`}
+            >
+              {tab.label}
+              <Badge variant={isActive ? (tab.variant ?? "info") : "default"}>
+                {tab.count}
+              </Badge>
+            </Link>
+          );
+        })}
       </div>
 
       {nieuwsbrieven.length === 0 ? (
@@ -75,7 +86,10 @@ export default async function NieuwsbrievenDashboard({
           icon={Mail}
           title="Geen nieuwsbrieven gevonden"
           action={
-            <Link href="/admin/nieuwsbrieven/nieuw" className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 text-white rounded-xl font-medium text-sm hover:bg-brand-600 transition-colors">
+            <Link
+              href="/admin/nieuwsbrieven/nieuw"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-brand-500 text-white rounded-xl font-semibold text-sm hover:bg-brand-600 transition-colors"
+            >
               <Plus size={16} />
               Maak eerste nieuwsbrief
             </Link>
@@ -84,34 +98,51 @@ export default async function NieuwsbrievenDashboard({
       ) : (
         <div className="space-y-3">
           {nieuwsbrieven.map((n) => (
-            <Card key={n.id} className="flex items-center justify-between">
-              <div>
+            <Card key={n.id} className="flex items-center gap-4">
+              <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-gray-900">{n.onderwerp}</h3>
-                <p className="text-sm text-warm-600 mt-1 line-clamp-2">{n.titel}</p>
+                <p className="text-sm text-warm-600 mt-0.5 line-clamp-1">{n.titel}</p>
                 <div className="flex items-center gap-4 mt-2 text-xs">
-                  <span className="text-warm-500">
-                    <Calendar size={12} className="inline mr-1" />
+                  <span className="text-warm-500 flex items-center gap-1">
+                    <Calendar size={11} />
                     {new Date(n.createdAt).toLocaleDateString("nl-NL")}
                   </span>
-                  <span className="text-warm-500">
-                    <Users size={12} className="inline mr-1" />
-                    Doelgroep: {n.doelgroep}
+                  <span className="text-warm-500 flex items-center gap-1">
+                    <Users size={11} />
+                    {n.doelgroep}
                   </span>
+                  {n.status === "VERZONDEN" && n.verstuurtAantal > 0 && (
+                    <span className="text-emerald-600 font-semibold">
+                      {n.verstuurtAantal} verzonden
+                    </span>
+                  )}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 flex-shrink-0">
                 <Badge variant={n.status === "VERZONDEN" ? "success" : "warning"}>
-                  {n.status}
+                  {n.status === "VERZONDEN" ? "Verzonden" : "Concept"}
                 </Badge>
-                <Link href={`/admin/nieuwsbrieven/${n.id}/edit`} className="p-2 rounded-lg hover:bg-warm-100 transition-colors">
+                <Link
+                  href={`/admin/nieuwsbrieven/${n.id}/edit`}
+                  className="p-2 rounded-lg hover:bg-warm-100 transition-colors"
+                  title="Bewerken"
+                >
                   <Edit size={16} className="text-warm-600" />
                 </Link>
-                <Link href={`/admin/nieuwsbrieven/${n.id}/preview`} className="p-2 rounded-lg hover:bg-warm-100 transition-colors">
+                <Link
+                  href={`/admin/nieuwsbrieven/${n.id}/preview`}
+                  className="p-2 rounded-lg hover:bg-warm-100 transition-colors"
+                  title="Preview"
+                >
                   <Eye size={16} className="text-warm-600" />
                 </Link>
                 {n.status === "CONCEPT" && (
-                  <Link href={`/admin/nieuwsbrieven/${n.id}/send`} className="p-2 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors">
-                    <Send size={16} />
+                  <Link
+                    href={`/admin/nieuwsbrieven/${n.id}/send`}
+                    className="p-2 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors"
+                    title="Versturen"
+                  >
+                    <Send size={15} />
                   </Link>
                 )}
               </div>

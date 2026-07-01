@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import AdminAppShell from "@/components/AdminAppShell";
@@ -7,6 +8,13 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "";
+
+  if (pathname === "/admin/login") {
+    return <>{children}</>;
+  }
+
   const session = await auth();
   if (!session?.user || session.user.rol !== "COORDINATOR") {
     redirect("/geen-toegang");
@@ -15,10 +23,7 @@ export default async function AdminLayout({
   const naam = session.user.naam ?? session.user.name ?? "Admin";
 
   return (
-    <AdminAppShell
-      naam={naam}
-      profielFoto={session.user.profielFoto}
-    >
+    <AdminAppShell naam={naam} profielFoto={session.user.profielFoto}>
       {children}
     </AdminAppShell>
   );

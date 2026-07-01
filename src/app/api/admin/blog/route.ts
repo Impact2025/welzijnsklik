@@ -72,8 +72,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(blogPost, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     console.error("[API] blog create error:", error);
-    return NextResponse.json({ error: error.message || "Database fout" }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Database fout" }, { status: 500 });
   }
 }
