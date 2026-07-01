@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { PageHeader, Card, Badge } from "@/components/ui";
@@ -12,12 +11,8 @@ export default async function NieuwsbriefSendPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const session = await auth();
-  const organisatieId = session!.user.organisatieId!;
 
-  const nieuwsbrief = await prisma.nieuwsbrief.findUnique({
-    where: { id, organisatieId },
-  });
+  const nieuwsbrief = await prisma.nieuwsbrief.findUnique({ where: { id } });
 
   if (!nieuwsbrief) notFound();
 
@@ -47,15 +42,8 @@ export default async function NieuwsbriefSendPage({
     );
   }
 
-  const rollen =
-    nieuwsbrief.doelgroep === "alle"
-      ? (["VRIJWILLIGER", "FAMILIE"] as const)
-      : nieuwsbrief.doelgroep === "vrijwilligers"
-      ? (["VRIJWILLIGER"] as const)
-      : (["FAMILIE"] as const);
-
-  const aantalOntvangers = await prisma.gebruiker.count({
-    where: { organisatieId, rol: { in: [...rollen] } },
+  const aantalOntvangers = await prisma.lead.count({
+    where: { status: { not: "niet_relevant" } },
   });
 
   const sendWithId = sendNieuwsbrief.bind(null, id);
@@ -90,7 +78,7 @@ export default async function NieuwsbriefSendPage({
           </div>
           <div className="flex items-center justify-between py-2 border-b border-neutral-100">
             <span className="text-neutral-500">Doelgroep</span>
-            <span className="font-medium text-gray-800 capitalize">{nieuwsbrief.doelgroep}</span>
+            <span className="font-medium text-gray-800">Leads</span>
           </div>
           <div className="flex items-center justify-between py-2">
             <span className="text-neutral-500 flex items-center gap-1.5">
@@ -103,7 +91,7 @@ export default async function NieuwsbriefSendPage({
 
         {aantalOntvangers === 0 ? (
           <div className="p-3 bg-neutral-50 rounded-xl text-sm text-neutral-500 text-center">
-            Geen ontvangers in de geselecteerde doelgroep.
+            Geen leads om naar te versturen.
           </div>
         ) : (
           <form action={sendWithId}>

@@ -26,7 +26,7 @@ export default auth(
       "/", "/geen-toegang", "/over-ons", "/pilot", "/support",
       "/algemene-voorwaarden", "/cookies", "/privacy", "/admin/login",
     ];
-    if (publicRoutes.includes(pathname)) {
+    if (publicRoutes.includes(pathname) || pathname === "/blog" || pathname.startsWith("/blog/")) {
       return nextWithPath(req, pathname);
     }
 

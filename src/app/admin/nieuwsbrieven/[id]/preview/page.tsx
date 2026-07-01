@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui";
@@ -11,12 +10,8 @@ export default async function NieuwsbriefPreviewPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const session = await auth();
-  const organisatieId = session!.user.organisatieId!;
 
-  const nieuwsbrief = await prisma.nieuwsbrief.findUnique({
-    where: { id, organisatieId },
-  });
+  const nieuwsbrief = await prisma.nieuwsbrief.findUnique({ where: { id } });
 
   if (!nieuwsbrief) notFound();
 
@@ -57,7 +52,7 @@ export default async function NieuwsbriefPreviewPage({
               </div>
               <div>
                 <span className="text-neutral-500 font-medium">Aan: </span>
-                <span className="text-gray-700">{nieuwsbrief.doelgroep === "alle" ? "Iedereen" : nieuwsbrief.doelgroep}</span>
+                <span className="text-gray-700">Alle leads</span>
               </div>
               <div>
                 <span className="text-neutral-500 font-medium">Onderwerp: </span>

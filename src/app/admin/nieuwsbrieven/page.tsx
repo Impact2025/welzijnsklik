@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Mail, Plus, Send, Users, Calendar, Edit, Eye } from "lucide-react";
 import { Card, PageHeader, Badge, EmptyState } from "@/components/ui";
@@ -7,17 +6,12 @@ import Link from "next/link";
 export default async function NieuwsbrievenDashboard({
   searchParams,
 }: {
-  searchParams: { status?: string };
+  searchParams: Promise<{ status?: string }>;
 }) {
-  const session = await auth();
-  const organisatieId = session!.user.organisatieId!;
+  const { status } = await searchParams;
+  const statusFilter = status ?? "alle";
 
-  const statusFilter = searchParams.status ?? "alle";
-
-  const whereClause = {
-    organisatieId,
-    ...(statusFilter !== "alle" ? { status: statusFilter.toUpperCase() } : {}),
-  };
+  const whereClause = statusFilter !== "alle" ? { status: statusFilter.toUpperCase() } : {};
 
   const nieuwsbrieven = await prisma.nieuwsbrief.findMany({
     where: whereClause,
@@ -27,7 +21,6 @@ export default async function NieuwsbrievenDashboard({
 
   const statusCounts = await prisma.nieuwsbrief.groupBy({
     by: ["status"],
-    where: { organisatieId },
     _count: { status: true },
   });
 
@@ -109,7 +102,7 @@ export default async function NieuwsbrievenDashboard({
                   </span>
                   <span className="text-warm-500 flex items-center gap-1">
                     <Users size={11} />
-                    {n.doelgroep}
+                    Leads
                   </span>
                   {n.status === "VERZONDEN" && n.verstuurtAantal > 0 && (
                     <span className="text-emerald-600 font-semibold">

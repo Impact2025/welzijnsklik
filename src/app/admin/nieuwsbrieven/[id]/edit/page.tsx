@@ -10,7 +10,6 @@ interface Nieuwsbrief {
   onderwerp: string;
   titel: string;
   inhoud: string;
-  doelgroep: string;
   type: string;
   status: string;
 }
@@ -106,31 +105,17 @@ export default function NieuwsbriefEditPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-warm-900 mb-1">Doelgroep</label>
-              <select
-                name="doelgroep"
-                defaultValue={item!.doelgroep}
-                className="w-full px-3 py-2 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-              >
-                <option value="vrijwilligers">Vrijwilligers</option>
-                <option value="familie">Familieleden</option>
-                <option value="alle">Iedereen</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-warm-900 mb-1">Type</label>
-              <select
-                name="type"
-                defaultValue={item!.type}
-                className="w-full px-3 py-2 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-              >
-                <option value="nieuwsbrief">Nieuwsbrief</option>
-                <option value="update">Update/bericht</option>
-                <option value="herinnering">Herinnering</option>
-              </select>
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-warm-900 mb-1">Type</label>
+            <select
+              name="type"
+              defaultValue={item!.type}
+              className="w-full px-3 py-2 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="nieuwsbrief">Nieuwsbrief</option>
+              <option value="update">Update/bericht</option>
+              <option value="herinnering">Herinnering</option>
+            </select>
           </div>
 
           {error && (

@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { FileText, Plus, Edit, Eye, BarChart3 } from "lucide-react";
 import { Card, PageHeader, Badge, EmptyState } from "@/components/ui";
@@ -7,17 +6,12 @@ import Link from "next/link";
 export default async function BlogDashboard({
   searchParams,
 }: {
-  searchParams: { status?: string; tag?: string };
+  searchParams: Promise<{ status?: string; tag?: string }>;
 }) {
-  const session = await auth();
-  const organisatieId = session!.user.organisatieId!;
+  const { status, tag: activeTag } = await searchParams;
+  const statusFilter = status ?? "alle";
 
-  const statusFilter = searchParams.status ?? "alle";
-
-  const whereClause = {
-    organisatieId,
-    ...(statusFilter !== "alle" ? { status: statusFilter.toUpperCase() } : {}),
-  };
+  const whereClause = statusFilter !== "alle" ? { status: statusFilter.toUpperCase() } : {};
 
   const [blogPosts, tags] = await Promise.all([
     prisma.blogPost.findMany({
@@ -27,14 +21,12 @@ export default async function BlogDashboard({
       include: { tags: { include: { tag: true } } },
     }),
     prisma.blogTag.findMany({
-      where: { organisatieId },
       orderBy: { naam: "asc" },
     }),
   ]);
 
   const statusCounts = await prisma.blogPost.groupBy({
     by: ["status"],
-    where: { organisatieId },
     _count: { status: true },
   });
 
@@ -95,7 +87,7 @@ export default async function BlogDashboard({
               key={tag.id}
               href={`/admin/blog?tag=${tag.slug}`}
               className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-                searchParams.tag === tag.slug ? "ring-2 ring-brand-500" : ""
+                activeTag === tag.slug ? "ring-2 ring-brand-500" : ""
               }`}
               style={{
                 backgroundColor: tag.kleur ? `${tag.kleur}20` : "#f3f4f6",

@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
 
     const blogPost = await prisma.blogPost.create({
       data: {
-        organisatieId: session.user.organisatieId!,
         titel,
         slug,
         inhoud,
@@ -57,7 +56,6 @@ export async function POST(request: NextRequest) {
           where: { slug: slugTag },
           update: {},
           create: {
-            organisatieId: session.user.organisatieId!,
             naam: tagNaam,
             slug: slugTag,
           },

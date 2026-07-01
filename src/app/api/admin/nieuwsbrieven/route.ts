@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
   const onderwerp = formData.get("onderwerp") as string;
   const titel = formData.get("titel") as string;
   const inhoud = formData.get("inhoud") as string;
-  const doelgroep = formData.get("doelgroep") as string;
   const type = (formData.get("type") as string) || "nieuwsbrief";
 
   if (!onderwerp || !titel || !inhoud) {
@@ -24,11 +23,10 @@ export async function POST(request: NextRequest) {
   try {
     const nieuwsbrief = await prisma.nieuwsbrief.create({
       data: {
-        organisatieId: session.user.organisatieId!,
         onderwerp,
         titel,
         inhoud,
-        doelgroep,
+        doelgroep: "leads",
         type,
         createdBy: session.user.naam ?? session.user.email ?? "onbekend",
         status: "CONCEPT",

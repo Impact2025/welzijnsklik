@@ -39,7 +39,7 @@ export default function NieuweNieuwsbriefForm() {
     <div className="p-6 space-y-6">
       <PageHeader
         title="Nieuwe nieuwsbrief"
-        description="Maak een nieuwsbrief voor vrijwilligers en familie"
+        description="Maak een nieuwsbrief voor je leads en prospects"
       />
 
       <Card className="max-w-2xl">
@@ -81,21 +81,6 @@ export default function NieuweNieuwsbriefForm() {
               placeholder="<h1>Welkom bij onze maandelijkse update</h1><p>...</p>"
               className="w-full px-3 py-2 rounded-xl border border-warm-200 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono text-sm"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-warm-900 mb-1">
-              Doelgroep
-            </label>
-            <select
-              name="doelgroep"
-              defaultValue="vrijwilligers"
-              className="w-full px-3 py-2 rounded-xl border border-warm-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
-            >
-              <option value="vrijwilligers">Alleen vrijwilligers</option>
-              <option value="familie">Alleen familieleden</option>
-              <option value="alle">Iedereen</option>
-            </select>
           </div>
 
           <div>

@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { Building2, Users, Activity, Mail, FileText, UserPlus, TrendingUp, UserCheck } from "lucide-react";
+import { Building2, Users, Activity, Mail, FileText, UserPlus, TrendingUp } from "lucide-react";
 import { StatCard, PageHeader, Card } from "@/components/ui";
 import Link from "next/link";
 
@@ -45,13 +45,13 @@ export default async function AdminDashboard() {
         <Card>
           <h2 className="font-semibold text-gray-900 mb-4">Snelle acties</h2>
           <div className="grid grid-cols-2 gap-3">
-            <Link href="/admin/crm/bewoners/nieuw" className="flex items-center gap-3 p-3 bg-warm-50 rounded-xl hover:bg-warm-100 transition-colors">
-              <Users size={20} className="text-brand-600" />
-              <span className="text-sm font-medium">Bewoner toevoegen</span>
+            <Link href="/admin/klanten/nieuw" className="flex items-center gap-3 p-3 bg-warm-50 rounded-xl hover:bg-warm-100 transition-colors">
+              <Building2 size={20} className="text-brand-600" />
+              <span className="text-sm font-medium">Nieuwe klant toevoegen</span>
             </Link>
-            <Link href="/admin/crm/vrijwilligers/nieuw" className="flex items-center gap-3 p-3 bg-warm-50 rounded-xl hover:bg-warm-100 transition-colors">
-              <UserCheck size={20} className="text-emerald-600" />
-              <span className="text-sm font-medium">Vrijwilliger uitnodigen</span>
+            <Link href="/admin/leads" className="flex items-center gap-3 p-3 bg-warm-50 rounded-xl hover:bg-warm-100 transition-colors">
+              <UserPlus size={20} className="text-emerald-600" />
+              <span className="text-sm font-medium">Lead toevoegen</span>
             </Link>
             <Link href="/admin/nieuwsbrieven/nieuw" className="flex items-center gap-3 p-3 bg-warm-50 rounded-xl hover:bg-warm-100 transition-colors">
               <Mail size={20} className="text-amber-600" />

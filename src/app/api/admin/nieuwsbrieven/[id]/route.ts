@@ -34,7 +34,6 @@ export async function PATCH(
   const onderwerp = formData.get("onderwerp") as string;
   const titel = formData.get("titel") as string;
   const inhoud = formData.get("inhoud") as string;
-  const doelgroep = formData.get("doelgroep") as string;
   const type = (formData.get("type") as string) || "nieuwsbrief";
 
   if (!onderwerp || !titel || !inhoud) {
@@ -44,7 +43,7 @@ export async function PATCH(
   try {
     const item = await prisma.nieuwsbrief.update({
       where: { id },
-      data: { onderwerp, titel, inhoud, doelgroep, type },
+      data: { onderwerp, titel, inhoud, type },
     });
     return NextResponse.json(item);
   } catch (error) {
