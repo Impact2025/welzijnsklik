@@ -24,7 +24,7 @@ export const authConfig = {
     },
     authorized({ auth: session, request: { nextUrl } }) {
       const pathname = nextUrl.pathname;
-      if (pathname.startsWith("/login") || pathname === "/geen-toegang") return true;
+      if (pathname.startsWith("/login") || pathname === "/geen-toegang" || pathname.startsWith("/admin/login")) return true;
       if (!session?.user) return false;
       const rol = session.user.rol;
       if (pathname.startsWith("/coordinator") && rol !== "COORDINATOR") return false;
