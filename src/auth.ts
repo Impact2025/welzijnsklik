@@ -6,29 +6,46 @@ import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/auth.config";
 import type { Rol } from "@/generated/prisma/client";
 
+import { compare } from "bcryptjs";
+
 const devProviders = [
-        Credentials({
-          id: "dev-login",
-          name: "Dev Login",
-          credentials: { email: { label: "E-mail", type: "email" } },
-          async authorize(credentials) {
-            try {
-              const email = credentials?.email as string | undefined;
-              if (!email) return null;
-              const user = await prisma.user.findUnique({ where: { email } });
-              if (!user) {
-                console.log("[dev-login] geen user gevonden voor:", email);
-                return null;
-              }
-              console.log("[dev-login] user gevonden:", user.id, user.email);
-              return { id: user.id, email: user.email ?? email, name: user.name };
-            } catch (err) {
-              console.error("[dev-login] authorize fout:", err);
-              return null;
-            }
-          },
-        }),
-      ]
+  Credentials({
+    id: "credentials",
+    name: "Credentials",
+    credentials: {
+      email: { label: "E-mail", type: "email" },
+      password: { label: "Wachtwoord", type: "password" },
+    },
+    async authorize(credentials) {
+      try {
+        const email = credentials?.email as string | undefined;
+        const password = credentials?.password as string | undefined;
+        if (!email || !password) return null;
+
+        const user = await prisma.user.findUnique({
+          where: { email },
+          select: { id: true, email: true, name: true, password: true },
+        });
+
+        if (!user?.password) {
+          // Fallback: toestaan als geen wachtwoord (dev mode / magic link)
+          if (process.env.NODE_ENV === "development") {
+            return { id: user!.id, email: user!.email ?? email, name: user!.name ?? "Dev User" };
+          }
+          return null;
+        }
+
+        const isValid = await compare(password, user.password);
+        if (!isValid) return null;
+
+        return { id: user.id, email: user.email ?? email, name: user.name };
+      } catch (err) {
+        console.error("[credentials] authorize fout:", err);
+        return null;
+      }
+    },
+  }),
+]
 
 const adminProvider = Credentials({
   id: "admin-login",

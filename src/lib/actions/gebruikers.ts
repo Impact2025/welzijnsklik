@@ -3,8 +3,9 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { randomBytes } from "crypto";
 
-// ─── Uitnodigen (pre-aanmaken User + Gebruiker) ──────────────────────────────
+// ─── Uitnodigen (pre-aanmaken User + Gebruiker + RegistratieToken) ─═══════
 
 export async function nodigGebruikerUit(formData: FormData) {
   const session = await auth();
@@ -20,19 +21,37 @@ export async function nodigGebruikerUit(formData: FormData) {
   const bewonerId = (formData.get("bewonerId") as string | null) || null;
   const relatie = (formData.get("relatie") as string | null)?.trim() || null;
 
+  // Intake velden (alleen relevant voor vrijwilligers)
+  const beschikbaarheid = (formData.get("beschikbaarheid") as string | null)?.trim() || null;
+  const vogStatus = (formData.get("vogStatus") as string | null)?.trim() || null;
+  const ervaring = (formData.get("ervaring") as string | null)?.trim() || null;
+  const motivatie = (formData.get("motivatie") as string | null)?.trim() || null;
+
   if (!naam || !email || !rol) throw new Error("Naam, e-mail en rol zijn verplicht");
 
   // Pre-aanmaken Auth.js User record (PrismaAdapter doet dit anders pas bij login)
   const user = await prisma.user.upsert({
     where: { email },
-    create: { email, name: naam },
+    create: { email, name: naam, emailVerified: null },
     update: {},
   });
 
   // Gebruiker record aanmaken of updaten
   const gebruiker = await prisma.gebruiker.upsert({
     where: { userId: user.id },
-    create: { naam, email, rol, telefoon, organisatieId, userId: user.id, voorkeurActiviteiten: [] },
+    create: {
+      naam,
+      email,
+      rol,
+      telefoon,
+      organisatieId,
+      userId: user.id,
+      voorkeurActiviteiten: [],
+      beschikbaarheid,
+      vogStatus,
+      ervaring,
+      motivatie,
+    },
     update: { naam, rol, telefoon },
   });
 
@@ -48,11 +67,63 @@ export async function nodigGebruikerUit(formData: FormData) {
     }
   }
 
+  // ─── Registratietoken aanmaken ───────────────────────────────────────
+  const token = randomBytes(32).toString("hex");
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7); // 7 dagen geldig
+
+  await prisma.registratieToken.create({
+    data: {
+      gebruikerId: gebruiker.id,
+      token,
+      expiresAt,
+    },
+  });
+
+  // In development: geef registratie URL terug
+  // In productie: verstuur via email (Resend)
+  const registratieUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/register/${token}`;
+
+  // Revalideer relevante paden
   revalidatePath("/coordinator/gebruikers");
   revalidatePath("/coordinator/bewoners");
   if (bewonerId) revalidatePath(`/coordinator/bewoners/${bewonerId}`);
 
-  return { email };
+  return { email, registratieUrl };
+}
+
+// ─── Registratie voltooien (wachtwoord instellen) ─═════════════════════════
+
+export async function voltooiRegistratie(token: string, wachtwoord: string) {
+  if (!token || !wachtwoord) throw new Error("Token en wachtwoord zijn verplicht");
+  if (wachtwoord.length < 6) throw new Error("Wachtwoord moet minimaal 6 tekens zijn");
+
+  const registratieToken = await prisma.registratieToken.findUnique({
+    where: { token },
+    include: { gebruiker: true },
+  });
+
+  if (!registratieToken) throw new Error("Ongeldige registratietoken");
+  if (registratieToken.expiresAt < new Date()) throw new Error("Token is verlopen");
+
+  // Haal het User record op
+  const userId = registratieToken.gebruiker.userId;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error("Gebruiker niet gevonden");
+
+  // Hash het wachtwoord en sla op
+  const hashedPassword = await (await import("bcryptjs")).hash(wachtwoord, 12);
+
+  // Markeer email als geverifieerd en sla wachtwoord op
+  await prisma.user.update({
+    where: { id: userId },
+    data: { emailVerified: new Date(), password: hashedPassword },
+  });
+
+  // Verwijder token (eenmalig gebruik)
+  await prisma.registratieToken.delete({ where: { id: registratieToken.id } });
+
+  return { email: user.email };
 }
 
 // ─── Familielid gegevens bijwerken ───────────────────────────────────────────
