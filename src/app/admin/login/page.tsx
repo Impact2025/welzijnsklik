@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { Card } from "@/components/ui";
 import { Lock, LogIn } from "lucide-react";
