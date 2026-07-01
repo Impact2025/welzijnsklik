@@ -7,7 +7,7 @@ datasource db {
   provider = "postgresql"
 }
 
-// ─── Auth.js vereiste modellen ───────────────────────────────────────────────
+// ─── Auth.js modellen ────────────────────────────────────────────────
 
 model Account {
   id                String  @id @default(cuid())
@@ -44,20 +44,17 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-
-  // Onze eigen extensie
-  gebruiker Gebruiker?
+  gebruiker     Gebruiker?
 }
 
 model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-
   @@unique([identifier, token])
 }
 
-// ─── Welzijnsklik domeinmodellen ─────────────────────────────────────────────
+// ─── Welzijnsklik domeinmodellen ───────────────────────────────────
 
 enum Rol {
   COORDINATOR
@@ -70,6 +67,13 @@ model Organisatie {
   naam      String
   plaats    String
   createdAt DateTime    @default(now())
+  // Admin relations
+  nieuwsbrieven       Nieuwsbrief[]
+  blogPosts           BlogPost[]
+  analyticsEvents     AnalyticsEvent[]
+  adminInstellingen   AdminInstellingen?
+  blogTags            BlogTag[]
+  // Core relations
   gebruikers   Gebruiker[]
   bewoners     Bewoner[]
   hulpGevraagd HulpGevraagd[]
@@ -89,7 +93,6 @@ model Gebruiker {
   familieVan    FamilieKoppeling[]
   createdAt     DateTime    @default(now())
 
-  // Link naar Auth.js User
   userId        String      @unique
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -100,14 +103,16 @@ model Gebruiker {
   hulpReacties     HulpReactie[]
   berichtenVan     Bericht[]     @relation("BerichtenVan")
   berichtenAan     Bericht[]     @relation("BerichtenAan")
+  nieuwsbriefAbonnementen NieuwsbriefAbonnement[]
+  analyticsEvents AnalyticsEvent[]
 }
 
 model EmailVoorkeur {
   id              String   @id @default(cuid())
   gebruikerId     String   @unique
   gebruiker       Gebruiker @relation(fields: [gebruikerId], references: [id], onDelete: Cascade)
-  activiteiten    Boolean  @default(true)  // notificatie bij nieuwe activiteiten (familie)
-  wekelijkseDigest Boolean @default(true)  // wekelijkse samenvatting (coordinators)
+  activiteiten    Boolean  @default(true)
+  wekelijkseDigest Boolean @default(true)
   gewijzigdOp     DateTime @default(now()) @updatedAt
 }
 
@@ -132,9 +137,9 @@ model ToestemmingLog {
   id              String   @id @default(cuid())
   bewonerId       String
   bewoner         Bewoner  @relation(fields: [bewonerId], references: [id])
-  actie           String   // "AAN" of "UIT"
-  door            String   // wie gaf/verwijderde toestemming
-  uitgevoerdDoor  String   // userId van de coördinator
+  actie           String
+  door            String
+  uitgevoerdDoor  String
   createdAt       DateTime @default(now())
 }
 
@@ -167,20 +172,18 @@ model Reactie {
   activiteit    Activiteit @relation(fields: [activiteitId], references: [id], onDelete: Cascade)
   gebruikerId   String
   gebruiker     Gebruiker @relation(fields: [gebruikerId], references: [id])
-  emoji         String    // bijv. "❤️", "😊", "👍"
-  bericht       String?   // optioneel tekstbericht
+  emoji         String
+  bericht       String?
   createdAt     DateTime  @default(now())
-
-  @@unique([activiteitId, gebruikerId, emoji]) // 1x dezelfde emoji per persoon
+  @@unique([activiteitId, gebruikerId, emoji])
 }
 
-// AVG-logboek: elke fotoupload wordt gelogd voor audit trail
 model ActiviteitLog {
   id              String   @id @default(cuid())
   bewonerId       String
   vrijwilligerId  String
-  actie           String   // "FOTO_UPLOAD" (uitbreidbaar)
-  details         String?  // bijv. de Blob URL
+  actie           String
+  details         String?
   createdAt       DateTime @default(now())
 }
 
@@ -210,7 +213,6 @@ model HulpReactie {
   bericht        String?
   status         String       @default("aangemeld")
   createdAt      DateTime     @default(now())
-
   @@unique([hulpGevraagdId, vrijwilligerId])
 }
 
@@ -222,7 +224,6 @@ model Bericht {
   inhoud        String    @db.Text
   gelezen       Boolean   @default(false)
   createdAt     DateTime  @default(now())
-
   van           Gebruiker @relation("BerichtenVan", fields: [vanId], references: [id])
   aan           Gebruiker @relation("BerichtenAan", fields: [aanId], references: [id])
 }
@@ -237,4 +238,109 @@ model Wervingsinteresse {
   bericht      String?
   status       String    @default("nieuw")
   createdAt    DateTime  @default(now())
+}
+
+// ─── Admin sectie modellen ───────────────────────────────────────────────
+
+model AdminInstellingen {
+  id                 String   @id @default(cuid())
+  organisatieId      String   @unique
+  organisatie        Organisatie @relation(fields: [organisatieId], references: [id])
+  nieuwsbriefEnabled Boolean   @default(true)
+  nieuwsbriefFrom    String?
+  logoUrl            String?
+  primaireKleur      String?
+  gewijzigdOp        DateTime  @default(now()) @updatedAt
+}
+
+model Nieuwsbrief {
+  id            String   @id @default(cuid())
+  organisatieId String
+  organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  onderwerp      String
+  titel         String
+  inhoud        String   @db.Text
+  type          String   @default("nieuwsbrief")
+  doelgroep     String
+  status        String   @default("concept")
+  verzendDatum  DateTime?
+  verzondenOp   DateTime?
+  verstuurtAantal Int    @default(0)
+  geopendAantal   Int    @default(0)
+  gekliktAantal   Int    @default(0)
+  createdAt     DateTime @default(now())
+  createdBy     String
+  abonnementen  NieuwsbriefAbonnement[]
+}
+
+model NieuwsbriefAbonnement {
+  id           String   @id @default(cuid())
+  nieuwsbriefId String
+  nieuwsbrief   Nieuwsbrief @relation(fields: [nieuwsbriefId], references: [id], onDelete: Cascade)
+  gebruikerId String?
+  gebruiker   Gebruiker? @relation(fields: [gebruikerId], references: [id])
+  email       String
+  naam        String?
+  status      String   @default("verzonden")
+  geopend     Boolean  @default(false)
+  geklikt     Boolean  @default(false)
+  gekliktOp   DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model BlogPost {
+  id            String   @id @default(cuid())
+  organisatieId String
+  organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  titel         String
+  slug          String   @unique
+  inhoud        String   @db.Text
+  samenvatting  String?  @db.Text
+  seoTitle      String?
+  seoDescription String?
+  seoKeywords   String[] @default([])
+  focusKeyword  String?
+  status        String   @default("concept")
+  gepubliceerdOp DateTime?
+  featuredImage String?
+  pageviews     Int      @default(0)
+  likes         Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedBy     String
+  tags          BlogPostTag[]
+}
+
+model BlogTag {
+  id           String   @id @default(cuid())
+  organisatieId String
+  organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  naam        String
+  slug        String   @unique
+  kleur       String?
+  createdAt   DateTime @default(now())
+  posts       BlogPostTag[]
+}
+
+model BlogPostTag {
+  id     String @id @default(cuid())
+  postId String
+  post   BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tagId  String
+  tag    BlogTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  @@unique([postId, tagId])
+}
+
+model AnalyticsEvent {
+  id            String   @id @default(cuid())
+  organisatieId String
+  organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  eventNaam     String
+  gebruikerId   String?
+  gebruiker     Gebruiker? @relation(fields: [gebruikerId], references: [id])
+  metaData      String?  @db.Text
+  userAgent     String?
+  ipHash        String?
+  referrer      String?
+  path          String
+  createdAt     DateTime @default(now())
 }
