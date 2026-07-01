@@ -14,13 +14,7 @@ const maxWidth = 1440;
 
 export default function OverOnsPage() {
   return (
-    <div
-      style={{
-        fontFamily: 'var(--font-outfit, Outfit, sans-serif)',
-        color: '#191c1d',
-        background: '#f8f9fa',
-      }}
-    >
+    <div style={{ color: '#1a1714', background: '#faf8f5' }}>
       <MarketingHeader />
       <main style={{ paddingTop: 64 }}>
         {/* Hero section */}
@@ -29,8 +23,8 @@ export default function OverOnsPage() {
             <span
               style={{
                 display: 'inline-block',
-                background: 'rgba(0,94,159,0.08)',
-                color: '#005e9f',
+                background: 'rgba(217,119,6,0.08)',
+                color: '#d97706',
                 fontWeight: 600,
                 fontSize: 13,
                 letterSpacing: '0.06em',
@@ -46,7 +40,7 @@ export default function OverOnsPage() {
               style={{
                 fontSize: 'clamp(32px,5vw,56px)',
                 fontWeight: 800,
-                color: '#1D3557',
+                color: '#1a1714',
                 lineHeight: 1.15,
                 marginBottom: 24,
                 maxWidth: 720,
@@ -57,7 +51,7 @@ export default function OverOnsPage() {
             <p
               style={{
                 fontSize: 'clamp(16px,2vw,20px)',
-                color: '#404751',
+                color: '#57534e',
                 lineHeight: 1.7,
                 maxWidth: 680,
               }}
@@ -71,11 +65,11 @@ export default function OverOnsPage() {
         </section>
 
         {/* Quote section */}
-        <section style={{ background: '#f3f4f5', padding: sectionPadding }}>
+        <section style={{ background: '#f5f2ed', padding: sectionPadding }}>
           <div style={{ maxWidth, margin: '0 auto' }}>
             <blockquote
               style={{
-                borderLeft: '4px solid #FFB800',
+                borderLeft: '4px solid #F59E0B',
                 paddingLeft: 32,
                 maxWidth: 800,
                 margin: '0 auto',
@@ -85,7 +79,7 @@ export default function OverOnsPage() {
                 style={{
                   fontSize: 'clamp(18px,2.5vw,24px)',
                   fontStyle: 'italic',
-                  color: '#1D3557',
+                  color: '#1a1714',
                   lineHeight: 1.65,
                   marginBottom: 20,
                 }}
@@ -95,7 +89,7 @@ export default function OverOnsPage() {
                 professionals weer tijd krijgen voor menselijk contact.&rdquo;
               </p>
               <footer
-                style={{ fontSize: 15, fontWeight: 600, color: '#404751', fontStyle: 'normal' }}
+                style={{ fontSize: 15, fontWeight: 600, color: '#57534e', fontStyle: 'normal' }}
               >
                 — Vincent van Munster, WeAreImpact B.V.
               </footer>
@@ -110,7 +104,7 @@ export default function OverOnsPage() {
               style={{
                 fontSize: 'clamp(24px,3vw,36px)',
                 fontWeight: 700,
-                color: '#1D3557',
+                color: '#1a1714',
                 marginBottom: 40,
                 textAlign: 'center',
               }}
@@ -129,8 +123,8 @@ export default function OverOnsPage() {
                 style={{
                   background: '#ffffff',
                   borderRadius: 20,
-                  border: '1px solid rgba(192,199,211,0.25)',
-                  boxShadow: '0px 4px 20px rgba(29,53,87,0.05)',
+                  border: '1px solid rgba(212,205,194,0.35)',
+                  boxShadow: '0px 4px 20px rgba(26,23,20,0.05)',
                   padding: 36,
                 }}
               >
@@ -139,21 +133,21 @@ export default function OverOnsPage() {
                     width: 52,
                     height: 52,
                     borderRadius: 14,
-                    background: 'rgba(0,94,159,0.08)',
+                    background: 'rgba(217,119,6,0.08)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: 20,
                   }}
                 >
-                  <Target size={26} color="#005e9f" />
+                  <Target size={26} color="#d97706" />
                 </div>
                 <h3
-                  style={{ fontSize: 20, fontWeight: 700, color: '#1D3557', marginBottom: 12 }}
+                  style={{ fontSize: 20, fontWeight: 700, color: '#1a1714', marginBottom: 12 }}
                 >
                   Onze missie
                 </h3>
-                <p style={{ fontSize: 16, color: '#404751', lineHeight: 1.65 }}>
+                <p style={{ fontSize: 16, color: '#57534e', lineHeight: 1.65 }}>
                   De menselijke maat herstellen in de zorg door technologie die medewerkers
                   ontlast, families verbindt en bewoners meer kwaliteit van leven geeft.
                 </p>
@@ -164,8 +158,8 @@ export default function OverOnsPage() {
                 style={{
                   background: '#ffffff',
                   borderRadius: 20,
-                  border: '1px solid rgba(192,199,211,0.25)',
-                  boxShadow: '0px 4px 20px rgba(29,53,87,0.05)',
+                  border: '1px solid rgba(212,205,194,0.35)',
+                  boxShadow: '0px 4px 20px rgba(26,23,20,0.05)',
                   padding: 36,
                 }}
               >
@@ -174,21 +168,21 @@ export default function OverOnsPage() {
                     width: 52,
                     height: 52,
                     borderRadius: 14,
-                    background: 'rgba(0,94,159,0.08)',
+                    background: 'rgba(217,119,6,0.08)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     marginBottom: 20,
                   }}
                 >
-                  <Briefcase size={26} color="#005e9f" />
+                  <Briefcase size={26} color="#d97706" />
                 </div>
                 <h3
-                  style={{ fontSize: 20, fontWeight: 700, color: '#1D3557', marginBottom: 12 }}
+                  style={{ fontSize: 20, fontWeight: 700, color: '#1a1714', marginBottom: 12 }}
                 >
                   WeAreImpact B.V.
                 </h3>
-                <p style={{ fontSize: 16, color: '#404751', lineHeight: 1.65 }}>
+                <p style={{ fontSize: 16, color: '#57534e', lineHeight: 1.65 }}>
                   WeAreImpact B.V. is het bedrijf achter Welzijnsklik. Wij combineren bestuurlijke
                   kennis van de zorg- en welzijnssector met hands-on software-ontwikkeling.
                 </p>
@@ -206,7 +200,7 @@ export default function OverOnsPage() {
               style={{
                 fontSize: 'clamp(24px,3vw,36px)',
                 fontWeight: 700,
-                color: '#1D3557',
+                color: '#1a1714',
                 marginBottom: 16,
               }}
             >
@@ -215,7 +209,7 @@ export default function OverOnsPage() {
             <p
               style={{
                 fontSize: 'clamp(16px,2vw,18px)',
-                color: '#404751',
+                color: '#57534e',
                 lineHeight: 1.65,
                 marginBottom: 36,
               }}
@@ -226,8 +220,8 @@ export default function OverOnsPage() {
               href="mailto:v.munster@weareimpact.nl"
               style={{
                 display: 'inline-block',
-                background: '#FFB800',
-                color: '#191c1d',
+                background: '#F59E0B',
+                color: '#fff',
                 fontWeight: 700,
                 fontSize: 16,
                 padding: '14px 32px',
