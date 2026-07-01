@@ -105,6 +105,12 @@ model Gebruiker {
   berichtenAan     Bericht[]     @relation("BerichtenAan")
   nieuwsbriefAbonnementen NieuwsbriefAbonnement[]
   analyticsEvents AnalyticsEvent[]
+
+  // Intake velden voor vrijwilligers
+  beschikbaarheid String?
+  ervaring       String?   @db.Text
+  motivatie      String?   @db.Text
+  vogStatus      String?
 }
 
 model EmailVoorkeur {
@@ -229,15 +235,21 @@ model Bericht {
 }
 
 model Wervingsinteresse {
-  id           String    @id @default(cuid())
-  gebruikerId  String?
-  gebruiker    Gebruiker? @relation(fields: [gebruikerId], references: [id])
-  naam         String?
-  email        String?
-  activiteitId String?
-  bericht      String?
-  status       String    @default("nieuw")
-  createdAt    DateTime  @default(now())
+  id             String    @id @default(cuid())
+  gebruikerId    String?
+  gebruiker      Gebruiker? @relation(fields: [gebruikerId], references: [id])
+  naam           String?
+  email          String?
+  activiteitId   String?
+  bericht        String?
+
+  // Intake details (zichtbaar voor coördinator)
+  beschikbaarheid String?   // "weekend", "weekdagen", "avonden", etc.
+  ervaring       String?   @db.Text  // Eerdere vrijwilligers/zorg ervaring
+  motivatie      String?   @db.Text  // Waarom wil je vrijwilligerswerk doen?
+  vogStatus      String?   // "heeft", "aanvraag_lopen", "niet_nodig"
+  status         String    @default("nieuw")
+  createdAt      DateTime  @default(now())
 }
 
 // ─── Admin sectie modellen ───────────────────────────────────────────────
@@ -255,8 +267,8 @@ model AdminInstellingen {
 
 model Nieuwsbrief {
   id            String   @id @default(cuid())
-  organisatieId String
-  organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  organisatieId String?
+  organisatie   Organisatie? @relation(fields: [organisatieId], references: [id])
   onderwerp      String
   titel         String
   inhoud        String   @db.Text
@@ -290,8 +302,8 @@ model NieuwsbriefAbonnement {
 
 model BlogPost {
   id            String   @id @default(cuid())
-  organisatieId String
-  organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  organisatieId String?
+  organisatie   Organisatie? @relation(fields: [organisatieId], references: [id])
   titel         String
   slug          String   @unique
   inhoud        String   @db.Text
@@ -312,8 +324,8 @@ model BlogPost {
 
 model BlogTag {
   id           String   @id @default(cuid())
-  organisatieId String
-  organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  organisatieId String?
+  organisatie   Organisatie? @relation(fields: [organisatieId], references: [id])
   naam        String
   slug        String   @unique
   kleur       String?
@@ -328,6 +340,17 @@ model BlogPostTag {
   tagId  String
   tag    BlogTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
   @@unique([postId, tagId])
+}
+
+model Lead {
+  id          String   @id @default(cuid())
+  naam        String?
+  organisatie String?
+  email       String
+  telefoon    String?
+  notitie     String?  @db.Text
+  status      String   @default("nieuw") // nieuw | benaderd | klant | niet_relevant
+  createdAt   DateTime @default(now())
 }
 
 model AnalyticsEvent {

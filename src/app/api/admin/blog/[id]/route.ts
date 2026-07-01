@@ -1,28 +1,21 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { optimizeSEO } from "@/lib/ai-client";
-
-async function requireCoordinator() {
-  const session = await auth();
-  if (!session?.user || session.user.rol !== "COORDINATOR") {
-    throw new Error("Geen toegang");
-  }
-  return session;
-}
+import { requireAdmin } from "@/lib/admin-auth";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const session = await auth();
-  if (!session?.user || session.user.rol !== "COORDINATOR") {
+  try {
+    await requireAdmin();
+  } catch {
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
   }
 
   const post = await prisma.blogPost.findUnique({
-    where: { id, organisatieId: session.user.organisatieId! },
+    where: { id },
     include: { tags: { include: { tag: true } } },
   });
 
@@ -37,7 +30,7 @@ export async function PATCH(
   const { id } = await params;
   let session;
   try {
-    session = await requireCoordinator();
+    session = await requireAdmin();
   } catch {
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
   }
@@ -67,7 +60,7 @@ export async function PATCH(
 
   try {
     const post = await prisma.blogPost.update({
-      where: { id, organisatieId: session.user.organisatieId! },
+      where: { id },
       data: {
         titel,
         slug,
@@ -93,16 +86,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  let session;
   try {
-    session = await requireCoordinator();
+    await requireAdmin();
   } catch {
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
   }
 
   try {
     await prisma.blogPost.delete({
-      where: { id, organisatieId: session.user.organisatieId! },
+      where: { id },
     });
     return NextResponse.json({ ok: true });
   } catch (error) {

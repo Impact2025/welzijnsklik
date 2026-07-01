@@ -1,7 +1,22 @@
 import { PageHeader, Card } from "@/components/ui";
 import { inviteVrijwilliger } from "@/app/admin/_actions";
 import Link from "next/link";
-import { Mail } from "lucide-react";
+import { Mail, Calendar, Shield, Heart, ChevronRight } from "lucide-react";
+
+// Beschikbaarheid opties
+const BESCHIKBAARHEID_OPTIES = [
+  { value: "weekend", label: "Weekend" },
+  { value: "weekdagen", label: "Weekdagen" },
+  { value: "avonden", label: "Avonden" },
+  { value: "flexibel", label: "Flexibel" },
+];
+
+// VOG status opties
+const VOG_OPTIES = [
+  { value: "heeft", label: "Heeft VOG" },
+  { value: "aanvraag_lopen", label: "VOG in aanvraag" },
+  { value: "niet_nodig", label: "Niet nodig" },
+];
 
 export default function NieuweVrijwilliger() {
   return (
@@ -51,6 +66,68 @@ export default function NieuweVrijwilliger() {
               type="tel"
               placeholder="06 12345678"
               className="w-full px-3 py-2 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
+
+          {/* Beschikbaarheid */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
+              <Calendar size={14} />
+              Beschikbaarheid
+            </label>
+            <select
+              name="beschikbaarheid"
+              className="w-full px-3 py-2 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="">Selecteer…</option>
+              {BESCHIKBAARHEID_OPTIES.map((optie) => (
+                <option key={optie.value} value={optie.value}>{optie.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* VOG status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-1.5">
+              <Shield size={14} />
+              VOG-status
+            </label>
+            <select
+              name="vogStatus"
+              defaultValue="niet_nodig"
+              className="w-full px-3 py-2 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              {VOG_OPTIES.map((optie) => (
+                <option key={optie.value} value={optie.value}>{optie.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Ervaring */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
+              <Heart size={14} />
+              Ervaring (optioneel)
+            </label>
+            <textarea
+              name="ervaring"
+              rows={3}
+              placeholder="Eerdere vrijwilligers- of zorgervaring…"
+              className="w-full px-3 py-2 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
+            />
+          </div>
+
+          {/* Motivatie */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1.5">
+              <Heart size={14} />
+              Motivatie (optioneel)
+            </label>
+            <textarea
+              name="motivatie"
+              rows={3}
+              placeholder="Waarom wil deze persoon vrijwilligerswerk doen?"
+              className="w-full px-3 py-2 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
             />
           </div>
 

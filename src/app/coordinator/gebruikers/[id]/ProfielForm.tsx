@@ -2,9 +2,24 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Save, Loader2 } from "lucide-react";
+import { Save, Loader2, Calendar, Shield, Heart } from "lucide-react";
 import { updateVrijwilligerProfiel, updateGebruikerNaam } from "@/lib/actions/gebruikers";
 import { ACTIVITEIT_TYPES } from "@/lib/activiteit";
+
+// Beschikbaarheid opties
+const BESCHIKBAARHEID_OPTIES = [
+  { value: "weekend", label: "Weekend" },
+  { value: "weekdagen", label: "Weekdagen" },
+  { value: "avonden", label: "Avonden" },
+  { value: "flexibel", label: "Flexibel" },
+];
+
+// VOG status opties
+const VOG_OPTIES = [
+  { value: "heeft", label: "Heeft VOG" },
+  { value: "aanvraag_lopen", label: "VOG in aanvraag" },
+  { value: "niet_nodig", label: "Niet nodig" },
+];
 
 interface Props {
   gebruikerId: string;
@@ -12,14 +27,32 @@ interface Props {
   telefoon: string | null;
   voorkeurActiviteiten: string[];
   interneNotities: string | null;
+  beschikbaarheid?: string | null;
+  vogStatus?: string | null;
+  ervaring?: string | null;
+  motivatie?: string | null;
 }
 
-export function ProfielForm({ gebruikerId, naam, telefoon, voorkeurActiviteiten, interneNotities }: Props) {
+export function ProfielForm({ 
+  gebruikerId, 
+  naam, 
+  telefoon, 
+  voorkeurActiviteiten, 
+  interneNotities,
+  beschikbaarheid: initBeschikbaarheid,
+  vogStatus: initVogStatus,
+  ervaring: initErvaring,
+  motivatie: initMotivatie,
+}: Props) {
   const router = useRouter();
   const [gekozen, setGekozen] = useState<string[]>(voorkeurActiviteiten);
   const [isPending, startTransition] = useTransition();
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Intake state
+  const [beschikbaarheid, setBeschikbaarheid] = useState(initBeschikbaarheid ?? "");
+  const [vogStatus, setVogStatus] = useState(initVogStatus ?? "niet_nodig");
 
   function toggle(label: string) {
     setGekozen((prev) =>
@@ -34,6 +67,10 @@ export function ProfielForm({ gebruikerId, naam, telefoon, voorkeurActiviteiten,
     // voorkeur als meerdere waarden
     formData.delete("voorkeurActiviteiten");
     for (const v of gekozen) formData.append("voorkeurActiviteiten", v);
+    
+    // Intake velden toevoegen
+    formData.set("beschikbaarheid", beschikbaarheid);
+    formData.set("vogStatus", vogStatus);
 
     startTransition(async () => {
       try {
@@ -82,6 +119,73 @@ export function ProfielForm({ gebruikerId, naam, telefoon, voorkeurActiviteiten,
             className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
           />
         </div>
+      </div>
+
+      {/* Beschikbaarheid */}
+      <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 space-y-3">
+        <h3 className="font-semibold text-gray-900 text-[15px] flex items-center gap-1.5">
+          <Calendar size={15} />
+          Beschikbaarheid
+        </h3>
+        <select
+          value={beschikbaarheid}
+          onChange={(e) => setBeschikbaarheid(e.target.value)}
+          name="beschikbaarheid"
+          className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
+        >
+          <option value="">Selecteer…</option>
+          {BESCHIKBAARHEID_OPTIES.map((optie) => (
+            <option key={optie.value} value={optie.value}>{optie.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* VOG status */}
+      <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 space-y-3">
+        <h3 className="font-semibold text-gray-900 text-[15px] flex items-center gap-1.5">
+          <Shield size={15} />
+          VOG-status
+        </h3>
+        <select
+          value={vogStatus}
+          onChange={(e) => setVogStatus(e.target.value)}
+          name="vogStatus"
+          className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50"
+        >
+          {VOG_OPTIES.map((optie) => (
+            <option key={optie.value} value={optie.value}>{optie.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Ervaring */}
+      <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 space-y-3">
+        <h3 className="font-semibold text-gray-900 text-[15px] flex items-center gap-1.5">
+          <Heart size={15} />
+          Ervaring
+        </h3>
+        <textarea
+          name="ervaring"
+          rows={3}
+          defaultValue={initErvaring ?? ""}
+          placeholder="Eerdere vrijwilligers- of zorgervaring…"
+          className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50 resize-none"
+        />
+      </div>
+
+      {/* Motivatie */}
+      <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-5 space-y-3">
+        <h3 className="font-semibold text-gray-900 text-[15px] flex items-center gap-1.5">
+          <Heart size={15} />
+          Motivatie
+        </h3>
+        <textarea
+          name="motivatie"
+          rows={3}
+          defaultValue={initMotivatie ?? ""}
+          placeholder="Waarom wil deze persoon vrijwilligerswerk doen?"
+          className="w-full border border-neutral-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50 resize-none"
+        />
       </div>
 
       {/* Voorkeur activiteiten */}

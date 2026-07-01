@@ -1,12 +1,13 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { optimizeSEO } from "@/lib/ai-client";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  
-  if (!session?.user || session.user.rol !== "COORDINATOR") {
+  let session;
+  try {
+    session = await requireAdmin();
+  } catch {
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
   }
 

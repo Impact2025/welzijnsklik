@@ -4,7 +4,13 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail, wervingHtml } from "@/lib/email";
 
-export async function meldWervingsinteresse(bericht: string) {
+export async function meldWervingsinteresse(
+  beschikbaarheid: string,
+  ervaring: string | null,
+  motivatie: string | null,
+  vogStatus: string,
+  bericht: string | null
+) {
   const session = await auth();
   if (!session?.user?.gebruikerId || session.user.rol !== "FAMILIE") {
     throw new Error("Niet geautoriseerd");
@@ -23,6 +29,10 @@ export async function meldWervingsinteresse(bericht: string) {
   const interesse = await prisma.wervingsinteresse.create({
     data: {
       gebruikerId: session.user.gebruikerId,
+      beschikbaarheid: beschikbaarheid || null,
+      ervaring: ervaring || null,
+      motivatie: motivatie || null,
+      vogStatus: vogStatus || null,
       bericht: bericht || null,
     },
   });
@@ -40,6 +50,10 @@ export async function meldWervingsinteresse(bericht: string) {
     const html = wervingHtml(
       gebruiker.naam ?? session.user.naam ?? "Onbekend",
       gebruiker.email ?? session.user.email ?? "",
+      beschikbaarheid,
+      ervaring,
+      motivatie,
+      vogStatus,
       bericht,
       gebruiker.organisatie.naam
     );

@@ -45,37 +45,9 @@ const adminProvider = Credentials({
     if (!adminEmail || !adminPassword) return null;
     if (email !== adminEmail || password !== adminPassword) return null;
 
-    let user = await prisma.user.findUnique({
-      where: { email: adminEmail },
-      include: { gebruiker: true },
-    });
-
-    if (!user) {
-      user = await prisma.user.create({
-        data: { email: adminEmail, name: "Admin" },
-        include: { gebruiker: true },
-      });
-    }
-
-    if (!user.gebruiker) {
-      let organisatie = await prisma.organisatie.findFirst();
-      if (!organisatie) {
-        organisatie = await prisma.organisatie.create({
-          data: { naam: "Stichting de Baan", plaats: "Amsterdam" },
-        });
-      }
-      await prisma.gebruiker.create({
-        data: {
-          naam: "Admin",
-          email: adminEmail,
-          rol: "COORDINATOR",
-          organisatieId: organisatie.id,
-          userId: user.id,
-        },
-      });
-    }
-
-    return { id: user.id, email: user.email ?? adminEmail, name: user.name };
+    // Platform-eigenaar heeft geen Gebruiker/Organisatie-record nodig — dit is geen
+    // klant-coördinator, gewoon een los platform-account bovenop de JWT-sessie.
+    return { id: "platform-admin", email: adminEmail, name: "Admin" };
   },
 });
 
@@ -101,7 +73,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       // Query DB bij eerste login OF als vereiste velden ontbreken (verouderd token)
       const userId = user?.id ?? (token.sub as string | undefined);
-      if (userId && (!token.gebruikerId || !token.organisatieId)) {
+      const isPlatformAdmin = token.email === process.env.ADMIN_EMAIL;
+      if (userId && !isPlatformAdmin && (!token.gebruikerId || !token.organisatieId)) {
         try {
           const gebruiker = await prisma.gebruiker.findUnique({
             where: { userId },

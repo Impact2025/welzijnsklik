@@ -157,7 +157,7 @@ export function activiteitHtml(
     title: `Nieuwe activiteit: ${type}`,
     preheader: `${vrijwilligerNaam} was ${type.toLowerCase()} bij ${bewonerNaam}`,
     body: `
-      <h2> Nieuwe activiteit geregistreerd</h2>
+      <h2>Nieuwe activiteit geregistreerd</h2>
       <p>Beste familie,</p>
       <p>Er is zojuist een nieuwe activiteit geregistreerd voor <strong>${esc(bewonerNaam)}</strong>.</p>
       <div style="background:#f5f2ed; border-radius:12px; padding:16px; margin:16px 0;">
@@ -178,19 +178,39 @@ export function activiteitHtml(
 export function wervingHtml(
   naam: string,
   email: string,
+  beschikbaarheid: string,
+  ervaring: string | null,
+  motivatie: string | null,
+  vogStatus: string,
   bericht: string | null,
   organisatie: string
 ): string {
+  const beschikbaarheidLabels: Record<string, string> = {
+    weekend: "Weekend",
+    weekdagen: "Weekdagen",
+    avonden: "Avonden",
+    flexibel: "Flexibel",
+  };
+
+  const vogLabels: Record<string, string> = {
+    heeft: "Heeft VOG",
+    aanvraag_lopen: "VOG in aanvraag",
+    niet_nodig: "Niet nodig",
+  };
+
   return baseHtml({
     title: "Nieuwe aanmelding samenzorg-vrijwilliger",
     preheader: `${naam} wil helpen bij ${organisatie}`,
     body: `
-      <h2> Nieuwe aanmelding</h2>
+      <h2>Nieuwe aanmelding</h2>
       <p><strong>${esc(naam)}</strong> heeft zich aangemeld als samenzorg-vrijwilliger.</p>
       <div style="background:#f5f2ed; border-radius:12px; padding:16px; margin:16px 0;">
         <table class="activity">
-          <tr><td>Naam</td><td>${esc(naam)}</td></tr>
           <tr><td>E-mail</td><td><a href="mailto:${esc(email)}">${esc(email)}</a></td></tr>
+          <tr><td>Beschikbaarheid</td><td>${esc(beschikbaarheidLabels[beschikbaarheid] ?? beschikbaarheid)}</td></tr>
+          <tr><td>VOG-status</td><td>${esc(vogLabels[vogStatus] ?? vogStatus)}</td></tr>
+          ${ervaring ? `<tr><td>Ervaring</td><td>${esc(ervaring)}</td></tr>` : ""}
+          ${motivatie ? `<tr><td>Motivatie</td><td>${esc(motivatie)}</td></tr>` : ""}
           ${bericht ? `<tr><td>Bericht</td><td>"${esc(bericht)}"</td></tr>` : ""}
         </table>
       </div>
@@ -213,7 +233,7 @@ export function toestemmingHtml(
     title: `Toestemming fotografie ${isAan ? "aangezet" : "uitgezet"}`,
     preheader: `Toestemming voor ${bewonerNaam} is ${isAan ? "verleend" : "ingetrokken"}`,
     body: `
-      <h2>${isAan ? "" : ""} Toestemming fotografie ${isAan ? "aangezet" : "uitgezet"}</h2>
+      <h2>Toestemming fotografie ${isAan ? "aangezet" : "uitgezet"}</h2>
       <p>Voor <strong>${esc(bewonerNaam)}</strong> is de toestemming voor fotografie bij activiteiten <strong>${isAan ? "aangezet" : "uitgezet"}</strong>.</p>
       <div style="background:#f5f2ed; border-radius:12px; padding:16px; margin:16px 0;">
         <table class="activity">

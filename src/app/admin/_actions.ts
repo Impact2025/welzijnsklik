@@ -85,6 +85,12 @@ export async function inviteVrijwilliger(formData: FormData) {
     .map((v) => v.trim())
     .filter(Boolean);
 
+  // Intake velden
+  const beschikbaarheid = (formData.get("beschikbaarheid") as string) || null;
+  const vogStatus = (formData.get("vogStatus") as string) || null;
+  const ervaring = (formData.get("ervaring") as string) || null;
+  const motivatie = (formData.get("motivatie") as string) || null;
+
   const existing = await prisma.user.findUnique({ where: { email } });
   if (existing) throw new Error("Er bestaat al een account met dit e-mailadres.");
 
@@ -100,6 +106,10 @@ export async function inviteVrijwilliger(formData: FormData) {
           telefoon,
           voorkeurActiviteiten,
           organisatieId: session.user.organisatieId!,
+          beschikbaarheid,
+          vogStatus,
+          ervaring,
+          motivatie,
         },
       },
     },
@@ -131,9 +141,15 @@ export async function updateVrijwilliger(id: string, formData: FormData) {
     .map((v) => v.trim())
     .filter(Boolean);
 
+  // Intake velden
+  const beschikbaarheid = (formData.get("beschikbaarheid") as string) || null;
+  const vogStatus = (formData.get("vogStatus") as string) || null;
+  const ervaring = (formData.get("ervaring") as string) || null;
+  const motivatie = (formData.get("motivatie") as string) || null;
+
   await prisma.gebruiker.update({
     where: { id, organisatieId: session.user.organisatieId! },
-    data: { naam, telefoon, interneNotities, voorkeurActiviteiten },
+    data: { naam, telefoon, interneNotities, voorkeurActiviteiten, beschikbaarheid, vogStatus, ervaring, motivatie },
   });
   revalidatePath("/admin/crm/vrijwilligers");
   revalidatePath(`/admin/crm/vrijwilligers/${id}`);

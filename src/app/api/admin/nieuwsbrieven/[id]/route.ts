@@ -1,28 +1,19 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-
-async function requireCoordinator() {
-  const session = await auth();
-  if (!session?.user || session.user.rol !== "COORDINATOR") {
-    throw new Error("Geen toegang");
-  }
-  return session;
-}
+import { requireAdmin } from "@/lib/admin-auth";
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const session = await auth();
-  if (!session?.user || session.user.rol !== "COORDINATOR") {
+  try {
+    await requireAdmin();
+  } catch {
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
   }
 
-  const item = await prisma.nieuwsbrief.findUnique({
-    where: { id, organisatieId: session.user.organisatieId! },
-  });
+  const item = await prisma.nieuwsbrief.findUnique({ where: { id } });
 
   if (!item) return NextResponse.json({ error: "Niet gevonden" }, { status: 404 });
   return NextResponse.json(item);
@@ -33,9 +24,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  let session;
   try {
-    session = await requireCoordinator();
+    await requireAdmin();
   } catch {
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
   }
@@ -53,7 +43,7 @@ export async function PATCH(
 
   try {
     const item = await prisma.nieuwsbrief.update({
-      where: { id, organisatieId: session.user.organisatieId! },
+      where: { id },
       data: { onderwerp, titel, inhoud, doelgroep, type },
     });
     return NextResponse.json(item);
@@ -68,16 +58,15 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  let session;
   try {
-    session = await requireCoordinator();
+    await requireAdmin();
   } catch {
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
   }
 
   try {
     await prisma.nieuwsbrief.delete({
-      where: { id, organisatieId: session.user.organisatieId! },
+      where: { id },
     });
     return NextResponse.json({ ok: true });
   } catch (error) {

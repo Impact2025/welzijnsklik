@@ -16,7 +16,7 @@ export default async function AdminLayout({
   }
 
   const session = await auth();
-  if (!session?.user || session.user.rol !== "COORDINATOR") {
+  if (!session?.user || session.user.email !== process.env.ADMIN_EMAIL) {
     redirect("/geen-toegang");
   }
 

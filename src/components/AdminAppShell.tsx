@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Users,
+  Building2,
   BarChart3,
   Mail,
   FileText,
-  Settings,
+  UserPlus,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -23,11 +23,11 @@ interface NavItem {
 
 const ADMIN_NAV: NavItem[] = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/admin/crm", icon: Users, label: "CRM" },
+  { href: "/admin/klanten", icon: Building2, label: "Klanten" },
   { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
   { href: "/admin/nieuwsbrieven", icon: Mail, label: "Nieuwsbrieven" },
   { href: "/admin/blog", icon: FileText, label: "Blog" },
-  { href: "/admin/instellingen", icon: Settings, label: "Instellingen" },
+  { href: "/admin/leads", icon: UserPlus, label: "Leads" },
 ];
 
 interface Props {
@@ -74,7 +74,7 @@ export default function AdminAppShell({ naam, profielFoto, children }: Props) {
             <Avatar naam={naamDisplay} src={profielFoto} size="sm" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-warm-900 truncate">{naamDisplay}</p>
-              <p className="text-xs text-warm-500">Coördinator</p>
+              <p className="text-xs text-warm-500">Platform admin</p>
             </div>
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
@@ -92,8 +92,8 @@ export default function AdminAppShell({ naam, profielFoto, children }: Props) {
           <img src="/logo.png" alt="Welzijnsklik" className="w-7 h-7" />
           <span className="font-semibold text-warm-900 text-[15px]">Admin</span>
         </Link>
-        <Link href="/admin/instellingen">
-          <Settings size={20} className="text-warm-400" />
+        <Link href="/admin/leads">
+          <UserPlus size={20} className="text-warm-400" />
         </Link>
       </header>
 

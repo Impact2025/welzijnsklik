@@ -1,12 +1,8 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { TrendingUp, Users, Activity, BarChart3, ArrowUp, ArrowDown, Minus } from "lucide-react";
 import { Card, PageHeader, Badge } from "@/components/ui";
 
 export default async function AnalyticsDashboard() {
-  const session = await auth();
-  const organisatieId = session!.user.organisatieId!;
-
   const nu = new Date();
 
   const eersteDezeMaand = new Date(nu.getFullYear(), nu.getMonth(), 1);
@@ -26,25 +22,22 @@ export default async function AnalyticsDashboard() {
     recenteActiviteiten,
     typeStats,
   ] = await Promise.all([
-    prisma.activiteit.count({ where: { bewoner: { organisatieId } } }),
+    prisma.activiteit.count(),
     prisma.activiteit.count({
-      where: { bewoner: { organisatieId }, createdAt: { gte: eersteDezeMaand } },
+      where: { createdAt: { gte: eersteDezeMaand } },
     }),
     prisma.activiteit.count({
-      where: {
-        bewoner: { organisatieId },
-        createdAt: { gte: eersteVorigeMaand, lt: eersteDezeMaand },
-      },
+      where: { createdAt: { gte: eersteVorigeMaand, lt: eersteDezeMaand } },
     }),
-    prisma.gebruiker.count({ where: { organisatieId, rol: "VRIJWILLIGER" } }),
+    prisma.gebruiker.count({ where: { rol: "VRIJWILLIGER" } }),
     prisma.activiteit.findMany({
-      where: { bewoner: { organisatieId }, createdAt: { gte: zeveDagenGeleden } },
+      where: { createdAt: { gte: zeveDagenGeleden } },
       select: { createdAt: true },
       orderBy: { createdAt: "asc" },
     }),
     prisma.activiteit.groupBy({
       by: ["type"],
-      where: { bewoner: { organisatieId }, createdAt: { gte: dertigDagenGeleden } },
+      where: { createdAt: { gte: dertigDagenGeleden } },
       _sum: { duurMinuten: true },
       _count: { type: true },
       orderBy: { _sum: { duurMinuten: "desc" } },
@@ -108,7 +101,7 @@ export default async function AnalyticsDashboard() {
 
   return (
     <div className="p-6 space-y-6">
-      <PageHeader title="Analytics" description="Inzichten in gebruik en activiteiten" />
+      <PageHeader title="Analytics" description="Platformbreed gebruik over alle klanten" />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => (

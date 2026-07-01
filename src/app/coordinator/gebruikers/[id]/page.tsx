@@ -2,7 +2,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Activity, Phone, Mail } from "lucide-react";
+import { ArrowLeft, Activity, Phone, Mail, Calendar, Shield, Heart } from "lucide-react";
 import { ProfielForm } from "./ProfielForm";
 import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
 
@@ -79,6 +79,42 @@ export default async function GebruikerDetailPage({
         )}
       </div>
 
+      {/* Intake summary voor vrijwilligers */}
+      {gebruiker.rol === "VRIJWILLIGER" && gebruiker.beschikbaarheid && (
+        <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 space-y-2">
+          <h3 className="font-semibold text-gray-900 text-[15px] flex items-center gap-1.5">
+            <Calendar size={15} />
+            Intake details
+          </h3>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            {gebruiker.beschikbaarheid && (
+              <div>
+                <span className="text-neutral-400">Beschikbaarheid</span>
+                <p className="font-medium">{gebruiker.beschikbaarheid}</p>
+              </div>
+            )}
+            {gebruiker.vogStatus && (
+              <div>
+                <span className="text-neutral-400">VOG-status</span>
+                <p className="font-medium">{gebruiker.vogStatus}</p>
+              </div>
+            )}
+          </div>
+          {gebruiker.ervaring && (
+            <div>
+              <p className="text-[10px] text-neutral-400 uppercase">Ervaring</p>
+              <p className="text-sm text-gray-700 line-clamp-2">{gebruiker.ervaring}</p>
+            </div>
+          )}
+          {gebruiker.motivatie && (
+            <div>
+              <p className="text-[10px] text-neutral-400 uppercase">Motivatie</p>
+              <p className="text-sm text-gray-700 line-clamp-2">{gebruiker.motivatie}</p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Dossier (alleen voor vrijwilligers) */}
       {gebruiker.rol === "VRIJWILLIGER" && (
         <ProfielForm
@@ -87,6 +123,10 @@ export default async function GebruikerDetailPage({
           telefoon={gebruiker.telefoon}
           voorkeurActiviteiten={gebruiker.voorkeurActiviteiten}
           interneNotities={gebruiker.interneNotities}
+          beschikbaarheid={gebruiker.beschikbaarheid}
+          vogStatus={gebruiker.vogStatus}
+          ervaring={gebruiker.ervaring}
+          motivatie={gebruiker.motivatie}
         />
       )}
 
@@ -115,7 +155,7 @@ export default async function GebruikerDetailPage({
                       <Icon size={15} className={cfg.kleur} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 truncate">
                         {a.type}
                         <span className="text-neutral-400 font-normal"> bij </span>
                         {a.bewoner.naam}

@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { Bell, Mail, UserCheck, CheckCircle2, XCircle } from "lucide-react";
+import { Bell, Mail, UserCheck, CheckCircle2, XCircle, Calendar, Shield, Heart } from "lucide-react";
 import MarkeerBehandeld from "./MarkeerBehandeld";
 import Link from "next/link";
 
@@ -10,6 +10,19 @@ const STATUS_CFG: Record<string, { label: string; bg: string; kleur: string; ico
   in_behandeling: { label: "In behandeling", bg: "bg-sky-100", kleur: "text-sky-700", icon: UserCheck },
   behandeld: { label: "Behandeld", bg: "bg-emerald-100", kleur: "text-emerald-700", icon: CheckCircle2 },
   gesloten: { label: "Gesloten", bg: "bg-neutral-100", kleur: "text-neutral-500", icon: XCircle },
+};
+
+const BESCHIKBAARHEID_LABELS: Record<string, string> = {
+  weekend: "Weekend",
+  weekdagen: "Weekdagen", 
+  avonden: "Avonden",
+  flexibel: "Flexibel",
+};
+
+const VOG_LABELS: Record<string, string> = {
+  heeft: "Heeft VOG",
+  aanvraag_lopen: "VOG in aanvraag",
+  niet_nodig: "Niet nodig",
 };
 
 export default async function NotificatiesPage() {
@@ -78,10 +91,46 @@ export default async function NotificatiesPage() {
                   </span>
                 </div>
 
-                {/* Bericht */}
-                {i.bericht && (
+                {/* Intake details */}
+                <div className="space-y-2">
+                  {i.beschikbaarheid && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <Calendar size={12} className="text-neutral-400" />
+                      <span className="text-neutral-500">Beschikbaarheid:</span>
+                      <span className="font-medium text-gray-700">{BESCHIKBAARHEID_LABELS[i.beschikbaarheid] ?? i.beschikbaarheid}</span>
+                    </div>
+                  )}
+                  {i.vogStatus && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <Shield size={12} className="text-neutral-400" />
+                      <span className="text-neutral-500">VOG:</span>
+                      <span className="font-medium text-gray-700">{VOG_LABELS[i.vogStatus] ?? i.vogStatus}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Berichten */}
+                {i.ervaring && (
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-semibold text-neutral-400 uppercase">Ervaring</p>
+                    <p className="text-sm text-neutral-600 leading-relaxed bg-neutral-50 rounded-xl p-3">
+                      "{i.ervaring}"
+                    </p>
+                  </div>
+                )}
+                {i.motivatie && (
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-semibold text-neutral-400 uppercase flex items-center gap-1">
+                      <Heart size={10} /> Motivatie
+                    </p>
+                    <p className="text-sm text-neutral-600 leading-relaxed bg-neutral-50 rounded-xl p-3">
+                      "{i.motivatie}"
+                    </p>
+                  </div>
+                )}
+                {i.bericht && !i.ervaring && !i.motivatie && (
                   <p className="text-sm text-neutral-600 leading-relaxed bg-neutral-50 rounded-xl p-3">
-                    &ldquo;{i.bericht}&rdquo;
+                    "&ldquo;{i.bericht}&rdquo;"
                   </p>
                 )}
 

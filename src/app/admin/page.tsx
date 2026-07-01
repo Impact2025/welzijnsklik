@@ -1,33 +1,31 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { Users, UserCheck, Activity, Mail, FileText, TrendingUp, Calendar, Bell } from "lucide-react";
+import { Building2, Users, Activity, Mail, FileText, UserPlus, TrendingUp, UserCheck } from "lucide-react";
 import { StatCard, PageHeader, Card } from "@/components/ui";
 import Link from "next/link";
 
 export default async function AdminDashboard() {
   const session = await auth();
-  const organisatieId = session!.user.organisatieId!;
   const naam = session!.user.naam ?? session!.user.name ?? "Admin";
   const voornaam = naam.split(" ")[0];
 
-  const [bewoners, vrijwilligers, familieLeden, blogPosts, nieuwsbrieven, activiteitenDezeMaand] = await Promise.all([
-    prisma.bewoner.count({ where: { organisatieId } }),
-    prisma.gebruiker.count({ where: { organisatieId, rol: "VRIJWILLIGER" } }),
-    prisma.gebruiker.count({ where: { organisatieId, rol: "FAMILIE" } }),
-    prisma.blogPost.count({ where: { organisatieId } }),
-    prisma.nieuwsbrief.count({ where: { organisatieId } }),
+  const [klanten, gebruikers, blogPosts, nieuwsbrieven, leads, activiteitenDezeMaand] = await Promise.all([
+    prisma.organisatie.count(),
+    prisma.gebruiker.count(),
+    prisma.blogPost.count(),
+    prisma.nieuwsbrief.count(),
+    prisma.lead.count(),
     prisma.activiteit.count({
       where: {
-        bewoner: { organisatieId },
         createdAt: { gte: (() => { const d = new Date(); d.setDate(d.getDate() - 30); return d; })() },
       },
     }),
   ]);
 
   const stats = [
-    { label: "Bewoners", value: bewoners, icon: Users, href: "/admin/crm/bewoners", variant: "info" as const },
-    { label: "Vrijwilligers", value: vrijwilligers, icon: UserCheck, href: "/admin/crm/vrijwilligers", variant: "success" as const },
-    { label: "Familieleden", value: familieLeden, icon: Users, href: "/admin/crm/familie", variant: "violet" as const },
+    { label: "Klanten", value: klanten, icon: Building2, href: "/admin/klanten", variant: "info" as const },
+    { label: "Gebruikers (alle klanten)", value: gebruikers, icon: Users, href: "/admin/klanten", variant: "success" as const },
+    { label: "Leads", value: leads, icon: UserPlus, href: "/admin/leads", variant: "violet" as const },
     { label: "Blog posts", value: blogPosts, icon: FileText, href: "/admin/blog", variant: "warning" as const },
     { label: "Nieuwsbrieven", value: nieuwsbrieven, icon: Mail, href: "/admin/nieuwsbrieven", variant: "default" as const },
     { label: "Activiteiten (30d)", value: activiteitenDezeMaand, icon: Activity, href: "/admin/analytics", variant: "default" as const },

@@ -1,11 +1,12 @@
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  
-  if (!session?.user || session.user.rol !== "COORDINATOR") {
+  let session;
+  try {
+    session = await requireAdmin();
+  } catch {
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
   }
 
@@ -39,21 +40,4 @@ export async function POST(request: NextRequest) {
     console.error("[API] nieuwsbrieven create error:", error);
     return NextResponse.json({ error: "Database fout" }, { status: 500 });
   }
-}
-
-export async function GET(request: NextRequest) {
-  const session = await auth();
-  
-  if (!session?.user || session.user.rol !== "COORDINATOR") {
-    return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
-  }
-
-  const abonnees = await prisma.gebruiker.findMany({
-    where: {
-      organisatieId: session.user.organisatieId!,
-    },
-    select: { id: true, naam: true, email: true, rol: true },
-  });
-
-  return NextResponse.json(abonnees);
 }

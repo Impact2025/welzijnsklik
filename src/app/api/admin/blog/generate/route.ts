@@ -1,11 +1,11 @@
-import { auth } from "@/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { generateContent } from "@/lib/ai-client";
+import { requireAdmin } from "@/lib/admin-auth";
 
 export async function POST(request: NextRequest) {
-  const session = await auth();
-  
-  if (!session?.user || session.user.rol !== "COORDINATOR") {
+  try {
+    await requireAdmin();
+  } catch {
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
   }
 

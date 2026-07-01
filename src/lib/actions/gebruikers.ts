@@ -131,6 +131,12 @@ export async function updateVrijwilligerProfiel(formData: FormData) {
   const voorkeurRaw = formData.getAll("voorkeurActiviteiten") as string[];
   const voorkeurActiviteiten = voorkeurRaw.filter(Boolean);
 
+  // Intake velden
+  const beschikbaarheid = (formData.get("beschikbaarheid") as string | null)?.trim() || null;
+  const vogStatus = (formData.get("vogStatus") as string | null)?.trim() || null;
+  const ervaring = (formData.get("ervaring") as string | null)?.trim() || null;
+  const motivatie = (formData.get("motivatie") as string | null)?.trim() || null;
+
   const gebruiker = await prisma.gebruiker.findFirst({
     where: { id: gebruikerId, organisatieId: session.user.organisatieId },
   });
@@ -138,7 +144,7 @@ export async function updateVrijwilligerProfiel(formData: FormData) {
 
   await prisma.gebruiker.update({
     where: { id: gebruikerId },
-    data: { telefoon, interneNotities, voorkeurActiviteiten },
+    data: { telefoon, interneNotities, voorkeurActiviteiten, beschikbaarheid, vogStatus, ervaring, motivatie },
   });
 
   revalidatePath(`/coordinator/gebruikers/${gebruikerId}`);
