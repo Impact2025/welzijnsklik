@@ -47,6 +47,32 @@ const devProviders = [
   }),
 ]
 
+const DEMO_EMAILS = [
+  "coordinator@demeerwende.nl",
+  "vrijwilliger@demeerwende.nl",
+  "familie@example.nl",
+];
+
+const demoProvider = Credentials({
+  id: "dev-login",
+  name: "Demo Login",
+  credentials: {
+    email: { label: "E-mail", type: "email" },
+  },
+  async authorize(credentials) {
+    const email = credentials?.email as string | undefined;
+    if (!email || !DEMO_EMAILS.includes(email)) return null;
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true, name: true },
+    });
+    if (!user) return null;
+
+    return { id: user.id, email: user.email ?? email, name: user.name ?? "Demo" };
+  },
+});
+
 const adminProvider = Credentials({
   id: "admin-login",
   name: "Admin Login",
@@ -73,6 +99,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     ...devProviders,
     adminProvider,
+    demoProvider,
     Resend({
       apiKey: process.env.RESEND_API_KEY,
       from: process.env.RESEND_FROM_EMAIL ?? "noreply@welzijnsklik.nl",
