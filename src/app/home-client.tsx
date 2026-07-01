@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import MarketingHeader from '@/components/marketing/MarketingHeader';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
+import DemoInterestForm from './DemoInterestForm';
 
 /* ─── Data ─────────────────────────────────────────── */
 
@@ -447,13 +448,7 @@ export default function HomeClient() {
               diepgaande kennis van de werkvloer met het vermogen om zelf werkende, innovatieve
               softwareoplossingen te bouwen.
             </p>
-            <a
-              href="mailto:v.munster@weareimpact.nl"
-              className="inline-flex items-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
-              style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 12, boxShadow: '0 8px 24px rgba(245,158,11,0.30)' }}>
-              Vraag direct een vrijblijvende demonstratie aan
-              <ArrowRight size={18} />
-            </a>
+            <DemoInterestForm />
           </div>
         </section>
 

@@ -1,5 +1,6 @@
 import MarketingHeader from '@/components/marketing/MarketingHeader';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
+import PilotInterestForm from './PilotInterestForm';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -238,21 +239,7 @@ export default function PilotPage() {
                 De eerste pilot loopt bij De Meerwende in Badhoevedorp. Wij zoeken een tweede
                 organisatie.
               </p>
-              <a
-                href="mailto:v.munster@weareimpact.nl"
-                style={{
-                  display: 'inline-block',
-                  background: '#FFB800',
-                  color: '#191c1d',
-                  fontWeight: 700,
-                  fontSize: 16,
-                  padding: '14px 36px',
-                  borderRadius: 100,
-                  textDecoration: 'none',
-                }}
-              >
-                Vraag de pilot aan
-              </a>
+              <PilotInterestForm />
             </div>
           </div>
         </section>
