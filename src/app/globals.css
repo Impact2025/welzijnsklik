@@ -54,6 +54,8 @@
   --shadow-elevated: 0 10px 25px -5px rgb(0 0 0 / 0.08), 0 4px 10px -6px rgb(0 0 0 / 0.04);
 
   --max-width-app: 28rem;   /* 448px — mobile-first */
+  --max-width-dashboard: 96rem; /* 1536px — desktop */
+  --sidebar-width: 16rem;      /* 256px — desktop sidebar */
 
   /* ─── Welzijnsklik Marketing Design System ──── */
   --color-md-primary:                  #005e9f;
@@ -91,4 +93,15 @@ body {
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* ══════════════════════════════════════════════════
+   Desktop Layout Utilities
+   ══════════════════════════════════════════════════ */
+
+@media (min-width: 1024px) {
+  .max-w-app {
+    max-width: var(--max-width-dashboard) !important;
+  }
 }

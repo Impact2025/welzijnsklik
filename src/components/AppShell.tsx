@@ -92,9 +92,9 @@ export default function AppShell({ rol, naam, profielFoto, children, notificatie
   };
 
   return (
-    <div className="min-h-screen bg-warm-50 flex flex-col">
-      {/* Top bar */}
-      <header className="fixed top-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-b border-warm-200 h-14 flex items-center px-4 max-w-lg mx-auto w-full">
+    <div className="min-h-screen bg-warm-50">
+      {/* Top bar — mobile only */}
+      <header className="fixed top-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-b border-warm-200 h-14 flex items-center px-4 lg:hidden">
         <Link href={ROL_HOME[rol] ?? "/"} className="flex items-center gap-2 flex-1">
           <img src="/logo.png" alt="Welzijnsklik" className="w-7 h-7" />
           <span className="font-semibold text-warm-900 text-[15px] tracking-tight">Welzijnsklik</span>
@@ -130,14 +130,98 @@ export default function AppShell({ rol, naam, profielFoto, children, notificatie
         </div>
       </header>
 
-      {/* Content */}
-      <main className="flex-1 max-w-app mx-auto w-full pt-14 pb-20">
-        {children}
-      </main>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex fixed inset-y-0 left-0 z-40 w-64 flex-col bg-white/95 backdrop-blur border-r border-warm-200 p-4">
+        <Link href={ROL_HOME[rol] ?? "/"} className="flex items-center gap-3 mb-8 px-2">
+          <img src="/logo.png" alt="Welzijnsklik" className="w-8 h-8" />
+          <span className="font-bold text-xl text-warm-900 tracking-tight">Welzijnsklik</span>
+        </Link>
 
-      {/* Bottom nav */}
+        <nav className="flex-1 space-y-1">
+          {navItems.map((item) => {
+            const isActive = item.exact
+              ? pathname === item.href
+              : pathname.startsWith(item.href);
+            const badge = navBadge[item.href] ?? 0;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
+                  isActive
+                    ? "bg-brand-50 text-brand-700 font-semibold"
+                    : "text-warm-600 hover:bg-warm-100 hover:text-warm-800"
+                }`}
+              >
+                <item.icon size={20} strokeWidth={isActive ? 2.2 : 1.7} />
+                <span className="text-sm">{item.label}</span>
+                {badge > 0 && (
+                  <span className="ml-auto w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    {badge > 9 ? "9+" : badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="mt-auto pt-4 border-t border-warm-200">
+          <div className="flex items-center gap-3 px-2 py-2">
+            <Link href="/account" className="flex items-center gap-3 flex-1">
+              <Avatar naam={naam} src={profielFoto} size="lg" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-900 truncate">{naam}</p>
+                <p className="text-xs text-warm-500 capitalize">{rol.toLowerCase()}</p>
+              </div>
+            </Link>
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-warm-400 hover:text-red-500"
+              title="Uitloggen"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      {/* Content wrapper */}
+      <div className="lg:pl-64">
+        {/* Desktop top header (minimal) */}
+        <header className="hidden lg:block fixed top-0 inset-x-0 z-30 bg-white/95 backdrop-blur border-b border-warm-200 h-14 px-6 pl-[calc(16rem+24px)]">
+          <div className="flex items-center justify-end h-full gap-3">
+            <Link
+              href={notificatieHref ?? (ROL_NOTIFICATIES[rol] ?? "#")}
+              className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
+            >
+              <Bell size={18} />
+              {notificatieBadge > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm">
+                  {notificatieBadge > 9 ? "9+" : notificatieBadge}
+                </span>
+              )}
+            </Link>
+            <Link
+              href="/account"
+              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
+            >
+              <Settings size={18} />
+            </Link>
+            <Link href="/account">
+              <Avatar naam={naam} src={profielFoto} size="sm" />
+            </Link>
+          </div>
+        </header>
+
+        {/* Main content */}
+        <main className="flex-1 max-w-screen-xl mx-auto w-full pt-14 pb-20 lg:pt-14 lg:pb-8 px-4 lg:px-8">
+          {children}
+        </main>
+      </div>
+
+      {/* Bottom nav — mobile only */}
       {navItems.length > 0 && (
-        <nav className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-warm-200 max-w-app mx-auto w-full safe-bottom">
+        <nav className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-warm-200 max-w-app mx-auto w-full safe-bottom lg:hidden">
           <div className="flex items-center justify-around px-2 h-16">
             {navItems.map((item) => {
               const isActive = item.exact
