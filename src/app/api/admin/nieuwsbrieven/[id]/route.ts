@@ -12,15 +12,16 @@ async function requireCoordinator() {
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   const session = await auth();
   if (!session?.user || session.user.rol !== "COORDINATOR") {
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
   }
 
   const item = await prisma.nieuwsbrief.findUnique({
-    where: { id: params.id, organisatieId: session.user.organisatieId! },
+    where: { id, organisatieId: session.user.organisatieId! },
   });
 
   if (!item) return NextResponse.json({ error: "Niet gevonden" }, { status: 404 });
@@ -29,8 +30,9 @@ export async function GET(
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   let session;
   try {
     session = await requireCoordinator();
@@ -51,7 +53,7 @@ export async function PATCH(
 
   try {
     const item = await prisma.nieuwsbrief.update({
-      where: { id: params.id, organisatieId: session.user.organisatieId! },
+      where: { id, organisatieId: session.user.organisatieId! },
       data: { onderwerp, titel, inhoud, doelgroep, type },
     });
     return NextResponse.json(item);
@@ -63,8 +65,9 @@ export async function PATCH(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
   let session;
   try {
     session = await requireCoordinator();
@@ -74,7 +77,7 @@ export async function DELETE(
 
   try {
     await prisma.nieuwsbrief.delete({
-      where: { id: params.id, organisatieId: session.user.organisatieId! },
+      where: { id, organisatieId: session.user.organisatieId! },
     });
     return NextResponse.json({ ok: true });
   } catch (error) {

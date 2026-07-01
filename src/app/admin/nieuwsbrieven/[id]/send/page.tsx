@@ -9,13 +9,14 @@ import { Send, Users, AlertTriangle } from "lucide-react";
 export default async function NieuwsbriefSendPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await auth();
   const organisatieId = session!.user.organisatieId!;
 
   const nieuwsbrief = await prisma.nieuwsbrief.findUnique({
-    where: { id: params.id, organisatieId },
+    where: { id, organisatieId },
   });
 
   if (!nieuwsbrief) notFound();
@@ -57,7 +58,7 @@ export default async function NieuwsbriefSendPage({
     where: { organisatieId, rol: { in: [...rollen] } },
   });
 
-  const sendWithId = sendNieuwsbrief.bind(null, params.id);
+  const sendWithId = sendNieuwsbrief.bind(null, id);
 
   return (
     <div className="p-6 space-y-6">
@@ -66,7 +67,7 @@ export default async function NieuwsbriefSendPage({
         description={nieuwsbrief.onderwerp}
         action={
           <Link
-            href={`/admin/nieuwsbrieven/${params.id}/edit`}
+            href={`/admin/nieuwsbrieven/${id}/edit`}
             className="text-sm text-neutral-500 hover:text-neutral-700 transition-colors"
           >
             ← Bewerken

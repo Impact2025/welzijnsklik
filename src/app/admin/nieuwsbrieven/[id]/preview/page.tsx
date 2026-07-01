@@ -8,13 +8,14 @@ import { Send, Edit } from "lucide-react";
 export default async function NieuwsbriefPreviewPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await auth();
   const organisatieId = session!.user.organisatieId!;
 
   const nieuwsbrief = await prisma.nieuwsbrief.findUnique({
-    where: { id: params.id, organisatieId },
+    where: { id, organisatieId },
   });
 
   if (!nieuwsbrief) notFound();
@@ -27,7 +28,7 @@ export default async function NieuwsbriefPreviewPage({
         action={
           <div className="flex items-center gap-2">
             <Link
-              href={`/admin/nieuwsbrieven/${params.id}/edit`}
+              href={`/admin/nieuwsbrieven/${id}/edit`}
               className="flex items-center gap-2 px-4 py-2 rounded-xl border border-warm-200 text-sm font-medium hover:bg-warm-50 transition-colors"
             >
               <Edit size={15} />
@@ -35,7 +36,7 @@ export default async function NieuwsbriefPreviewPage({
             </Link>
             {nieuwsbrief.status !== "VERZONDEN" && (
               <Link
-                href={`/admin/nieuwsbrieven/${params.id}/send`}
+                href={`/admin/nieuwsbrieven/${id}/send`}
                 className="flex items-center gap-2 px-4 py-2 bg-brand-500 text-white rounded-xl text-sm font-semibold hover:bg-brand-600 transition-colors"
               >
                 <Send size={15} />

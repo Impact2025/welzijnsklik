@@ -9,13 +9,14 @@ import { ACTIVITEIT_ICON } from "@/lib/activiteit";
 export default async function VrijwilligerDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await auth();
   const organisatieId = session!.user.organisatieId!;
 
   const vrijwilliger = await prisma.gebruiker.findUnique({
-    where: { id: params.id, organisatieId, rol: "VRIJWILLIGER" },
+    where: { id, organisatieId, rol: "VRIJWILLIGER" },
     include: {
       activiteiten: {
         include: { bewoner: { select: { naam: true } } },
@@ -28,7 +29,7 @@ export default async function VrijwilligerDetailPage({
 
   if (!vrijwilliger) notFound();
 
-  const updateWithId = updateVrijwilliger.bind(null, params.id);
+  const updateWithId = updateVrijwilliger.bind(null, id);
 
   return (
     <div className="p-6 space-y-6">

@@ -10,13 +10,14 @@ import { Trash2 } from "lucide-react";
 export default async function BewonderDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  const { id } = await params;
   const session = await auth();
   const organisatieId = session!.user.organisatieId!;
 
   const bewoner = await prisma.bewoner.findUnique({
-    where: { id: params.id, organisatieId },
+    where: { id, organisatieId },
     include: {
       familieleden: {
         include: { gebruiker: { select: { naam: true, email: true } } },
@@ -31,8 +32,8 @@ export default async function BewonderDetailPage({
 
   if (!bewoner) notFound();
 
-  const updateWithId = updateBewoner.bind(null, params.id);
-  const deleteWithId = deleteBewoner.bind(null, params.id);
+  const updateWithId = updateBewoner.bind(null, id);
+  const deleteWithId = deleteBewoner.bind(null, id);
 
   return (
     <div className="p-6 space-y-6">
