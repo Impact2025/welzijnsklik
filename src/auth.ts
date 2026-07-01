@@ -30,10 +30,60 @@ const devProviders = [
         }),
       ]
 
+const adminProvider = Credentials({
+  id: "admin-login",
+  name: "Admin Login",
+  credentials: {
+    email: { label: "E-mail", type: "email" },
+    password: { label: "Wachtwoord", type: "password" },
+  },
+  async authorize(credentials) {
+    const email = credentials?.email as string | undefined;
+    const password = credentials?.password as string | undefined;
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminEmail || !adminPassword) return null;
+    if (email !== adminEmail || password !== adminPassword) return null;
+
+    let user = await prisma.user.findUnique({
+      where: { email: adminEmail },
+      include: { gebruiker: true },
+    });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: { email: adminEmail, name: "Admin" },
+        include: { gebruiker: true },
+      });
+    }
+
+    if (!user.gebruiker) {
+      let organisatie = await prisma.organisatie.findFirst();
+      if (!organisatie) {
+        organisatie = await prisma.organisatie.create({
+          data: { naam: "Stichting de Baan", plaats: "Amsterdam" },
+        });
+      }
+      await prisma.gebruiker.create({
+        data: {
+          naam: "Admin",
+          email: adminEmail,
+          rol: "COORDINATOR",
+          organisatieId: organisatie.id,
+          userId: user.id,
+        },
+      });
+    }
+
+    return { id: user.id, email: user.email ?? adminEmail, name: user.name };
+  },
+});
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
     ...devProviders,
+    adminProvider,
     Resend({
       apiKey: process.env.RESEND_API_KEY,
       from: process.env.RESEND_FROM_EMAIL ?? "noreply@welzijnsklik.nl",
