@@ -13,9 +13,15 @@ export async function logActiviteit(formData: FormData) {
 
   const bewonerId = formData.get("bewonerId") as string;
   const type = formData.get("type") as string;
-  const duurMinuten = parseInt(formData.get("duurMinuten") as string, 10);
+  const duurMinutenRaw = formData.get("duurMinuten") as string;
+  const duurMinuten = duurMinutenRaw ? parseInt(duurMinutenRaw, 10) : NaN;
   const notities = formData.get("notities") as string | null;
   const fotoUrl = formData.get("fotoUrl") as string | null;
+
+  // Validatie
+  if (!bewonerId || !type || !duurMinuten || Number.isNaN(duurMinuten)) {
+    throw new Error("Ongeldige formulierdata");
+  }
 
   // Controleer dat bewoner tot dezelfde organisatie behoort
   const bewoner = await prisma.bewoner.findFirst({
@@ -45,40 +51,50 @@ export async function logActiviteit(formData: FormData) {
     },
   });
 
-  // ─── Notificatie naar familieleden ────────────────────────────────
-  const vrijwilliger = await prisma.gebruiker.findUnique({
-    where: { id: session.user.gebruikerId },
-    select: { naam: true, organisatie: { select: { naam: true } } },
-  });
+  // ─── Notificatie naar familieleden (niet blokkerend) ───────────────
+  try {
+    const vrijwilliger = await prisma.gebruiker.findUnique({
+      where: { id: session.user.gebruikerId },
+      select: { naam: true, organisatie: { select: { naam: true } } },
+    });
 
-  const familieleden = await prisma.familieKoppeling.findMany({
-    where: { bewonerId },
-    include: {
-      gebruiker: {
-        select: { email: true, naam: true },
-        include: { emailVoorkeur: { select: { activiteiten: true } } },
+    const familieleden = await prisma.familieKoppeling.findMany({
+      where: { bewonerId },
+      include: {
+        gebruiker: {
+          select: { email: true, naam: true },
+          include: { emailVoorkeur: { select: { activiteiten: true } } },
+        },
       },
-    },
-  });
+    });
 
-  for (const koppeling of familieleden) {
-    const magNotificatie = koppeling.gebruiker.emailVoorkeur?.activiteiten !== false;
-    if (magNotificatie && koppeling.gebruiker.email) {
-      const html = activiteitHtml(
-        bewoner.naam,
-        vrijwilliger?.naam ?? "Onbekend",
-        type,
-        duurMinuten,
-        notities,
-        koppeling.relatie,
-        vrijwilliger?.organisatie?.naam ?? "Welzijnsklik"
-      );
-      await sendEmail({
-        to: koppeling.gebruiker.email,
-        subject: `${vrijwilliger?.naam ?? "Iemand"} was ${type.toLowerCase()} bij ${bewoner.naam}`,
-        html,
-      });
+    for (const koppeling of familieleden) {
+      const magNotificatie = koppeling.gebruiker.emailVoorkeur?.activiteiten !== false;
+      if (magNotificatie && koppeling.gebruiker.email) {
+        try {
+          const html = activiteitHtml(
+            bewoner.naam,
+            vrijwilliger?.naam ?? "Onbekend",
+            type,
+            duurMinuten,
+            notities,
+            koppeling.relatie,
+            vrijwilliger?.organisatie?.naam ?? "Welzijnsklik"
+          );
+          await sendEmail({
+            to: koppeling.gebruiker.email,
+            subject: `${vrijwilliger?.naam ?? "Iemand"} was ${type.toLowerCase()} bij ${bewoner.naam}`,
+            html,
+          });
+        } catch (emailErr) {
+          console.error("[logActiviteit] Email naar familie mislukt:", emailErr);
+          // Email mag niet de activiteit blokkeren
+        }
+      }
     }
+  } catch (err) {
+    console.error("[logActiviteit] Familie notificatie fout:", err);
+    // Niet blokkeren
   }
 
   revalidatePath("/coordinator");

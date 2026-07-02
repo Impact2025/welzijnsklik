@@ -156,8 +156,12 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
     if (fotoUrl) formData.set("fotoUrl", fotoUrl);
 
     startTransition(async () => {
-      await logActiviteit(formData);
-      setSuccess(true);
+      try {
+        await logActiviteit(formData);
+        setSuccess(true);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Activiteit opslaan mislukt");
+      }
     });
   }
 
