@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     console.error("[upload-foto] Vercel Blob put() mislukt:", err);
     return NextResponse.json(
-      { error: "Foto opslaan mislukt. Probeer het opnieuw." },
+      { error: "Foto opslaan mislukt. Probeer het opnieuw.", details: process.env.NODE_ENV === "development" ? String(err) : undefined },
       { status: 500 }
     );
   }
