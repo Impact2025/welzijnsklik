@@ -16,6 +16,7 @@ import {
   ArrowRight,
   Quote,
 } from 'lucide-react';
+import Link from 'next/link';
 import MarketingHeader from '@/components/marketing/MarketingHeader';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import DemoInterestForm from './DemoInterestForm';
@@ -61,6 +62,7 @@ const FLOWS = [
     sub: 'Regie en rust',
     body: "U behoudt de volledige controle. U beheert per cliënt de specifieke fototoestemming conform de privacyrichtlijnen. Zodra een activiteit is afgerond, ontvangt u direct een automatisch briefje in uw dashboard — wie, wat, hoe lang, bijzonderheden. Geen handmatige urenlijsten meer.",
     color: '#d97706',
+    href: '/platform/coordinator',
   },
   {
     icon: Smartphone,
@@ -69,6 +71,7 @@ const FLOWS = [
     sub: 'Focus op de cliënt',
     body: 'Geen administratieve rompslomp. De vrijwilliger opent de app, selecteert de cliënt, maakt eventueel een foto en logt de activiteit met een paar tikken op het scherm. Binnen één minuut afgerond.',
     color: '#d97706',
+    href: '/platform/vrijwilliger',
   },
   {
     icon: Heart,
@@ -77,6 +80,7 @@ const FLOWS = [
     sub: 'Betrokkenheid en samen zorgen',
     body: "Familieleden krijgen via een beveiligde, persoonlijke tijdlijn updates en foto's te zien van de mooie momenten van hun naaste. Dit geeft rust en schept vertrouwen. Via de geïntegreerde wervingsknop kunnen zij direct aangeven wanneer zij zelf een activiteit willen plannen of ondersteunen.",
     color: '#d97706',
+    href: '/platform/familie',
   },
 ] as const;
 
@@ -312,10 +316,10 @@ export default function HomeClient() {
                     </div>
                     <div style={{ height: 1, background: '#e8e3db', marginBottom: 20 }} />
                     <p style={{ fontSize: 15, color: '#57534e', lineHeight: '24px', flex: 1 }}>{flow.body}</p>
-                    <div className="flex items-center gap-1" style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid #e8e3db' }}>
+                    <Link href={flow.href} className="flex items-center gap-1 transition-colors hover:opacity-75" style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid #e8e3db' }}>
                       <span style={{ fontSize: 14, fontWeight: 500, color: '#d97706' }}>Meer weten</span>
                       <ChevronRight size={16} color="#d97706" />
-                    </div>
+                    </Link>
                   </div>
                 );
               })}
