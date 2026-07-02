@@ -70,14 +70,18 @@ export async function POST(request: NextRequest) {
 
   let url: string;
   try {
+    if (!process.env.BLOB_READ_WRITE_TOKEN) {
+      throw new Error("BLOB_READ_WRITE_TOKEN is niet geconfigureerd op de server");
+    }
     ({ url } = await put(filename, blob, {
       access: "public",
       contentType: "image/jpeg",
     }));
   } catch (err) {
     console.error("[upload-foto] Vercel Blob put() mislukt:", err);
+    const errorMsg = err instanceof Error ? err.message : "Onbekende fout";
     return NextResponse.json(
-      { error: "Foto opslaan mislukt. Probeer het opnieuw.", details: process.env.NODE_ENV === "development" ? String(err) : undefined },
+      { error: "Foto opslaan mislukt. Probeer het opnieuw.", details: errorMsg },
       { status: 500 }
     );
   }
