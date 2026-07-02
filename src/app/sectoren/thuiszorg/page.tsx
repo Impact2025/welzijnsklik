@@ -2,13 +2,13 @@ import MarketingHeader from '@/components/marketing/MarketingHeader';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import DemoWizardButton from '@/components/marketing/DemoWizardButton';
 import Link from 'next/link';
-import { LayoutDashboard, ShieldCheck, Clock, Bell, ArrowRight } from 'lucide-react';
+import { Home, ShieldCheck, Users, Clock, ArrowRight } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'De Coördinator | Welzijnsklik',
+  title: 'Thuiszorg en ambulante begeleiding | Welzijnsklik',
   description:
-    'Volledige regie zonder administratieve rompslomp. Beheer fototoestemming per cliënt en ontvang automatisch een rapportage zodra een activiteit is afgerond.',
+    'Directe kwaliteitsborging voor thuiszorgorganisaties: een sluitende registratie op afstand, en kinderen die nauw betrokken blijven bij de zorg voor hun ouder.',
 };
 
 const sectionPadding = 'clamp(48px,6vw,80px) clamp(16px,4vw,48px)';
@@ -21,48 +21,30 @@ const card = {
   boxShadow: '0px 4px 20px rgba(26,23,20,0.05)',
 } as const;
 
-const STEPS = [
-  {
-    n: '1',
-    title: 'Cliënten en toestemming beheren',
-    body: 'U legt per cliënt vast welke fototoestemming van toepassing is, conform de privacyrichtlijnen van uw organisatie. Alles vanuit één overzichtelijk dashboard.',
-  },
-  {
-    n: '2',
-    title: 'Vrijwilligers koppelen',
-    body: 'U koppelt vrijwilligers aan cliënten en geeft ze toegang tot precies de informatie die ze nodig hebben — niet meer en niet minder.',
-  },
-  {
-    n: '3',
-    title: 'Automatische rapportage',
-    body: 'Zodra een activiteit is afgerond ontvangt u direct een automatisch briefje in uw dashboard — wie, wat, hoe lang, bijzonderheden. Geen handmatige urenlijsten meer.',
-  },
-] as const;
-
 const BENEFITS = [
   {
     icon: Clock,
-    title: 'Gemiddeld 3 uur per week besparing',
-    body: 'Onze applicatie automatiseert de registratie van activiteiten, zodat u minder tijd kwijt bent aan Excel, losse mailtjes en telefoontjes.',
+    title: 'Sluitende registratie op afstand',
+    body: 'Het systeem genereert automatisch een compleet overzicht van uren en activiteiten, ook als vrijwilligers bij cliënten thuis werken zonder rechtstreeks toezicht.',
   },
   {
     icon: ShieldCheck,
-    title: 'Privacy-by-design',
-    body: "Fototoestemming wordt per cliënt vastgelegd en foto's worden nooit lokaal op het toestel van de vrijwilliger opgeslagen.",
+    title: 'Directe kwaliteitsborging',
+    body: 'Bijzonderheden worden direct gesignaleerd, zodat u als coördinator op afstand toch grip houdt op de kwaliteit van de zorg.',
   },
   {
-    icon: Bell,
-    title: 'Directe signalering',
-    body: 'Bijzonderheden tijdens een activiteit komen direct bij u binnen, zodat u snel kunt schakelen wanneer dat nodig is.',
+    icon: Users,
+    title: 'Betrokken op afstand',
+    body: 'Kinderen die de zorg voor hun ouder op afstand regelen, blijven via de beveiligde tijdlijn nauw betrokken bij wat er dagelijks gebeurt.',
   },
   {
-    icon: LayoutDashboard,
-    title: 'Eén overzichtelijk dashboard',
-    body: 'Alle activiteiten, cliënten en vrijwilligers overzichtelijk bij elkaar — geen losse systemen of spreadsheets meer.',
+    icon: Home,
+    title: 'Geen losse belletjes meer',
+    body: 'Uren, activiteiten en bijzonderheden komen automatisch binnen — geen handmatige afstemming per telefoon of mail meer nodig.',
   },
 ] as const;
 
-export default function CoordinatorPage() {
+export default function ThuiszorgPage() {
   return (
     <div style={{ color: '#1a1714', background: '#faf8f5' }}>
       <MarketingHeader />
@@ -84,7 +66,7 @@ export default function CoordinatorPage() {
                 marginBottom: 24,
               }}
             >
-              Regie en rust
+              Thuiszorgorganisaties
             </span>
             <h1
               style={{
@@ -96,7 +78,7 @@ export default function CoordinatorPage() {
                 maxWidth: 720,
               }}
             >
-              De Coördinator: volledige regie, zonder administratieve rompslomp
+              Thuiszorg en ambulante begeleiding: grip, ook op afstand
             </h1>
             <p
               style={{
@@ -106,15 +88,16 @@ export default function CoordinatorPage() {
                 maxWidth: 680,
               }}
             >
-              U behoudt de volledige controle. U beheert per cliënt de specifieke
-              fototoestemming conform de privacyrichtlijnen. Zodra een activiteit is
-              afgerond, ontvangt u direct een automatisch briefje in uw dashboard — wie,
-              wat, hoe lang, bijzonderheden. Geen handmatige urenlijsten meer.
+              Vrijwilligers komen bij cliënten thuis; als coördinator op afstand is het
+              loggen van uren en het signaleren van bijzonderheden een uitdaging.
+              Welzijnsklik zorgt voor directe kwaliteitsborging: het systeem genereert
+              automatisch een sluitende registratie, en kinderen die op afstand de zorg
+              regelen blijven nauw betrokken.
             </p>
           </div>
         </section>
 
-        {/* Hoe het werkt */}
+        {/* Benefits */}
         <section style={{ background: '#f5f2ed', padding: sectionPadding }}>
           <div style={{ maxWidth, margin: '0 auto' }}>
             <h2
@@ -126,51 +109,7 @@ export default function CoordinatorPage() {
                 textAlign: 'center',
               }}
             >
-              Hoe het werkt
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {STEPS.map((step) => (
-                <div key={step.n} style={{ ...card, padding: 32 }}>
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      background: '#d97706',
-                      color: '#fff',
-                      borderRadius: 12,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 800,
-                      fontSize: 16,
-                      marginBottom: 20,
-                    }}
-                  >
-                    {step.n}
-                  </div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1714', marginBottom: 12 }}>
-                    {step.title}
-                  </h3>
-                  <p style={{ fontSize: 15, color: '#57534e', lineHeight: 1.65 }}>{step.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Benefits */}
-        <section style={{ background: '#ffffff', padding: sectionPadding }}>
-          <div style={{ maxWidth, margin: '0 auto' }}>
-            <h2
-              style={{
-                fontSize: 'clamp(24px,3vw,36px)',
-                fontWeight: 700,
-                color: '#1a1714',
-                marginBottom: 40,
-                textAlign: 'center',
-              }}
-            >
-              Wat dit voor u betekent
+              Wat dit voor uw organisatie betekent
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {BENEFITS.map((item) => {
@@ -205,7 +144,7 @@ export default function CoordinatorPage() {
         </section>
 
         {/* CTA */}
-        <section style={{ background: '#f5f2ed', padding: sectionPadding, textAlign: 'center' }}>
+        <section style={{ background: '#ffffff', padding: sectionPadding, textAlign: 'center' }}>
           <div style={{ maxWidth, margin: '0 auto' }}>
             <h2 style={{ fontSize: 'clamp(24px,3vw,36px)', fontWeight: 700, color: '#1a1714', marginBottom: 16 }}>
               Benieuwd hoe dit werkt binnen uw organisatie?

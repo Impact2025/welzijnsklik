@@ -2,13 +2,13 @@ import MarketingHeader from '@/components/marketing/MarketingHeader';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
 import DemoWizardButton from '@/components/marketing/DemoWizardButton';
 import Link from 'next/link';
-import { LayoutDashboard, ShieldCheck, Clock, Bell, ArrowRight } from 'lucide-react';
+import { Building2, Clock, ShieldCheck, Users, ArrowRight } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'De Coördinator | Welzijnsklik',
+  title: 'Intramurale Ouderenzorg | Welzijnsklik',
   description:
-    'Volledige regie zonder administratieve rompslomp. Beheer fototoestemming per cliënt en ontvang automatisch een rapportage zodra een activiteit is afgerond.',
+    'Een doorlopende, transparante tijdlijn voor familie van bewoners in verpleeghuizen en woonzorgcentra, die telefonische updates naar de zorgpost overbodig maakt.',
 };
 
 const sectionPadding = 'clamp(48px,6vw,80px) clamp(16px,4vw,48px)';
@@ -21,48 +21,30 @@ const card = {
   boxShadow: '0px 4px 20px rgba(26,23,20,0.05)',
 } as const;
 
-const STEPS = [
-  {
-    n: '1',
-    title: 'Cliënten en toestemming beheren',
-    body: 'U legt per cliënt vast welke fototoestemming van toepassing is, conform de privacyrichtlijnen van uw organisatie. Alles vanuit één overzichtelijk dashboard.',
-  },
-  {
-    n: '2',
-    title: 'Vrijwilligers koppelen',
-    body: 'U koppelt vrijwilligers aan cliënten en geeft ze toegang tot precies de informatie die ze nodig hebben — niet meer en niet minder.',
-  },
-  {
-    n: '3',
-    title: 'Automatische rapportage',
-    body: 'Zodra een activiteit is afgerond ontvangt u direct een automatisch briefje in uw dashboard — wie, wat, hoe lang, bijzonderheden. Geen handmatige urenlijsten meer.',
-  },
-] as const;
-
 const BENEFITS = [
   {
     icon: Clock,
-    title: 'Gemiddeld 3 uur per week besparing',
-    body: 'Onze applicatie automatiseert de registratie van activiteiten, zodat u minder tijd kwijt bent aan Excel, losse mailtjes en telefoontjes.',
+    title: 'Minder telefoontjes naar de zorgpost',
+    body: 'Familie hoeft niet meer te bellen voor een update — de tijdlijn geeft direct antwoord op de vraag "hoe gaat het vandaag met mijn naaste?".',
+  },
+  {
+    icon: Users,
+    title: 'Ontlasting van het zorgteam',
+    body: 'Zorgmedewerkers en vrijwilligers loggen activiteiten in seconden, in plaats van tijd kwijt te zijn aan telefonisch contact met familie.',
   },
   {
     icon: ShieldCheck,
-    title: 'Privacy-by-design',
-    body: "Fototoestemming wordt per cliënt vastgelegd en foto's worden nooit lokaal op het toestel van de vrijwilliger opgeslagen.",
+    title: 'Veilig en AVG-proof',
+    body: 'Fototoestemming wordt per bewoner vastgelegd en gerespecteerd. Alleen uitgenodigde familieleden zien de tijdlijn.',
   },
   {
-    icon: Bell,
-    title: 'Directe signalering',
-    body: 'Bijzonderheden tijdens een activiteit komen direct bij u binnen, zodat u snel kunt schakelen wanneer dat nodig is.',
-  },
-  {
-    icon: LayoutDashboard,
-    title: 'Eén overzichtelijk dashboard',
-    body: 'Alle activiteiten, cliënten en vrijwilligers overzichtelijk bij elkaar — geen losse systemen of spreadsheets meer.',
+    icon: Building2,
+    title: 'Eén systeem voor de hele afdeling',
+    body: 'Coördinatoren houden overzicht over alle bewoners, activiteiten en vrijwilligers binnen de locatie of afdeling.',
   },
 ] as const;
 
-export default function CoordinatorPage() {
+export default function OuderenzorgPage() {
   return (
     <div style={{ color: '#1a1714', background: '#faf8f5' }}>
       <MarketingHeader />
@@ -84,7 +66,7 @@ export default function CoordinatorPage() {
                 marginBottom: 24,
               }}
             >
-              Regie en rust
+              Verpleeghuizen en woonzorgcentra
             </span>
             <h1
               style={{
@@ -96,7 +78,7 @@ export default function CoordinatorPage() {
                 maxWidth: 720,
               }}
             >
-              De Coördinator: volledige regie, zonder administratieve rompslomp
+              Intramurale ouderenzorg: transparantie voor de familie
             </h1>
             <p
               style={{
@@ -106,15 +88,15 @@ export default function CoordinatorPage() {
                 maxWidth: 680,
               }}
             >
-              U behoudt de volledige controle. U beheert per cliënt de specifieke
-              fototoestemming conform de privacyrichtlijnen. Zodra een activiteit is
-              afgerond, ontvangt u direct een automatisch briefje in uw dashboard — wie,
-              wat, hoe lang, bijzonderheden. Geen handmatige urenlijsten meer.
+              Familie weet vaak niet wat hun naaste overdag doet, wat leidt tot frequente,
+              tijdrovende telefoontjes naar de zorgpost. Welzijnsklik biedt een doorlopende,
+              transparante tijdlijn die de familie geruststelt en de zorgteams ontlast van
+              telefonische updates.
             </p>
           </div>
         </section>
 
-        {/* Hoe het werkt */}
+        {/* Benefits */}
         <section style={{ background: '#f5f2ed', padding: sectionPadding }}>
           <div style={{ maxWidth, margin: '0 auto' }}>
             <h2
@@ -126,51 +108,7 @@ export default function CoordinatorPage() {
                 textAlign: 'center',
               }}
             >
-              Hoe het werkt
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {STEPS.map((step) => (
-                <div key={step.n} style={{ ...card, padding: 32 }}>
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      background: '#d97706',
-                      color: '#fff',
-                      borderRadius: 12,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontWeight: 800,
-                      fontSize: 16,
-                      marginBottom: 20,
-                    }}
-                  >
-                    {step.n}
-                  </div>
-                  <h3 style={{ fontSize: 18, fontWeight: 700, color: '#1a1714', marginBottom: 12 }}>
-                    {step.title}
-                  </h3>
-                  <p style={{ fontSize: 15, color: '#57534e', lineHeight: 1.65 }}>{step.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Benefits */}
-        <section style={{ background: '#ffffff', padding: sectionPadding }}>
-          <div style={{ maxWidth, margin: '0 auto' }}>
-            <h2
-              style={{
-                fontSize: 'clamp(24px,3vw,36px)',
-                fontWeight: 700,
-                color: '#1a1714',
-                marginBottom: 40,
-                textAlign: 'center',
-              }}
-            >
-              Wat dit voor u betekent
+              Wat dit voor uw organisatie betekent
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {BENEFITS.map((item) => {
@@ -205,10 +143,10 @@ export default function CoordinatorPage() {
         </section>
 
         {/* CTA */}
-        <section style={{ background: '#f5f2ed', padding: sectionPadding, textAlign: 'center' }}>
+        <section style={{ background: '#ffffff', padding: sectionPadding, textAlign: 'center' }}>
           <div style={{ maxWidth, margin: '0 auto' }}>
             <h2 style={{ fontSize: 'clamp(24px,3vw,36px)', fontWeight: 700, color: '#1a1714', marginBottom: 16 }}>
-              Benieuwd hoe dit werkt binnen uw organisatie?
+              Benieuwd hoe dit werkt binnen uw locatie?
             </h2>
             <p style={{ fontSize: 'clamp(16px,2vw,18px)', color: '#57534e', lineHeight: 1.65, marginBottom: 36 }}>
               Vraag een vrijblijvende demonstratie aan of start direct met een pilot.

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import DemoWizardButton from './DemoWizardButton';
 
 const PRODUCT_LINKS: [string, string][] = [
   ['Functionaliteiten', '/#flows'],
@@ -57,11 +58,16 @@ export default function MarketingFooter() {
             <p style={{ fontSize: 13, color: '#57534e', marginBottom: 16, lineHeight: '20px' }}>
               Interesse in een pilot voor uw organisatie? Neem direct contact op.
             </p>
-            <a href="mailto:v.munster@weareimpact.nl"
-              className="inline-block hover:bg-amber-700 transition-colors"
-              style={{ background: '#d97706', color: '#fff', fontSize: 14, fontWeight: 600, padding: '10px 20px', borderRadius: 10 }}>
-              Stuur een e-mail
-            </a>
+            <DemoWizardButton>
+              {({ onClick }) => (
+                <button
+                  onClick={onClick}
+                  className="inline-block hover:bg-amber-700 transition-colors"
+                  style={{ background: '#d97706', color: '#fff', fontSize: 14, fontWeight: 600, padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer' }}>
+                  Plan een demo
+                </button>
+              )}
+            </DemoWizardButton>
           </div>
         </div>
 

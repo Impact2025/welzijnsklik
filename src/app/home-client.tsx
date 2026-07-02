@@ -19,7 +19,7 @@ import {
 import Link from 'next/link';
 import MarketingHeader from '@/components/marketing/MarketingHeader';
 import MarketingFooter from '@/components/marketing/MarketingFooter';
-import DemoInterestForm from './DemoInterestForm';
+import DemoWizardButton from '@/components/marketing/DemoWizardButton';
 
 /* ─── Data ─────────────────────────────────────────── */
 
@@ -90,18 +90,21 @@ const SECTORS = [
     title: 'Intramurale Ouderenzorg',
     problem: 'Familie weet vaak niet wat hun naaste overdag doet, wat leidt tot frequente, tijdrovende telefoontjes naar de zorgpost.',
     impact: 'Een doorlopende, transparante tijdlijn die de familie geruststelt en de zorgteams ontlast van telefonische updates.',
+    href: '/sectoren/ouderenzorg',
   },
   {
     icon: Home,
     title: 'Thuiszorg en ambulante begeleiding',
     problem: 'Vrijwilligers komen bij cliënten thuis; als coördinator op afstand is het loggen van uren en het signaleren van bijzonderheden een uitdaging.',
     impact: 'Directe kwaliteitsborging. Het systeem genereert automatisch een sluitende registratie. Kinderen die op afstand de zorg regelen, blijven nauw betrokken.',
+    href: '/sectoren/thuiszorg',
   },
   {
     icon: PersonStanding,
     title: 'Gehandicaptenzorg en activiteitencentra',
     problem: 'Hoge communicatiedruk tussen begeleiders en de actieve achterban (ouders/voogden) over de dagbesteding.',
     impact: "Begeleiders delen in een handomdraai de resultaten van de dagbesteding. Ouders worden via de Samenzorg-knop direct uitgenodigd om mee te helpen bij grotere evenementen.",
+    href: '/sectoren/gehandicaptenzorg',
   },
 ] as const;
 
@@ -198,12 +201,16 @@ export default function HomeClient() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                <a href="#contact"
-                  className="flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
-                  style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '14px 32px', borderRadius: 12, boxShadow: '0 8px 24px rgba(245,158,11,0.30)' }}>
-                  Vrijblijvende demonstratie aanvragen
-                  <ArrowRight size={18} />
-                </a>
+                <DemoWizardButton>
+                  {({ onClick }) => (
+                    <button onClick={onClick}
+                      className="flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
+                      style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '14px 32px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.30)' }}>
+                      Vrijblijvende demonstratie aanvragen
+                      <ArrowRight size={18} />
+                    </button>
+                  )}
+                </DemoWizardButton>
                 <a href="#flows"
                   className="flex items-center justify-center gap-2 transition-all"
                   style={{ fontSize: 16, fontWeight: 600, color: '#d97706', border: '2px solid #d97706', padding: '14px 28px', borderRadius: 12 }}>
@@ -370,6 +377,10 @@ export default function HomeClient() {
                         <p style={{ fontSize: 14, color: '#57534e', lineHeight: '22px' }}>{s.impact}</p>
                       </div>
                     </div>
+                    <Link href={s.href} className="flex items-center gap-1 transition-colors hover:opacity-75" style={{ marginTop: 20, paddingTop: 20, borderTop: '1px solid #e8e3db' }}>
+                      <span style={{ fontSize: 14, fontWeight: 500, color: '#d97706' }}>Meer weten</span>
+                      <ChevronRight size={16} color="#d97706" />
+                    </Link>
                   </div>
                 );
               })}
@@ -412,12 +423,16 @@ export default function HomeClient() {
               </div>
 
               <div className="text-center" style={{ marginTop: 48 }}>
-                <a href="#contact"
-                  className="inline-flex items-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
-                  style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '14px 36px', borderRadius: 12, boxShadow: '0 8px 24px rgba(245,158,11,0.28)' }}>
-                  Vraag de pilot aan
-                  <ArrowRight size={18} />
-                </a>
+                <DemoWizardButton>
+                  {({ onClick }) => (
+                    <button onClick={onClick}
+                      className="inline-flex items-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
+                      style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '14px 36px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.28)' }}>
+                      Vraag de pilot aan
+                      <ArrowRight size={18} />
+                    </button>
+                  )}
+                </DemoWizardButton>
               </div>
             </div>
           </div>
@@ -446,13 +461,24 @@ export default function HomeClient() {
               </p>
             </div>
 
-            <p style={{ fontSize: 16, color: '#57534e', lineHeight: '26px', marginBottom: 16 }}>
+            <p style={{ fontSize: 16, color: '#57534e', lineHeight: '26px', marginBottom: 28 }}>
               Welzijnsklik is ontwikkeld vanuit de praktijk door Vincent van Munster. Met meer dan
               15 jaar bestuurlijke ervaring in de zorg- en welzijnssector combineert hij
               diepgaande kennis van de werkvloer met het vermogen om zelf werkende, innovatieve
               softwareoplossingen te bouwen.
             </p>
-            <DemoInterestForm />
+            <DemoWizardButton>
+              {({ onClick }) => (
+                <button
+                  onClick={onClick}
+                  className="inline-flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
+                  style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.30)' }}
+                >
+                  Vraag direct een vrijblijvende demonstratie aan
+                  <ArrowRight size={18} />
+                </button>
+              )}
+            </DemoWizardButton>
           </div>
         </section>
 

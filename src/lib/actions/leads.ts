@@ -39,7 +39,28 @@ export async function meldDemoInteresse(formData: FormData) {
   const telefoon = (formData.get("telefoon") as string | null)?.trim() || null;
   const bericht = (formData.get("bericht") as string | null)?.trim() || null;
 
+  const organisatieType = (formData.get("organisatieType") as string | null)?.trim() || null;
+  const functie = (formData.get("functie") as string | null)?.trim() || null;
+  const aantalClienten = (formData.get("aantalClienten") as string | null)?.trim() || null;
+  const uitdagingen = formData.getAll("uitdaging").map((v) => String(v).trim()).filter(Boolean);
+  const toelichting = (formData.get("toelichting") as string | null)?.trim() || null;
+  const gewensteStart = (formData.get("gewensteStart") as string | null)?.trim() || null;
+  const demoVoorkeur = (formData.get("demoVoorkeur") as string | null)?.trim() || null;
+  const gewenstMoment = (formData.get("gewenstMoment") as string | null)?.trim() || null;
+
   if (!email) throw new Error("E-mailadres is verplicht");
+
+  const notitieRegels = [
+    organisatieType && `Type organisatie: ${organisatieType}`,
+    functie && `Functie: ${functie}`,
+    aantalClienten && `Aantal bewoners/cliënten: ${aantalClienten}`,
+    uitdagingen.length > 0 && `Uitdaging: ${uitdagingen.join(", ")}`,
+    toelichting && `Toelichting: ${toelichting}`,
+    gewensteStart && `Gewenste start: ${gewensteStart}`,
+    demoVoorkeur && `Voorkeur demo: ${demoVoorkeur}`,
+    gewenstMoment && `Gewenst moment: ${gewenstMoment}`,
+    bericht && `Bericht: ${bericht}`,
+  ].filter(Boolean);
 
   await prisma.lead.create({
     data: {
@@ -47,7 +68,7 @@ export async function meldDemoInteresse(formData: FormData) {
       organisatie,
       email,
       telefoon,
-      notitie: `[Demo-aanvraag]${bericht ? ` ${bericht}` : ""}`,
+      notitie: `[Demo-aanvraag]${notitieRegels.length ? " " + notitieRegels.join(" · ") : ""}`,
       status: "nieuw",
     },
   });

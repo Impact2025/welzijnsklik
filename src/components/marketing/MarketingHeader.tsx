@@ -3,11 +3,12 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
+import DemoWizardButton from './DemoWizardButton';
 
 const NAV_LINKS: [string, string][] = [
   ['Product', '/#waarom'],
-  ['Platform', '/#flows'],
-  ['Sectoren', '/#sectoren'],
+  ['Platform', '/platform'],
+  ['Sectoren', '/sectoren'],
   ['Contact', '/#contact'],
 ];
 
@@ -52,13 +53,17 @@ export default function MarketingHeader() {
           >
             Inloggen
           </Link>
-          <Link
-            href="/#contact"
-            style={{ fontSize: 14, fontWeight: 600, color: '#fff', background: '#d97706', borderRadius: 12, padding: '9px 20px' }}
-            className="hover:bg-amber-700 transition-colors active:scale-95"
-          >
-            Aanmelden
-          </Link>
+          <DemoWizardButton>
+            {({ onClick }) => (
+              <button
+                onClick={onClick}
+                style={{ fontSize: 14, fontWeight: 600, color: '#fff', background: '#d97706', borderRadius: 12, padding: '9px 20px', border: 'none', cursor: 'pointer' }}
+                className="hover:bg-amber-700 transition-colors active:scale-95"
+              >
+                Aanmelden
+              </button>
+            )}
+          </DemoWizardButton>
         </nav>
 
         <button
@@ -87,10 +92,15 @@ export default function MarketingHeader() {
               style={{ textAlign: 'center', padding: '14px', borderRadius: 12, fontWeight: 600, border: '2px solid #d97706', color: '#d97706' }}>
               Inloggen
             </Link>
-            <Link href="/#contact" onClick={() => setMenuOpen(false)}
-              style={{ textAlign: 'center', padding: '14px', borderRadius: 12, fontWeight: 600, background: '#d97706', color: '#fff' }}>
-              Aanmelden
-            </Link>
+            <DemoWizardButton>
+              {({ onClick }) => (
+                <button
+                  onClick={() => { setMenuOpen(false); onClick(); }}
+                  style={{ textAlign: 'center', padding: '14px', borderRadius: 12, fontWeight: 600, background: '#d97706', color: '#fff', border: 'none', cursor: 'pointer' }}>
+                  Aanmelden
+                </button>
+              )}
+            </DemoWizardButton>
           </div>
         </div>
       )}
