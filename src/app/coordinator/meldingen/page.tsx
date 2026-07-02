@@ -114,7 +114,7 @@ export default async function NotificatiesPage() {
                   <div className="space-y-1">
                     <p className="text-[10px] font-semibold text-neutral-400 uppercase">Ervaring</p>
                     <p className="text-sm text-neutral-600 leading-relaxed bg-neutral-50 rounded-xl p-3">
-                      "{i.ervaring}"
+                      &ldquo;{i.ervaring}&rdquo;
                     </p>
                   </div>
                 )}
@@ -124,13 +124,13 @@ export default async function NotificatiesPage() {
                       <Heart size={10} /> Motivatie
                     </p>
                     <p className="text-sm text-neutral-600 leading-relaxed bg-neutral-50 rounded-xl p-3">
-                      "{i.motivatie}"
+                      &ldquo;{i.motivatie}&rdquo;
                     </p>
                   </div>
                 )}
                 {i.bericht && !i.ervaring && !i.motivatie && (
                   <p className="text-sm text-neutral-600 leading-relaxed bg-neutral-50 rounded-xl p-3">
-                    "&ldquo;{i.bericht}&rdquo;"
+                    &ldquo;{i.bericht}&rdquo;
                   </p>
                 )}
 
