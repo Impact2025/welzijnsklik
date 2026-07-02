@@ -59,14 +59,11 @@ export default function MarketingFooter() {
               Interesse in een pilot voor uw organisatie? Neem direct contact op.
             </p>
             <DemoWizardButton>
-              {({ onClick }) => (
-                <button
-                  onClick={onClick}
-                  className="inline-block hover:bg-amber-700 transition-colors"
-                  style={{ background: '#d97706', color: '#fff', fontSize: 14, fontWeight: 600, padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer' }}>
-                  Plan een demo
-                </button>
-              )}
+              <button
+                className="inline-block hover:bg-amber-700 transition-colors"
+                style={{ background: '#d97706', color: '#fff', fontSize: 14, fontWeight: 600, padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer' }}>
+                Plan een demo
+              </button>
             </DemoWizardButton>
           </div>
         </div>

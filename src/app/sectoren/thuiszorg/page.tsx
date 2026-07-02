@@ -154,16 +154,13 @@ export default function ThuiszorgPage() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <DemoWizardButton>
-                {({ onClick }) => (
-                  <button
-                    onClick={onClick}
-                    className="flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
-                    style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '14px 32px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.30)' }}
-                  >
-                    Vraag een demonstratie aan
-                    <ArrowRight size={18} />
-                  </button>
-                )}
+                <button
+                  className="flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
+                  style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '14px 32px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.30)' }}
+                >
+                  Vraag een demonstratie aan
+                  <ArrowRight size={18} />
+                </button>
               </DemoWizardButton>
               <Link
                 href="/pilot"

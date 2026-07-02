@@ -70,9 +70,6 @@ export async function POST(request: NextRequest) {
 
   let url: string;
   try {
-    if (!process.env.BLOB_READ_WRITE_TOKEN) {
-      throw new Error("BLOB_READ_WRITE_TOKEN is niet geconfigureerd op de server");
-    }
     ({ url } = await put(filename, blob, {
       access: "public",
       contentType: "image/jpeg",

@@ -54,15 +54,12 @@ export default function MarketingHeader() {
             Inloggen
           </Link>
           <DemoWizardButton>
-            {({ onClick }) => (
-              <button
-                onClick={onClick}
-                style={{ fontSize: 14, fontWeight: 600, color: '#fff', background: '#d97706', borderRadius: 12, padding: '9px 20px', border: 'none', cursor: 'pointer' }}
-                className="hover:bg-amber-700 transition-colors active:scale-95"
-              >
-                Aanmelden
-              </button>
-            )}
+            <button
+              style={{ fontSize: 14, fontWeight: 600, color: '#fff', background: '#d97706', borderRadius: 12, padding: '9px 20px', border: 'none', cursor: 'pointer' }}
+              className="hover:bg-amber-700 transition-colors active:scale-95"
+            >
+              Aanmelden
+            </button>
           </DemoWizardButton>
         </nav>
 
@@ -93,13 +90,11 @@ export default function MarketingHeader() {
               Inloggen
             </Link>
             <DemoWizardButton>
-              {({ onClick }) => (
-                <button
-                  onClick={() => { setMenuOpen(false); onClick(); }}
-                  style={{ textAlign: 'center', padding: '14px', borderRadius: 12, fontWeight: 600, background: '#d97706', color: '#fff', border: 'none', cursor: 'pointer' }}>
-                  Aanmelden
-                </button>
-              )}
+              <button
+                onClick={() => setMenuOpen(false)}
+                style={{ textAlign: 'center', padding: '14px', borderRadius: 12, fontWeight: 600, background: '#d97706', color: '#fff', border: 'none', cursor: 'pointer' }}>
+                Aanmelden
+              </button>
             </DemoWizardButton>
           </div>
         </div>

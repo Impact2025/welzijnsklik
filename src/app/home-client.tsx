@@ -202,14 +202,12 @@ export default function HomeClient() {
 
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
                 <DemoWizardButton>
-                  {({ onClick }) => (
-                    <button onClick={onClick}
-                      className="flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
-                      style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '14px 32px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.30)' }}>
-                      Vrijblijvende demonstratie aanvragen
-                      <ArrowRight size={18} />
-                    </button>
-                  )}
+                  <button
+                    className="flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
+                    style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '14px 32px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.30)' }}>
+                    Vrijblijvende demonstratie aanvragen
+                    <ArrowRight size={18} />
+                  </button>
                 </DemoWizardButton>
                 <a href="#flows"
                   className="flex items-center justify-center gap-2 transition-all"
@@ -424,14 +422,12 @@ export default function HomeClient() {
 
               <div className="text-center" style={{ marginTop: 48 }}>
                 <DemoWizardButton>
-                  {({ onClick }) => (
-                    <button onClick={onClick}
-                      className="inline-flex items-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
-                      style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '14px 36px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.28)' }}>
-                      Vraag de pilot aan
-                      <ArrowRight size={18} />
-                    </button>
-                  )}
+                  <button
+                    className="inline-flex items-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
+                    style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '14px 36px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.28)' }}>
+                    Vraag de pilot aan
+                    <ArrowRight size={18} />
+                  </button>
                 </DemoWizardButton>
               </div>
             </div>
@@ -468,16 +464,13 @@ export default function HomeClient() {
               softwareoplossingen te bouwen.
             </p>
             <DemoWizardButton>
-              {({ onClick }) => (
-                <button
-                  onClick={onClick}
-                  className="inline-flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
-                  style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.30)' }}
-                >
-                  Vraag direct een vrijblijvende demonstratie aan
-                  <ArrowRight size={18} />
-                </button>
-              )}
+              <button
+                className="inline-flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:scale-95"
+                style={{ background: '#F59E0B', color: '#fff', fontSize: 16, fontWeight: 700, padding: '16px 40px', borderRadius: 12, border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.30)' }}
+              >
+                Vraag direct een vrijblijvende demonstratie aan
+                <ArrowRight size={18} />
+              </button>
             </DemoWizardButton>
           </div>
         </section>

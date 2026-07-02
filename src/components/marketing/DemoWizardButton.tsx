@@ -1,18 +1,25 @@
 'use client';
 
-import { useState } from 'react';
+import { cloneElement, isValidElement, useState, type ReactElement } from 'react';
 import DemoWizardModal from './DemoWizardModal';
 
 export default function DemoWizardButton({
   children,
 }: {
-  children: (props: { onClick: () => void }) => React.ReactNode;
+  children: ReactElement<{ onClick?: () => void }>;
 }) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      {children({ onClick: () => setOpen(true) })}
+      {isValidElement(children)
+        ? cloneElement(children, {
+            onClick: () => {
+              children.props.onClick?.();
+              setOpen(true);
+            },
+          })
+        : children}
       {open && <DemoWizardModal onClose={() => setOpen(false)} />}
     </>
   );
