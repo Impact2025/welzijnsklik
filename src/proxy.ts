@@ -26,7 +26,15 @@ export default auth(
       "/", "/geen-toegang", "/over-ons", "/pilot", "/support",
       "/algemene-voorwaarden", "/cookies", "/privacy", "/admin/login",
     ];
-    if (publicRoutes.includes(pathname) || pathname === "/blog" || pathname.startsWith("/blog/")) {
+    if (
+      publicRoutes.includes(pathname) ||
+      pathname === "/blog" ||
+      pathname.startsWith("/blog/") ||
+      pathname === "/platform" ||
+      pathname.startsWith("/platform/") ||
+      pathname === "/sectoren" ||
+      pathname.startsWith("/sectoren/")
+    ) {
       return nextWithPath(req, pathname);
     }
 
