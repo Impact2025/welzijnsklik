@@ -1,6 +1,7 @@
 /**
  * Eenvoudige in-memory rate limiter voor Vercel Edge.
  * In productie vervangen door Vercel KV / Redis.
+ * Nota: Edge Runtime heeft geen setInterval - cleanup gebeurt via lazy garbage collection.
  */
 
 interface Entry {
@@ -10,13 +11,20 @@ interface Entry {
 
 const store = new Map<string, Entry>();
 
-// Cleanup oude entries elke 5 minuten
-setInterval(() => {
-  const now = Date.now();
-  store.forEach((entry, key) => {
-    if (entry.resetAt < now) store.delete(key);
+// Cleanup functie (wordt intern aangeroepen bij elke check)
+function cleanupIfNeeded(now: number) {
+  // Lazy cleanup: verzamel eerst keys die vervallen, verwijder daarna
+  // (direct verwijderen tijdens entries() iteratie kan inconsistent gedrag geven)
+  const keysToDelete: string[] = [];
+  Array.from(store.entries()).forEach(([key, entry]) => {
+    if (entry.resetAt < now) {
+      keysToDelete.push(key);
+    }
   });
-}, 5 * 60_000).unref();
+  for (const key of keysToDelete) {
+    store.delete(key);
+  }
+}
 
 export interface RateLimitConfig {
   /** Aantal toegestane requests binnen het venster */
@@ -37,6 +45,10 @@ export function checkRateLimit(
   config: RateLimitConfig = DEFAULTS
 ): { allowed: boolean; remaining: number; resetAt: number } {
   const now = Date.now();
+  
+  // Lazy cleanup voor Edge Runtime compatibiliteit
+  cleanupIfNeeded(now);
+  
   const existing = store.get(key);
 
   if (!existing || existing.resetAt < now) {
