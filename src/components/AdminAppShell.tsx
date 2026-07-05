@@ -9,6 +9,7 @@ import {
   Mail,
   FileText,
   UserPlus,
+  Zap,
   LogOut,
   type LucideIcon,
 } from "lucide-react";
@@ -24,8 +25,8 @@ interface NavItem {
 const ADMIN_NAV: NavItem[] = [
   { href: "/admin", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/admin/klanten", icon: Building2, label: "Klanten" },
+  { href: "/admin/lead-machine", icon: Zap, label: "Lead Machine" },
   { href: "/admin/analytics", icon: BarChart3, label: "Analytics" },
-  { href: "/admin/nieuwsbrieven", icon: Mail, label: "Nieuwsbrieven" },
   { href: "/admin/blog", icon: FileText, label: "Blog" },
   { href: "/admin/leads", icon: UserPlus, label: "Leads" },
 ];

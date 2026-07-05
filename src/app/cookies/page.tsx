@@ -43,9 +43,27 @@ export default function CookiesPage() {
             >
               Cookiebeleid
             </h1>
-            <p style={{ fontSize: 14, color: '#404751', marginBottom: 48 }}>
-              Versie 1.0 — juni 2026
+            <p style={{ fontSize: 14, color: '#404751', marginBottom: 24 }}>
+              Versie 1.1 — 3 juli 2026
             </p>
+
+            <div
+              style={{
+                background: 'rgba(0,94,159,0.06)',
+                borderRadius: 12,
+                padding: '18px 20px',
+                marginBottom: 40,
+                fontSize: 14,
+                color: '#1D3557',
+                lineHeight: 1.7,
+              }}
+            >
+              <strong>WeAreImpact B.V.</strong>, Heintje Hoeksteeg 11a, 1012 GR Amsterdam
+              <br />
+              KvK: 70285888 &nbsp;·&nbsp; BTW: NL858236369B01
+              <br />
+              Verwerkingsverantwoordelijke voor het plaatsen van cookies op welzijnsklik.nl
+            </div>
 
             <article style={{ lineHeight: 1.75 }}>
               <section style={{ marginBottom: 36 }}>
@@ -232,6 +250,9 @@ export default function CookiesPage() {
                     v.munster@weareimpact.nl
                   </a>
                   .
+                </p>
+                <p style={{ fontSize: 13, color: '#6b7280', marginTop: 12 }}>
+                  WeAreImpact B.V. &middot; Heintje Hoeksteeg 11a, 1012 GR Amsterdam &middot; KvK 70285888 &middot; BTW NL858236369B01
                 </p>
               </section>
             </article>

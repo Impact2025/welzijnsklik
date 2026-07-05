@@ -1,5 +1,5 @@
 /**
- * Foto purge — cron job script.
+ * Foto purge - cron job script.
  * Loopt dagelijks en markeert/verwijdert foto's waarvan de toestemming
  * is ingetrokken, of die ouder zijn dan 90 dagen bij bewoners zonder
  * actieve toestemming.
