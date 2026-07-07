@@ -3,6 +3,7 @@
  * Draait elke maandagochtend om 8:00.
  * Stuurt coordinatoren een overzicht van de afgelopen week.
  */
+import "dotenv/config";
 import { neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "../src/generated/prisma/client";

@@ -1,11 +1,12 @@
 /**
  * Foto purge - cron job script.
- * Loopt dagelijks en markeert/verwijdert foto's waarvan de toestemming
+ * Loopt dagelijks en markeert/verwijdert fotos waarvan de toestemming
  * is ingetrokken, of die ouder zijn dan 90 dagen bij bewoners zonder
  * actieve toestemming.
  *
  * Dit script draait via Hermes cron:action='create'
  */
+import "dotenv/config";
 import { neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaClient } from "../src/generated/prisma/client";
