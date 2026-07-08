@@ -226,9 +226,9 @@ export default function HomeClient() {
               <div className="relative w-full h-full overflow-hidden"
                 style={{ borderRadius: 28, border: '8px solid #fff', boxShadow: '0 12px 40px rgba(26,23,20,0.12)' }}>
                 <img
-                  alt="Groep ouderen en een zorgverlener die samen knutselen aan een tafel in een lichte woonkamer"
+                  alt="Een zorgverlener en een bewoner in een rolstoel wandelen samen door een herfstbos"
                   className="w-full h-full object-cover"
-                  src="https://lh3.googleusercontent.com/aida/AP1WRLsfixes5OyvADO7FAZgVc2otFHYfWn7mmp21IGcN-aCkSBpWHr-KWcnLEUnjOi89Gwt2NZr9A0Qkww7Hie7ApdccrQfgDCssVjO-MkFbeYklHosdROr1--y3fdNOlIk-fU-3C3v0ulE8-NSnh4z4BaGqYkTC8PEM4IYozwKCzZpv341p-A9EqoyauyF0ZVC67w2llyoOhgH3N7ucqvkADIBIe9EXRaPGbxJUeoqp4tiVmHqI0wAoeOiOI7d"
+                  src="/hero-zorg.png"
                 />
               </div>
               {/* Floating card */}
