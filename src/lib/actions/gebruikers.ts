@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { randomBytes } from "crypto";
+import { sendEmail, uitnodigingHtml } from "@/lib/email";
 
 // ─── Uitnodigen (pre-aanmaken User + Gebruiker + RegistratieToken) ─═══════
 
@@ -88,6 +89,27 @@ export async function nodigGebruikerUit(formData: FormData) {
   revalidatePath("/coordinator/gebruikers");
   revalidatePath("/coordinator/bewoners");
   if (bewonerId) revalidatePath(`/coordinator/bewoners/${bewonerId}`);
+
+  // Verstuur de uitnodigingsmail
+  const organisatie = await prisma.organisatie.findUnique({
+    where: { id: organisatieId },
+    select: { naam: true },
+  });
+  const orgNaam = organisatie?.naam ?? "Welzijnsklik";
+  const rolLabel =
+    { VRIJWILLIGER: "vrijwilliger", COORDINATOR: "coördinator", FAMILIE: "familie" }[rol] ??
+    "gebruiker";
+
+  await sendEmail({
+    to: email,
+    subject: `Uitnodiging voor Welzijnsklik — ${orgNaam}`,
+    html: uitnodigingHtml({
+      naam,
+      rolLabel,
+      organisatie: orgNaam,
+      registratieUrl,
+    }),
+  });
 
   return { email, registratieUrl };
 }

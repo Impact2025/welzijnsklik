@@ -2,7 +2,7 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.RESEND_FROM_EMAIL ?? "noreply@welzijnsklik.nl";
-const APP_URL = process.env.NEXTAUTH_URL ?? "http://localhost:8765";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
 // ═════════════════════════════════════════════════════════════
 // Generieke wrapper — logt sending, vangt fouten af
@@ -128,6 +128,27 @@ function esc(s: string): string {
 // ═════════════════════════════════════════════════════════════
 // Specifieke templates
 // ═════════════════════════════════════════════════════════════
+
+export function uitnodigingHtml(opts: {
+  naam: string;
+  rolLabel: string;
+  organisatie: string;
+  registratieUrl: string;
+}): string {
+  const { naam, rolLabel, organisatie, registratieUrl } = opts;
+  return baseHtml({
+    title: "Uitnodiging voor Welzijnsklik",
+    preheader: `Je bent uitgenodigd als ${rolLabel} bij ${organisatie}`,
+    body: `
+      <h2>Hoi ${esc(naam)},</h2>
+      <p>Je bent uitgenodigd om mee te doen met <strong>Welzijnsklik</strong> als <span class="badge">${esc(rolLabel)}</span> bij <strong>${esc(organisatie)}</strong>.</p>
+      <p>Welzijnsklik verbindt vrijwilligers, bewoners en familie in de ouderenzorg. Met de onderstaande knop maak je in een paar stappen je account aan en stel je je wachtwoord in.</p>
+      <p style="color:#a39b8e;font-size:12px;">Deze uitnodigingslink is 7 dagen geldig en kan maar één keer worden gebruikt.</p>
+    `,
+    cta: { label: "Account aanmaken", url: registratieUrl },
+    footer: `Welzijnsklik · ${esc(organisatie)}`,
+  });
+}
 
 export function welkomHtml(naam: string, rol: string, organisatie: string): string {
   const rolLabel = { COORDINATOR: "coördinator", VRIJWILLIGER: "vrijwilliger", FAMILIE: "familie" }[rol] ?? "gebruiker";
