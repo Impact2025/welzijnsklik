@@ -5,6 +5,7 @@ import { ChevronRight, Activity, UserPlus, Users, UserCheck, Clock } from "lucid
 import { ACTIVITEIT_ICON, formatDatum, formatDuur } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
 import { StatCard, EmptyState } from "@/components/ui";
+import { UitnodigForm } from "./gebruikers/UitnodigForm";
 
 function ActiviteitIcon({ type }: { type: string }) {
   const cfg = ACTIVITEIT_ICON[type] ?? ACTIVITEIT_ICON.Anders;
@@ -77,9 +78,14 @@ export default async function CoordinatorDashboard() {
 
   return (
     <div className="py-6 lg:py-8 space-y-6 lg:space-y-8 max-w-7xl mx-auto">
-      <div>
-        <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Goeiedag, {voornaam}</h1>
-        <p className="text-sm lg:text-base text-neutral-500 mt-0.5 lg:mt-1">Hier is een overzicht van vandaag</p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-xl lg:text-2xl font-bold text-gray-900">Goeiedag, {voornaam}</h1>
+          <p className="text-sm lg:text-base text-neutral-500 mt-0.5 lg:mt-1">Hier is een overzicht van vandaag</p>
+        </div>
+        <div className="flex-shrink-0 pt-0.5">
+          <UitnodigForm organisatieId={organisatieId} />
+        </div>
       </div>
 
       <div className="lg:grid lg:grid-cols-3 lg:gap-8 space-y-6 lg:space-y-0">
