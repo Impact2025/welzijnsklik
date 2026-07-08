@@ -357,14 +357,28 @@ model BlogPostTag {
 }
 
 model Lead {
-  id          String   @id @default(cuid())
-  naam        String?
-  organisatie String?
-  email       String
-  telefoon    String?
-  notitie     String?  @db.Text
-  status      String   @default("nieuw") // nieuw | benaderd | klant | niet_relevant
-  createdAt   DateTime @default(now())
+  id             String    @id @default(cuid())
+  naam           String?
+  organisatie    String?
+  email          String
+  telefoon       String?
+  website        String?
+  kvkNummer      String?
+  sbiCode        String?
+  sbiBeschrijving String?
+  plaats         String?
+  postcode       String?
+  adres          String?
+  contactPersoon String?
+  notitie        String?  @db.Text
+  aiScore        Int?
+  aiRationale    String?
+  starred        Boolean   @default(false)
+  status         String    @default("nieuw") // nieuw | benaderd | klant | niet_relevant
+  scrapedAt      DateTime?
+  scoredAt       DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
 model AnalyticsEvent {

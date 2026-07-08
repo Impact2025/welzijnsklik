@@ -226,7 +226,7 @@ function ResultsTable({ results, onSaved }: { results: SearchResultItem[]; onSav
         <span className="text-neutral-600">Gem. score <strong>{avgScore}</strong></span>
         <div className="ml-auto flex gap-2">
           <Button variant="secondary" onClick={saveHighScoring} icon={Database}>
-            Sla score >=6 op
+            Sla score &ge;6 op
           </Button>
           <a
             href="/api/admin/lead-machine/export"
