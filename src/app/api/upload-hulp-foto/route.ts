@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   let url: string;
   try {
-    ({ url } = await put(filename, blob, { access: "public", contentType: "image/jpeg" }));
+    ({ url } = await put(filename, blob, { access: "private", contentType: "image/jpeg", addRandomSuffix: true }));
   } catch (err) {
     console.error("[upload-hulp-foto] Vercel Blob put() mislukt:", err);
     return NextResponse.json({ error: "Foto opslaan mislukt. Probeer het opnieuw." }, { status: 500 });

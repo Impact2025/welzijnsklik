@@ -3,6 +3,7 @@
  * Vervangt honderden inline class-duplicaties door één bron van waarheid.
  */
 import type { LucideIcon } from "lucide-react";
+import { getFotoUrl } from "@/lib/foto";
 
 // ═════════════════════════════════════════════════════════
 // Card
@@ -50,6 +51,7 @@ export function CardHeader({ children, icon, className = "" }: CardProps & { ico
 interface AvatarProps {
   naam?: string;
   src?: string | null;
+  fotoId?: string | null;
   size?: "sm" | "md" | "lg";
   className?: string;
 }
@@ -70,11 +72,15 @@ export function getInitials(naam?: string): string {
     .join("");
 }
 
-export function Avatar({ naam, src, size = "md", className = "" }: AvatarProps) {
+export function Avatar({ naam, src, fotoId, size = "md", className = "" }: AvatarProps) {
   if (src) {
+    // Profielfoto's zijn private blobs → via proxy routeren zodat toegang wordt gecontroleerd
+    const proxySrc = fotoId && src.includes("blob.vercel-storage.com")
+      ? getFotoUrl(src, fotoId, "profiel")
+      : src;
     return (
       <div className={`${AVATAR_SIZES[size]} rounded-xl overflow-hidden flex-shrink-0 ${className}`}>
-        <img src={src} alt={naam ?? "Profiel"} className="w-full h-full object-cover" />
+        <img src={proxySrc ?? ""} alt={naam ?? "Profiel"} className="w-full h-full object-cover" />
       </div>
     );
   }

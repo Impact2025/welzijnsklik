@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Users, Clock, Calendar, MessageSquare, UserCheck, Pencil } from "lucide-react";
 import { ReactieKnopjes, StatusKnop } from "./ReactieActies";
+import { getFotoUrl } from "@/lib/foto";
 
 const STATUS_CFG: Record<string, { label: string; bg: string; kleur: string }> = {
   open: { label: "Open", bg: "bg-emerald-100", kleur: "text-emerald-700" },
@@ -84,7 +85,7 @@ export default async function HulpGevraagdDetailPage({
       {/* Hero foto */}
       {hulp.fotoUrl && (
         <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-neutral-100">
-          <img src={hulp.fotoUrl} alt="" className="w-full h-full object-cover" />
+          <img src={getFotoUrl(hulp.fotoUrl, hulp.id, "hulp") ?? ""} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 to-transparent" />
         </div>
       )}

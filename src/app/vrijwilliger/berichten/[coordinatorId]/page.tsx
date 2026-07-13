@@ -52,7 +52,7 @@ export default async function VrijwilligerChatPage({
           >
             <ChevronLeft size={22} />
           </Link>
-          <Avatar naam={coordinator.naam} src={coordinator.profielFoto} size="sm" />
+          <Avatar naam={coordinator.naam} src={coordinator.profielFoto} fotoId={coordinator.id} size="sm" />
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-gray-900 text-sm truncate">{coordinator.naam}</p>
             <p className="text-xs text-neutral-400">Coördinator</p>

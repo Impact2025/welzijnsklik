@@ -71,8 +71,9 @@ export async function POST(request: NextRequest) {
   let url: string;
   try {
     ({ url } = await put(filename, blob, {
-      access: "public",
+      access: "private",
       contentType: "image/jpeg",
+      addRandomSuffix: true,
     }));
   } catch (err) {
     console.error("[upload-foto] Vercel Blob put() mislukt:", err);

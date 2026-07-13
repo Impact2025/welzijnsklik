@@ -79,7 +79,7 @@ export default async function CoordinatorBerichtenPage() {
                   href={`/coordinator/berichten/${v.id}`}
                   className="flex items-center gap-3 px-4 py-3.5 hover:bg-neutral-50 transition-colors"
                 >
-                  <Avatar naam={v.naam} src={v.profielFoto} size="md" />
+                  <Avatar naam={v.naam} src={v.profielFoto} fotoId={v.id} size="md" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
                       <p className={`text-sm truncate ${ongelezen > 0 ? "font-bold text-gray-900" : "font-medium text-gray-800"}`}>
@@ -114,7 +114,7 @@ export default async function CoordinatorBerichtenPage() {
                     href={`/coordinator/berichten/${v.id}`}
                     className="flex items-center gap-3 px-4 py-3.5 hover:bg-neutral-50 transition-colors"
                   >
-                    <Avatar naam={v.naam} src={v.profielFoto} size="md" />
+                    <Avatar naam={v.naam} src={v.profielFoto} fotoId={v.id} size="md" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-800">{v.naam}</p>
                       <p className="text-xs text-neutral-400 mt-0.5">Klik om een bericht te sturen</p>

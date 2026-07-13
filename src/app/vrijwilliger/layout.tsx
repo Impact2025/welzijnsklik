@@ -39,6 +39,7 @@ export default async function VrijwilligerLayout({
       rol="VRIJWILLIGER"
       naam={session.user.naam ?? session.user.name ?? undefined}
       profielFoto={session.user.profielFoto}
+      gebruikerId={session.user.gebruikerId}
       notificatieBadge={nieuweReacties}
       openHulpVragen={openHulpVragen}
       ongelezeBerichten={ongelezeBerichten}

@@ -30,6 +30,7 @@ export default async function FamilieLayout({
       rol="FAMILIE"
       naam={session.user.naam ?? session.user.name ?? undefined}
       profielFoto={session.user.profielFoto}
+      gebruikerId={session.user.gebruikerId}
       notificatieBadge={nieuweActiviteiten}
     >
       {children}

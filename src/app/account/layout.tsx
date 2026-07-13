@@ -15,6 +15,7 @@ export default async function AccountLayout({
       rol={session.user.rol ?? "VRIJWILLIGER"}
       naam={session.user.naam ?? session.user.name ?? undefined}
       profielFoto={session.user.profielFoto}
+      gebruikerId={session.user.gebruikerId}
     >
       {children}
     </AppShell>

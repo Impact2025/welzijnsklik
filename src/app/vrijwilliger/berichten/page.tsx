@@ -87,7 +87,7 @@ export default async function VrijwilligerBerichtenPage() {
               href={`/vrijwilliger/berichten/${c.id}`}
               className="flex items-center gap-3 px-4 py-3.5 hover:bg-neutral-50 transition-colors"
             >
-              <Avatar naam={c.naam} src={c.profielFoto} size="md" />
+              <Avatar naam={c.naam} src={c.profielFoto} fotoId={c.id} size="md" />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-2">
                   <p className={`text-sm truncate ${ongelezen > 0 ? "font-bold text-gray-900" : "font-medium text-gray-800"}`}>

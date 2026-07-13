@@ -19,7 +19,8 @@ const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  console.log("[foto-purge] Start…");
+  const dryRun = process.argv.includes("--dry-run");
+  console.log(`[foto-purge] Start…${dryRun ? " (DRY-RUN — geen wijzigingen)" : ""}`);
 
   // Stap 1: vind alle activiteiten met foto's van bewoners zonder toestemming
   const teVerwijderen = await prisma.activiteit.findMany({
@@ -34,6 +35,11 @@ async function main() {
 
   for (const item of teVerwijderen) {
     if (!item.fotoUrl) continue;
+
+    if (dryRun) {
+      console.log(`[foto-purge] [dry-run] Zou verwijderen: ${item.fotoUrl}`);
+      continue;
+    }
 
     try {
       // Verwijder uit Vercel Blob
@@ -72,6 +78,10 @@ async function main() {
 
   for (const item of oudeFotos) {
     if (!item.fotoUrl) continue;
+    if (dryRun) {
+      console.log(`[foto-purge] [dry-run] Zou oude foto verwijderen: ${item.fotoUrl}`);
+      continue;
+    }
     try {
       await del(item.fotoUrl);
       await prisma.activiteit.update({

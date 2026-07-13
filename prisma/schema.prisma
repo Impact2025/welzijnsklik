@@ -151,6 +151,18 @@ model ToestemmingLog {
   createdAt       DateTime @default(now())
 }
 
+model ToegangLog {
+  id           String   @id @default(cuid())
+  organisatieId String
+  gebruikerId  String
+  bewonerId    String?
+  actie        String   @default("FOTO_BEKEKEN")
+  pad          String?  @db.Text
+  createdAt    DateTime @default(now())
+  @@index([bewonerId])
+  @@index([organisatieId])
+}
+
 model FamilieKoppeling {
   id          String    @id @default(cuid())
   bewonerId   String

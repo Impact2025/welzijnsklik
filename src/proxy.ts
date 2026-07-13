@@ -49,6 +49,26 @@ export default auth(
       return nextWithPath(req, pathname);
     }
 
+    // Rate-limit op schrijf-/aanmeld-routes (brute-force / abuse bescherming)
+    const writeRoutes = [
+      "/api/upload-foto",
+      "/api/upload-hulp-foto",
+      "/api/upload-profielfoto",
+      "/register",
+    ];
+    for (const wr of writeRoutes) {
+      if (pathname.startsWith(wr)) {
+        const rl = checkRateLimit(keyFromRequest(req), { max: 20, windowSeconds: 60 });
+        if (!rl.allowed) {
+          return new NextResponse("Te veel verzoeken. Probeer het later opnieuw.", {
+            status: 429,
+            headers: { "Retry-After": "60", "X-RateLimit-Remaining": "0" },
+          });
+        }
+        break;
+      }
+    }
+
     const session = req.auth;
     if (!session?.user) {
       const loginUrl = new URL("/login", req.url);

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Calendar, Clock, Users, Megaphone } from "lucide-react";
 import { EmptyState } from "@/components/ui";
 import AanmeldKnop from "./AanmeldKnop";
+import { getFotoUrl } from "@/lib/foto";
 
 const STATUS_CFG: Record<string, { label: string; bg: string; kleur: string }> = {
   open: { label: "Open", bg: "bg-emerald-100", kleur: "text-emerald-700" },
@@ -100,7 +101,7 @@ export default async function VrijwilligerHulpGevraagdPage() {
                 {/* Foto */}
                 {item.fotoUrl && (
                   <div className="w-full h-40 bg-neutral-100 overflow-hidden">
-                    <img src={item.fotoUrl} alt="" className="w-full h-full object-cover" />
+                    <img src={getFotoUrl(item.fotoUrl, item.id, "hulp") ?? ""} alt="" className="w-full h-full object-cover" />
                   </div>
                 )}
 

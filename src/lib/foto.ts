@@ -1,15 +1,22 @@
 /**
  * Genereer een proxy-URL voor een foto zodat toegangscontrole wordt afgedwongen.
  * Gebruik dit in plaats van directe Vercel Blob URLs naar de client te sturen.
+ *
+ * Foto's worden private opgeslagen; de onderliggende blob is niet publiek
+ * raadpleegbaar. De proxy haalt de foto server-side op na een autorisatiecheck.
  */
-export function getFotoUrl(blobUrl: string | null | undefined, bewonerId: string): string | null {
-  if (!blobUrl || !bewonerId) return null;
+export type FotoKind = "activiteit" | "hulp" | "profiel";
 
-  // Alleen proxie voor Vercel Blob URLs
-  if (!blobUrl.includes(".public.blob.vercel-storage.com")) {
-    return blobUrl; // fallback voor andere URLs
-  }
+export function getFotoUrl(
+  blobUrl: string | null | undefined,
+  id: string,
+  kind: FotoKind = "activiteit",
+): string | null {
+  if (!blobUrl || !id) return null;
 
-  const params = new URLSearchParams({ url: blobUrl, bewonerId });
+  // Alleen Vercel Blob URLs door de proxy; andere URLs ongewijzigd teruggeven
+  if (!blobUrl.includes("blob.vercel-storage.com")) return blobUrl;
+
+  const params = new URLSearchParams({ url: blobUrl, kind, id });
   return `/api/fotos?${params.toString()}`;
 }

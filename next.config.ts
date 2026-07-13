@@ -2,9 +2,9 @@ import type { NextConfig } from "next";
 
 const csp = [
   `default-src 'self'`,
-  `script-src 'self' 'unsafe-inline' 'unsafe-eval'`,
+  `script-src 'self'`,
   `style-src 'self' 'unsafe-inline'`,
-  `img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://lh3.googleusercontent.com`,
+  `img-src 'self' data: blob: https://*.blob.vercel-storage.com https://lh3.googleusercontent.com`,
   `font-src 'self'`,
   `connect-src 'self' https://*.neon.tech wss://*.neon.tech`,
   `frame-src 'none'`,
