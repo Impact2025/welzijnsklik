@@ -28,6 +28,8 @@ export default auth(
     ];
     if (
       publicRoutes.includes(pathname) ||
+      pathname === "/sitemap.xml" ||
+      pathname === "/robots.txt" ||
       pathname === "/blog" ||
       pathname.startsWith("/blog/") ||
       pathname === "/platform" ||
@@ -91,6 +93,6 @@ export default auth(
 
 export const config = {
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|favicon\\.ico|.*\\.png$|.*\\.svg$|.*\\.jpg$|.*\\.webp$|.*\\.ico$).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon\\.ico|sitemap\\.xml|robots\\.txt|.*\\.png$|.*\\.svg$|.*\\.jpg$|.*\\.webp$|.*\\.ico$|.*\\.xml$|.*\\.txt$).*)",
   ],
 };
