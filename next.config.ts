@@ -2,7 +2,12 @@ import type { NextConfig } from "next";
 
 const csp = [
   `default-src 'self'`,
-  `script-src 'self'`,
+  // 'unsafe-inline' is nodig: Next.js's App Router streamt hydratie-/RSC-data
+  // via inline <script>self.__next_f.push(...)</script>-tags. Zonder deze
+  // toestemming blokkeert de browser die scripts stilzwijgend (geen zichtbare
+  // console-fout), waardoor React nooit hydrateert — de pagina toont dan wel
+  // statische HTML, maar geen enkele knop/link-handler werkt meer.
+  `script-src 'self' 'unsafe-inline'`,
   `style-src 'self' 'unsafe-inline'`,
   `img-src 'self' data: blob: https://*.blob.vercel-storage.com https://lh3.googleusercontent.com`,
   `font-src 'self'`,
