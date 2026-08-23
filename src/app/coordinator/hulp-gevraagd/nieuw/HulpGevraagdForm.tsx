@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { maakHulpGevraagd } from "@/lib/actions/hulp-gevraagd";
-import { Camera, X, Loader2, CheckCircle2, ChevronLeft } from "lucide-react";
-import Link from "next/link";
+import { Loader2, CheckCircle2 } from "lucide-react";
+import PhotoCaptureField from "@/components/PhotoCaptureField";
 
 
 export default function HulpGevraagdForm() {
@@ -13,48 +13,8 @@ export default function HulpGevraagdForm() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [fotoDataUrl, setFotoDataUrl] = useState<string | null>(null);
   const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [fotoUploading, setFotoUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  async function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    e.target.value = "";
-
-    const reader = new FileReader();
-    reader.onload = (ev) => setFotoDataUrl(ev.target?.result as string);
-    reader.readAsDataURL(file);
-
-    setFotoUploading(true);
-    setError(null);
-    try {
-      const res = await fetch("/api/upload-hulp-foto", {
-        method: "POST",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error ?? "Foto uploaden mislukt");
-        setFotoDataUrl(null);
-        return;
-      }
-      const data = await res.json();
-      setFotoUrl(data.url);
-    } catch {
-      setError("Foto uploaden mislukt. Probeer opnieuw.");
-      setFotoDataUrl(null);
-    } finally {
-      setFotoUploading(false);
-    }
-  }
-
-  function verwijderFoto() {
-    setFotoDataUrl(null);
-    setFotoUrl(null);
-  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -91,45 +51,11 @@ export default function HulpGevraagdForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Foto */}
-      <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-2">Foto (optioneel)</label>
-        {fotoDataUrl ? (
-          <div className="relative w-full aspect-[16/9] rounded-2xl overflow-hidden bg-neutral-100">
-            <img src={fotoDataUrl} alt="" className="w-full h-full object-cover" />
-            {fotoUploading && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <Loader2 size={28} className="text-white animate-spin" />
-              </div>
-            )}
-            {!fotoUploading && (
-              <button
-                type="button"
-                onClick={verwijderFoto}
-                className="absolute top-2 right-2 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors"
-              >
-                <X size={15} />
-              </button>
-            )}
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="w-full aspect-[16/9] rounded-2xl border-2 border-dashed border-neutral-200 hover:border-amber-300 hover:bg-amber-50 transition-colors flex flex-col items-center justify-center gap-2 text-neutral-400 hover:text-amber-500"
-          >
-            <Camera size={28} />
-            <span className="text-sm font-medium">Foto toevoegen</span>
-          </button>
-        )}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFotoChange}
-          className="hidden"
-        />
-      </div>
+      <PhotoCaptureField
+        uploadUrl="/api/upload-hulp-foto"
+        onUploaded={setFotoUrl}
+        onUploadingChange={setFotoUploading}
+      />
 
       {/* Titel */}
       <div>

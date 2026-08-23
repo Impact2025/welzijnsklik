@@ -103,6 +103,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
         <div className="flex items-center gap-0.5">
           <Link
             href={notificatieHref ?? (ROL_NOTIFICATIES[rol] ?? "#")}
+            aria-label={notificatieBadge > 0 ? `Meldingen, ${notificatieBadge} nieuw` : "Meldingen"}
             className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
           >
             <Bell size={18} />
@@ -114,6 +115,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
           </Link>
           <Link
             href="/account"
+            aria-label="Instellingen"
             className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
           >
             <Settings size={18} />
@@ -121,11 +123,12 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
             className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-red-50 transition-colors text-warm-400 hover:text-red-500"
+            aria-label="Uitloggen"
             title="Uitloggen"
           >
             <LogOut size={18} />
           </button>
-          <Link href="/account" className="ml-1">
+          <Link href="/account" aria-label="Mijn account" className="ml-1">
             <Avatar naam={naam} src={profielFoto} fotoId={gebruikerId} size="sm" />
           </Link>
         </div>
@@ -178,6 +181,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
               className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-warm-400 hover:text-red-500"
+              aria-label="Uitloggen"
               title="Uitloggen"
             >
               <LogOut size={16} />
@@ -193,6 +197,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
           <div className="flex items-center justify-end h-full gap-3">
             <Link
               href={notificatieHref ?? (ROL_NOTIFICATIES[rol] ?? "#")}
+              aria-label={notificatieBadge > 0 ? `Meldingen, ${notificatieBadge} nieuw` : "Meldingen"}
               className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
             >
               <Bell size={18} />
@@ -204,11 +209,12 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
             </Link>
             <Link
               href="/account"
+              aria-label="Instellingen"
               className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
             >
               <Settings size={18} />
             </Link>
-            <Link href="/account">
+            <Link href="/account" aria-label="Mijn account">
               <Avatar naam={naam} src={profielFoto} fotoId={gebruikerId} size="sm" />
             </Link>
           </div>

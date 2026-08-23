@@ -73,6 +73,7 @@ export default function AgendaKalender({ jaar, maand, activiteiten, hulpVragen }
       <div className="flex items-center justify-between">
         <Link
           href={`/coordinator/agenda?m=${maandParam(prevMaand.j, prevMaand.m)}`}
+          aria-label="Vorige maand"
           className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-neutral-100 transition-colors"
           onClick={() => setGeselecteerdeDag(null)}
         >
@@ -83,6 +84,7 @@ export default function AgendaKalender({ jaar, maand, activiteiten, hulpVragen }
         </h2>
         <Link
           href={`/coordinator/agenda?m=${maandParam(nextMaand.j, nextMaand.m)}`}
+          aria-label="Volgende maand"
           className="w-9 h-9 flex items-center justify-center rounded-xl hover:bg-neutral-100 transition-colors"
           onClick={() => setGeselecteerdeDag(null)}
         >

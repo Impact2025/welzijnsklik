@@ -73,6 +73,7 @@ export default function ProfielFotoUpload({
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
           className="absolute -bottom-2 -right-2 w-8 h-8 bg-brand-500 hover:bg-brand-600 text-white rounded-xl flex items-center justify-center shadow-sm transition-colors disabled:opacity-60"
+          aria-label="Foto wijzigen"
           title="Foto wijzigen"
         >
           {uploading ? (

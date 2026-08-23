@@ -51,7 +51,7 @@ function FamilieEditModal({
       <div className="bg-white rounded-3xl w-full max-w-sm p-5 space-y-4 shadow-xl">
         <div className="flex items-center justify-between">
           <h2 className="font-bold text-gray-900">Familielid bewerken</h2>
-          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors">
+          <button onClick={onClose} aria-label="Sluiten" className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors">
             <X size={16} />
           </button>
         </div>
@@ -186,6 +186,7 @@ export function FamilieSection({
               <h2 className="font-bold text-gray-900">Familielid uitnodigen</h2>
               <button
                 onClick={() => setOpen(false)}
+                aria-label="Sluiten"
                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors"
               >
                 <X size={16} />

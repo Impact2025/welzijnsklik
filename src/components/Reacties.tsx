@@ -129,6 +129,7 @@ export default function Reacties({ activiteitId, reacties: initieleReacties, geb
                   <button
                     onClick={() => handleVerwijder(r.id)}
                     disabled={isPending}
+                    aria-label="Reactie verwijderen"
                     className="opacity-0 group-hover:opacity-100 transition-opacity text-neutral-300 hover:text-red-500"
                   >
                     <X size={12} />

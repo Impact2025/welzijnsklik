@@ -80,6 +80,7 @@ export default function AdminAppShell({ naam, profielFoto, children }: Props) {
             <button
               onClick={() => signOut({ callbackUrl: "/login" })}
               className="p-1.5 rounded-lg hover:bg-red-50 transition-colors text-warm-400 hover:text-red-500"
+              aria-label="Uitloggen"
               title="Uitloggen"
             >
               <LogOut size={16} />
@@ -93,7 +94,7 @@ export default function AdminAppShell({ naam, profielFoto, children }: Props) {
           <img src="/logo.png" alt="Welzijnsklik" className="w-7 h-7" />
           <span className="font-semibold text-warm-900 text-[15px]">Admin</span>
         </Link>
-        <Link href="/admin/leads">
+        <Link href="/admin/leads" aria-label="Leads">
           <UserPlus size={20} className="text-warm-400" />
         </Link>
       </header>

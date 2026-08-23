@@ -4,13 +4,12 @@ import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { logActiviteit } from "@/lib/actions/activiteiten";
 import {
-  Camera,
   CheckCircle2,
-  X,
   Mic,
   StopCircle,
 } from "lucide-react";
 import { ACTIVITEIT_TYPES, DUUR_OPTIES } from "@/lib/activiteit";
+import PhotoCaptureField from "@/components/PhotoCaptureField";
 
 interface Bewoner {
   id: string;
@@ -24,34 +23,16 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
   const [type, setType] = useState("");
   const [duur, setDuur] = useState("30");
   const [notities, setNotities] = useState("");
-  const [fotoDataUrl, setFotoDataUrl] = useState<string | null>(null);
-  const [fotoBlob, setFotoBlob] = useState<Blob | null>(null);
+  const [fotoUrl, setFotoUrl] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [isRecording, setIsRecording] = useState(false);
+  const [fotoUploading, setFotoUploading] = useState(false);
   const recognitionRef = useRef<{ stop: () => void } | null>(null);
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const gekozenBewoner = bewoners.find((b) => b.id === bewonerId);
   const magFoto = gekozenBewoner?.toestemmingFotos === true;
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setFotoBlob(file);
-    const reader = new FileReader();
-    reader.onload = (ev) => setFotoDataUrl(ev.target?.result as string);
-    reader.readAsDataURL(file);
-    // reset zodat dezelfde foto opnieuw gekozen kan worden
-    e.target.value = "";
-  }
-
-  function verwijderFoto() {
-    setFotoDataUrl(null);
-    setFotoBlob(null);
-  }
 
   // ─── Spraak-naar-tekst ───────────────────────────────────────────
   function startSpraakHerkenning() {
@@ -109,43 +90,12 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
     setIsRecording(false);
   }
 
-  async function uploadFoto(blob: Blob): Promise<string> {
-    const contentType = blob.type || "image/jpeg";
-    const res = await fetch(`/api/upload-foto?bewonerId=${bewonerId}`, {
-      method: "POST",
-      headers: { "Content-Type": contentType },
-      body: blob,
-    });
-    if (!res.ok) {
-      let message = "Upload mislukt";
-      try {
-        const data = await res.json();
-        if (data.error) message = data.error;
-      } catch {
-        // response was not JSON (e.g. HTML error page)
-      }
-      throw new Error(message);
-    }
-    return ((await res.json()) as { url: string }).url;
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     if (!bewonerId || !type || !duur) {
       setError("Vul alle verplichte velden in.");
       return;
-    }
-
-    // Upload buiten startTransition: in React 19 werkt try-catch niet inside transitions
-    let fotoUrl: string | null = null;
-    if (fotoBlob && magFoto) {
-      try {
-        fotoUrl = await uploadFoto(fotoBlob);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Upload mislukt");
-        return;
-      }
     }
 
     const formData = new FormData();
@@ -281,6 +231,7 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
                 ? "bg-red-500 text-white shadow-sm animate-pulse"
                 : "text-neutral-400 hover:text-amber-600 hover:bg-amber-50"
             }`}
+            aria-label={isRecording ? "Stop opname" : "Spreek in plaats van typen"}
             title={isRecording ? "Stop opname" : "Spreek in plaats van typen"}
           >
             {isRecording ? <StopCircle size={16} /> : <Mic size={16} />}
@@ -296,61 +247,21 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
 
       {/* Foto — alleen als toestemmingFotos = true */}
       {bewonerId && magFoto && (
-        <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 space-y-3">
-          <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest">
-            Foto <span className="text-neutral-300 font-normal normal-case">(optioneel)</span>
-          </label>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="hidden"
-            onChange={handleFileChange}
-          />
-
-          {fotoDataUrl ? (
-            <div className="space-y-2">
-              <img src={fotoDataUrl} alt="Voorvertoning" className="w-full rounded-xl object-cover max-h-52" />
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-1.5 text-sm text-amber-600 hover:text-amber-800 transition-colors"
-                >
-                  <Camera size={14} />
-                  Andere foto
-                </button>
-                <button
-                  type="button"
-                  onClick={verwijderFoto}
-                  className="flex items-center gap-1.5 text-sm text-red-500 hover:text-red-700 transition-colors"
-                >
-                  <X size={14} />
-                  Verwijderen
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-neutral-200 hover:border-amber-300 rounded-xl py-5 text-neutral-400 hover:text-amber-600 text-sm font-medium transition-colors"
-            >
-              <Camera size={18} />
-              Foto maken of kiezen
-            </button>
-          )}
-        </div>
+        <PhotoCaptureField
+          key={bewonerId}
+          uploadUrl={`/api/upload-foto?bewonerId=${bewonerId}`}
+          onUploaded={setFotoUrl}
+          onUploadingChange={setFotoUploading}
+          compact
+        />
       )}
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || fotoUploading}
         className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 rounded-2xl text-sm transition-colors disabled:opacity-60 shadow-sm"
       >
-        {isPending ? "Opslaan…" : "Activiteit opslaan"}
+        {isPending ? "Opslaan…" : fotoUploading ? "Foto uploaden…" : "Activiteit opslaan"}
       </button>
     </form>
   );

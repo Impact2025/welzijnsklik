@@ -78,6 +78,7 @@ export function UitnodigForm({}: Props) {
           <h2 className="font-bold text-gray-900">Nieuwe gebruiker uitnodigen</h2>
           <button
             onClick={() => setOpen(false)}
+            aria-label="Sluiten"
             className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors"
           >
             <X size={16} />
