@@ -4,10 +4,11 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { sendEmail, activiteitHtml } from "@/lib/email";
+import { isVrijwilligerRol } from "@/lib/rollen";
 
 export async function logActiviteit(formData: FormData) {
   const session = await auth();
-  if (!session?.user?.gebruikerId || session.user.rol !== "VRIJWILLIGER") {
+  if (!session?.user?.gebruikerId || !isVrijwilligerRol(session.user.rol)) {
     throw new Error("Niet geautoriseerd");
   }
 

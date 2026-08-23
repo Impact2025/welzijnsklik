@@ -1,5 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 import type { Rol } from "@/generated/prisma/client";
+import { isVrijwilligerRol } from "@/lib/rollen";
 
 // Minimale config voor de proxy (Edge Runtime): GEEN providers, GEEN adapter.
 // De session callback pikt de custom velden uit het JWT-token — geen DB-query nodig.
@@ -28,7 +29,7 @@ export const authConfig = {
       if (!session?.user) return false;
       const rol = session.user.rol;
       if (pathname.startsWith("/coordinator") && rol !== "COORDINATOR") return false;
-      if (pathname.startsWith("/vrijwilliger") && rol !== "VRIJWILLIGER") return false;
+      if (pathname.startsWith("/vrijwilliger") && !isVrijwilligerRol(rol)) return false;
       if (pathname.startsWith("/familie") && rol !== "FAMILIE") return false;
       return true;
     },

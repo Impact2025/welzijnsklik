@@ -31,6 +31,7 @@ async function main() {
   const testGebruikers = [
     { email: "coordinator@demeerwende.nl", naam: "Virginia van Munster", rol: "COORDINATOR" as const },
     { email: "vrijwilliger@demeerwende.nl", naam: "Roderik Smits", rol: "VRIJWILLIGER" as const },
+    { email: "welzijnsmedewerker@demeerwende.nl", naam: "Sanne de Wit", rol: "WELZIJNSMEDEWERKER" as const },
     { email: "familie@example.nl", naam: "Jolanda Kamoschinski", rol: "FAMILIE" as const },
   ];
 
@@ -279,9 +280,10 @@ async function main() {
   console.log("  Wervingsinteresse van Jolanda aangemaakt");
 
   console.log("\nSeed voltooid! Testaccounts:");
-  console.log("  Coordinator:  coordinator@demeerwende.nl");
-  console.log("  Vrijwilliger: vrijwilliger@demeerwende.nl");
-  console.log("  Familie:      familie@example.nl");
+  console.log("  Coordinator:        coordinator@demeerwende.nl");
+  console.log("  Vrijwilliger:       vrijwilliger@demeerwende.nl");
+  console.log("  Welzijnsmedewerker: welzijnsmedewerker@demeerwende.nl");
+  console.log("  Familie:            familie@example.nl");
 }
 
 main()

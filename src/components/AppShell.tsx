@@ -8,6 +8,7 @@ import {
   CalendarDays,
   PlusCircle,
   Heart,
+  HeartPulse,
   Handshake,
   Bell,
   Settings,
@@ -15,10 +16,12 @@ import {
   Clock,
   Megaphone,
   MessageSquare,
+  Mail,
   type LucideIcon,
 } from "lucide-react";
 import { Avatar } from "@/components/ui";
 import { signOut } from "next-auth/react";
+import { ROL_HOME, ROL_NOTIFICATIES } from "@/lib/rollen";
 
 interface NavItem {
   href: string;
@@ -31,12 +34,16 @@ const NAV_COORDINATOR: NavItem[] = [
   { href: "/coordinator", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/coordinator/agenda", icon: CalendarDays, label: "Agenda" },
   { href: "/coordinator/bewoners", icon: Users, label: "Bewoners" },
+  { href: "/coordinator/welzijnscheck", icon: HeartPulse, label: "Welzijn" },
   { href: "/coordinator/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/coordinator/berichten", icon: MessageSquare, label: "Chat" },
+  { href: "/coordinator/nieuwsbrieven", icon: Mail, label: "Nieuwsbrief" },
 ];
 
 const NAV_VRIJWILLIGER: NavItem[] = [
   { href: "/vrijwilliger", icon: LayoutDashboard, label: "Dashboard", exact: true },
+  { href: "/vrijwilliger/agenda", icon: CalendarDays, label: "Agenda" },
+  { href: "/vrijwilliger/welzijnscheck", icon: HeartPulse, label: "Welzijn" },
   { href: "/vrijwilliger/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/vrijwilliger/berichten", icon: MessageSquare, label: "Chat" },
   { href: "/vrijwilliger/nieuw", icon: PlusCircle, label: "Nieuw", exact: true },
@@ -45,6 +52,8 @@ const NAV_VRIJWILLIGER: NavItem[] = [
 
 const NAV_FAMILIE: NavItem[] = [
   { href: "/familie", icon: Heart, label: "Tijdlijn", exact: true },
+  { href: "/familie/agenda", icon: CalendarDays, label: "Agenda" },
+  { href: "/familie/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/familie/help-mee", icon: Handshake, label: "Help mee" },
   { href: "/account", icon: Settings, label: "Instellingen" },
 ];
@@ -52,19 +61,8 @@ const NAV_FAMILIE: NavItem[] = [
 const NAV_MAP: Record<string, NavItem[]> = {
   COORDINATOR: NAV_COORDINATOR,
   VRIJWILLIGER: NAV_VRIJWILLIGER,
+  WELZIJNSMEDEWERKER: NAV_VRIJWILLIGER,
   FAMILIE: NAV_FAMILIE,
-};
-
-const ROL_HOME: Record<string, string> = {
-  COORDINATOR: "/coordinator",
-  VRIJWILLIGER: "/vrijwilliger",
-  FAMILIE: "/familie",
-};
-
-const ROL_NOTIFICATIES: Record<string, string> = {
-  COORDINATOR: "/coordinator/meldingen",
-  VRIJWILLIGER: "/vrijwilliger/meldingen",
-  FAMILIE: "/familie/notificaties",
 };
 
 interface Props {

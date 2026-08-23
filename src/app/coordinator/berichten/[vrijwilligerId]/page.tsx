@@ -25,7 +25,11 @@ export default async function CoordinatorChatPage({
   const ikId = session!.user.gebruikerId!;
 
   const vrijwilliger = await prisma.gebruiker.findFirst({
-    where: { id: vrijwilligerId, organisatieId, rol: "VRIJWILLIGER" },
+    where: {
+      id: vrijwilligerId,
+      organisatieId,
+      rol: { in: ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] },
+    },
   });
   if (!vrijwilliger) notFound();
 

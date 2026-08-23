@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { isVrijwilligerRol } from "@/lib/rollen";
 
 /**
  * Fotoproxy — serveert foto's alleen als de ingelogde gebruiker er recht op heeft.
@@ -55,7 +56,7 @@ export async function GET(request: NextRequest) {
   }
 
   const { organisatieId, rol } = gebruiker;
-  const isVrijwilliger = rol === "VRIJWILLIGER";
+  const isVrijwilliger = isVrijwilligerRol(rol);
   const isFamilie = rol === "FAMILIE";
 
   if (kind === "activiteit") {

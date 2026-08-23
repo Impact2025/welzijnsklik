@@ -4,18 +4,7 @@ import { redirect } from "next/navigation";
 import { Users, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { UitnodigForm } from "./UitnodigForm";
-
-const ROL_LABELS: Record<string, string> = {
-  COORDINATOR: "Coördinator",
-  VRIJWILLIGER: "Vrijwilliger",
-  FAMILIE: "Familie",
-};
-
-const ROL_KLEUR: Record<string, string> = {
-  COORDINATOR: "bg-violet-100 text-violet-700",
-  VRIJWILLIGER: "bg-emerald-100 text-emerald-700",
-  FAMILIE: "bg-sky-100 text-sky-700",
-};
+import { ROL_LABELS, ROL_KLEUR } from "@/lib/rollen";
 
 export default async function GebruikersBeheerPage() {
   const session = await auth();

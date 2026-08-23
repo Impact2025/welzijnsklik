@@ -35,7 +35,9 @@ export default async function KlantDetailPage({
     }),
   ]);
 
-  const vrijwilligers = gebruikers.filter((g) => g.rol === "VRIJWILLIGER").length;
+  const vrijwilligers = gebruikers.filter(
+    (g) => g.rol === "VRIJWILLIGER" || g.rol === "WELZIJNSMEDEWERKER"
+  ).length;
   const familieleden = gebruikers.filter((g) => g.rol === "FAMILIE").length;
 
   const updateKlantWithId = updateKlant.bind(null, id);

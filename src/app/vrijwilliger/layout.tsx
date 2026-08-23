@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getOpenHulpVragenCount } from "@/lib/actions/hulp-gevraagd";
 import { getOngelezeBerichten } from "@/lib/actions/berichten";
+import { isVrijwilligerRol } from "@/lib/rollen";
 import AppShell from "@/components/AppShell";
 
 export default async function VrijwilligerLayout({
@@ -11,7 +12,7 @@ export default async function VrijwilligerLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  if (!session?.user || session.user.rol !== "VRIJWILLIGER") {
+  if (!session?.user || !isVrijwilligerRol(session.user.rol)) {
     redirect("/geen-toegang");
   }
 

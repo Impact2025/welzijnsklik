@@ -29,7 +29,12 @@ export default async function KlantenOverzicht({
     organisaties.map(async (org) => {
       const [bewoners, vrijwilligers, familieleden, activiteiten] = await Promise.all([
         prisma.bewoner.count({ where: { organisatieId: org.id } }),
-        prisma.gebruiker.count({ where: { organisatieId: org.id, rol: "VRIJWILLIGER" } }),
+    prisma.gebruiker.count({
+      where: {
+        organisatieId: org.id,
+        rol: { in: ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] },
+      },
+    }),
         prisma.gebruiker.count({ where: { organisatieId: org.id, rol: "FAMILIE" } }),
         prisma.activiteit.count({
           where: {

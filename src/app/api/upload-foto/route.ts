@@ -3,11 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { put } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { isVrijwilligerRol } from "@/lib/rollen";
 
 export async function POST(request: NextRequest) {
   const session = await auth();
 
-  if (!session?.user?.gebruikerId || session.user.rol !== "VRIJWILLIGER") {
+  if (!session?.user?.gebruikerId || !isVrijwilligerRol(session.user.rol)) {
     return NextResponse.json({ error: "Niet geautoriseerd" }, { status: 401 });
   }
 

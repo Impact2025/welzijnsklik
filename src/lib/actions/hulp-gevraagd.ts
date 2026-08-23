@@ -3,6 +3,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { isVrijwilligerRol } from "@/lib/rollen";
 
 export async function maakHulpGevraagd(formData: FormData) {
   const session = await auth();
@@ -46,9 +47,16 @@ export async function maakHulpGevraagd(formData: FormData) {
   revalidatePath("/coordinator/hulp-gevraagd");
 }
 
+// Zowel vrijwilligers als welzijnsmedewerkers en familieleden mogen reageren op een hulpvraag.
+const ROLLEN_DIE_MOGEN_REAGEREN: string[] = ["VRIJWILLIGER", "WELZIJNSMEDEWERKER", "FAMILIE"];
+
+function magReageren(rol: string | undefined): boolean {
+  return !!rol && ROLLEN_DIE_MOGEN_REAGEREN.includes(rol);
+}
+
 export async function reageerOpHulp(hulpGevraagdId: string, bericht: string) {
   const session = await auth();
-  if (!session?.user?.gebruikerId || session.user.rol !== "VRIJWILLIGER") {
+  if (!session?.user?.gebruikerId || !magReageren(session.user.rol)) {
     throw new Error("Niet geautoriseerd");
   }
 
@@ -66,7 +74,7 @@ export async function reageerOpHulp(hulpGevraagdId: string, bericht: string) {
   await prisma.hulpReactie.create({
     data: {
       hulpGevraagdId,
-      vrijwilligerId: session.user.gebruikerId,
+      gebruikerId: session.user.gebruikerId,
       bericht: bericht?.trim() || null,
     },
   });
@@ -81,20 +89,21 @@ export async function reageerOpHulp(hulpGevraagdId: string, bericht: string) {
   }
 
   revalidatePath("/vrijwilliger/hulp-gevraagd");
+  revalidatePath("/familie/hulp-gevraagd");
   revalidatePath("/coordinator/hulp-gevraagd");
 }
 
 export async function trekReactieIn(hulpGevraagdId: string) {
   const session = await auth();
-  if (!session?.user?.gebruikerId || session.user.rol !== "VRIJWILLIGER") {
+  if (!session?.user?.gebruikerId || !magReageren(session.user.rol)) {
     throw new Error("Niet geautoriseerd");
   }
 
   await prisma.hulpReactie.delete({
     where: {
-      hulpGevraagdId_vrijwilligerId: {
+      hulpGevraagdId_gebruikerId: {
         hulpGevraagdId,
-        vrijwilligerId: session.user.gebruikerId,
+        gebruikerId: session.user.gebruikerId,
       },
     },
   });
@@ -109,6 +118,7 @@ export async function trekReactieIn(hulpGevraagdId: string) {
   }
 
   revalidatePath("/vrijwilliger/hulp-gevraagd");
+  revalidatePath("/familie/hulp-gevraagd");
   revalidatePath("/coordinator/hulp-gevraagd");
 }
 
@@ -192,14 +202,14 @@ export async function updateHulpReactieStatus(reactieId: string, status: "bevest
 export async function getOpenHulpVragenCount(): Promise<number> {
   const session = await auth();
   if (!session?.user?.gebruikerId || !session.user.organisatieId) return 0;
-  if (session.user.rol !== "VRIJWILLIGER") return 0;
+  if (!isVrijwilligerRol(session.user.rol)) return 0;
 
   try {
     const count = await prisma.hulpGevraagd.count({
       where: {
         organisatieId: session.user.organisatieId,
         status: "open",
-        reacties: { none: { vrijwilligerId: session.user.gebruikerId } },
+        reacties: { none: { gebruikerId: session.user.gebruikerId } },
       },
     });
     return count;

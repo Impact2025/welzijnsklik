@@ -151,7 +151,7 @@ export function uitnodigingHtml(opts: {
 }
 
 export function welkomHtml(naam: string, rol: string, organisatie: string): string {
-  const rolLabel = { COORDINATOR: "coördinator", VRIJWILLIGER: "vrijwilliger", FAMILIE: "familie" }[rol] ?? "gebruiker";
+  const rolLabel = { COORDINATOR: "coördinator", VRIJWILLIGER: "vrijwilliger", WELZIJNSMEDEWERKER: "welzijnsmedewerker", FAMILIE: "familie" }[rol] ?? "gebruiker";
   return baseHtml({
     title: "Welkom bij Welzijnsklik",
     preheader: `Je bent toegevoegd als ${rolLabel} bij ${organisatie}`,
@@ -267,6 +267,87 @@ export function toestemmingHtml(
       <p style="color:#a39b8e;font-size:12px;">Deze wijziging is vastgelegd in het AVG-toestemmingslogboek.</p>
     `,
     footer: `Welzijnsklik · ${esc(organisatie)}`,
+  });
+}
+
+// ═════════════════════════════════════════════════════════════
+// Locatie-nieuwsbrief (coördinator → familie/vrijwilligers)
+// ═════════════════════════════════════════════════════════════
+
+export interface NieuwsbriefBlokHtml {
+  type: "activiteit" | "tekst";
+  kop?: string | null;
+  tekst?: string | null;
+  fotoUrl?: string | null; // moet een PUBLIEKE url zijn (geen private blob)
+  vrijwilligerNaam?: string | null;
+  bewonerNaam?: string | null;
+}
+
+export function nieuwsbriefHtml(opts: {
+  titel: string;
+  organisatie: string;
+  intro?: string | null;
+  blokken: NieuwsbriefBlokHtml[];
+  doelgroepLabel: string;
+}): string {
+  const { titel, organisatie, intro, blokken, doelgroepLabel } = opts;
+
+  const blokHtml = blokken
+    .map((b) => {
+      if (b.type === "tekst") {
+        const inhoud = (b.tekst ?? "").replace(/\n/g, "<br>");
+        return `
+        <div style="margin:20px 0;">
+          ${b.kop ? `<h2 style="font-size:16px;font-weight:700;margin:0 0 8px;color:#1a1714;">${esc(b.kop)}</h2>` : ""}
+          <p style="font-size:14px;line-height:1.6;color:#655e54;margin:0;">${inhoud}</p>
+        </div>`;
+      }
+
+      // Activiteit-blok mét foto
+      const heeftFoto = !!b.fotoUrl;
+      const onderschrift = b.tekst
+        ? `<p style="font-size:14px;line-height:1.6;color:#655e54;margin:12px 0 0;">${esc(b.tekst)}</p>`
+        : "";
+      const meta = [b.vrijwilligerNaam, b.bewonerNaam]
+        .filter(Boolean)
+        .map((n) => esc(n!))
+        .join(" <span style='color:#a39b8e;'>·</span> ");
+
+      return `
+        <div style="margin:22px 0;">
+          ${
+            b.kop
+              ? `<h2 style="font-size:16px;font-weight:700;margin:0 0 8px;color:#1a1714;">${esc(b.kop)}</h2>`
+              : ""
+          }
+          ${
+            heeftFoto
+              ? `<div style="border-radius:16px;overflow:hidden;background:#f5f2ed;">
+              <img src="${esc(b.fotoUrl!)}" alt="${
+                b.bewonerNaam ? esc(b.bewonerNaam) : "foto"
+              }" style="width:100%;max-height:360px;object-fit:cover;display:block;" />
+            </div>`
+              : ""
+          }
+          ${meta ? `<p style="font-size:12px;color:#a39b8e;margin:8px 0 0;font-weight:600;">${meta}</p>` : ""}
+          ${onderschrift}
+        </div>
+        <div class="divider"></div>`;
+    })
+    .join("");
+
+  return baseHtml({
+    title: titel,
+    preheader: `${organisatie} deelt een update met ${doelgroepLabel}`,
+    body: `
+      <h2>${esc(titel)}</h2>
+      <p style="font-size:14px;line-height:1.6;color:#655e54;">${
+        intro ? esc(intro).replace(/\n/g, "<br>") : ""
+      }</p>
+      ${blokHtml}
+      <p style="font-size:13px;color:#817a6e;margin-top:16px;">Met vriendelijke groet,<br>Het team van ${esc(organisatie)}</p>
+    `,
+    footer: `Welzijnsklik · ${esc(organisatie)}<br>Je ontvangt deze e-mail omdat je betrokken bent bij ${esc(organisatie)}.`,
   });
 }
 

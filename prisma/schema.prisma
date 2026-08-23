@@ -60,6 +60,7 @@ model VerificationToken {
 enum Rol {
   COORDINATOR
   VRIJWILLIGER
+  WELZIJNSMEDEWERKER
   FAMILIE
 }
 
@@ -78,6 +79,9 @@ model Organisatie {
   gebruikers   Gebruiker[]
   bewoners     Bewoner[]
   hulpGevraagd HulpGevraagd[]
+  geplandeActiviteiten GeplandeActiviteit[]
+  welzijnschecks Welzijnscheck[]
+  nieuwsbriefDrafts NieuwsbriefDraft[]
 }
 
 model Gebruiker {
@@ -107,6 +111,7 @@ model Gebruiker {
   nieuwsbriefAbonnementen NieuwsbriefAbonnement[]
   analyticsEvents AnalyticsEvent[]
   registratieTokens RegistratieToken[]
+  welzijnschecks Welzijnscheck[]
 
   // Intake velden voor vrijwilligers
   beschikbaarheid String?
@@ -220,6 +225,7 @@ model HulpGevraagd {
   status         String        @default("open")
   aangemaaktDoor String
   reacties       HulpReactie[]
+  geplandeActiviteit GeplandeActiviteit?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 }
@@ -228,12 +234,32 @@ model HulpReactie {
   id             String       @id @default(cuid())
   hulpGevraagdId String
   hulpGevraagd   HulpGevraagd @relation(fields: [hulpGevraagdId], references: [id], onDelete: Cascade)
-  vrijwilligerId String
-  vrijwilliger   Gebruiker    @relation(fields: [vrijwilligerId], references: [id])
+  gebruikerId    String
+  gebruiker      Gebruiker    @relation(fields: [gebruikerId], references: [id])
   bericht        String?
   status         String       @default("aangemeld")
   createdAt      DateTime     @default(now())
-  @@unique([hulpGevraagdId, vrijwilligerId])
+  @@unique([hulpGevraagdId, gebruikerId])
+}
+
+model GeplandeActiviteit {
+  id            String   @id @default(cuid())
+  organisatieId String
+  organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  titel        String
+  type         String?  // Optioneel activiteit-type (bijv. Wandelen) — zie ACTIVITEIT_TYPES
+  beschrijving String?  @db.Text
+  locatie      String?
+  datum        DateTime
+  duurMinuten  Int      @default(60)
+  aangemaaktDoor String
+  hulpGevraagdId String?  @unique
+  hulpGevraagd   HulpGevraagd? @relation(fields: [hulpGevraagdId], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([organisatieId])
+  @@index([datum])
 }
 
 model Bericht {
@@ -276,6 +302,37 @@ model RegistratieToken {
   createdAt    DateTime @default(now())
   
   @@index([token])
+}
+
+// ─── Welzijnscheck (stemming vrijwilligers 1–5) ───────────────────────────
+// Een vrijwilliger vult periodiek een welzijnscheck in (hoe gaat het met je?
+// 1 = niet goed t/m 5 = uitstekend). De coördinator ziet in één oogopslag wie
+// aandacht nodig heeft. Laatste check per vrijwilliger bepaalt de status.
+
+enum WelzijnscheckStemming {
+  ZEER_LAAG  // 1
+  LAAG       // 2
+  NEUTRAAL   // 3
+  GOED       // 4
+  UITSTEKEND // 5
+}
+
+model Welzijnscheck {
+  id            String                @id @default(cuid())
+  organisatieId String
+  organisatie   Organisatie           @relation(fields: [organisatieId], references: [id], onDelete: Cascade)
+  vrijwilligerId String
+  vrijwilliger  Gebruiker             @relation(fields: [vrijwilligerId], references: [id], onDelete: Cascade)
+  score         Int                   // 1..5
+  stemming      WelzijnscheckStemming
+  notitie       String?               @db.Text
+  aandachtspunten String[]            @default([])
+  anoniem       Boolean               @default(false)
+  createdAt     DateTime              @default(now())
+
+  @@index([organisatieId])
+  @@index([vrijwilligerId])
+  @@index([createdAt])
 }
 
 // ─── Admin sectie modellen ───────────────────────────────────────────────
@@ -324,6 +381,49 @@ model NieuwsbriefAbonnement {
   geklikt     Boolean  @default(false)
   gekliktOp   DateTime?
   createdAt   DateTime @default(now())
+}
+
+// ─── Locatie-nieuwsbrief (coördinator → familie/vrijwilligers) ──────────────
+// Gescheiden van de SaaS-lead-nieuwsbrief hierboven. Een draft is een
+// samengestelde nieuwsbrief met curated blokken (gekozen vrijwilliger-activiteiten
+// mét foto, en vrije tekstblokken). De coördinator kiest bij verzenden de
+// doelgroep: FAMILIE en/of VRIJWILLIGER.
+
+model NieuwsbriefDraft {
+  id            String   @id @default(cuid())
+  organisatieId String
+  organisatie   Organisatie @relation(fields: [organisatieId], references: [id])
+  titel         String
+  intro         String?  @db.Text
+  doelgroep     String[] @default([]) // ["FAMILIE"] | ["VRIJWILLIGER"] | ["FAMILIE","VRIJWILLIGER"]
+  status        String   @default("concept") // concept | verzonden
+  verzondenOp   DateTime?
+  verstuurtAantal Int    @default(0)
+  gemaaktDoor   String
+  blokken       NieuwsbriefBlok[] @relation("DraftBlokken")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([organisatieId])
+}
+
+model NieuwsbriefBlok {
+  id            String   @id @default(cuid())
+  draftId       String
+  draft         NieuwsbriefDraft @relation("DraftBlokken", fields: [draftId], references: [id], onDelete: Cascade)
+  type          String   // "activiteit" | "tekst"
+  bronActiviteitId String? // activiteit.id bij type=activiteit
+  kop           String?  // optionele kop/overschrijving
+  tekst         String?  @db.Text // bijschrift (activiteit) of inhoud (tekst)
+  volgorde      Int      @default(0)
+  // Snapshot van de activiteit op moment van selectie (voorkomt drift + houdt foto-referentie)
+  activiteitType    String?
+  vrijwilligerNaam  String?
+  bewonerNaam       String?
+  fotoUrl           String? // private Vercel Blob URL (snapshot)
+  createdAt     DateTime @default(now())
+
+  @@index([draftId])
 }
 
 model BlogPost {

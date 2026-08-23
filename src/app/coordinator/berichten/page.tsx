@@ -19,9 +19,12 @@ export default async function CoordinatorBerichtenPage() {
   const organisatieId = session!.user.organisatieId!;
   const ikId = session!.user.gebruikerId!;
 
-  // Haal alle vrijwilligers op + hun laatste bericht + ongelezen teller
+  // Haal alle vrijwilligers + welzijnsmedewerkers op + hun laatste bericht + ongelezen teller
   const vrijwilligers = await prisma.gebruiker.findMany({
-    where: { organisatieId, rol: "VRIJWILLIGER" },
+    where: {
+      organisatieId,
+      rol: { in: ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] },
+    },
     orderBy: { naam: "asc" },
   });
 

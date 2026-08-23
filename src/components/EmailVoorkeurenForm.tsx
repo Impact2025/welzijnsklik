@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Mail, Bell, Calendar } from "lucide-react";
+import { isVrijwilligerRol } from "@/lib/rollen";
 
 interface Props {
   initial: { activiteiten: boolean; wekelijkseDigest: boolean };
@@ -14,8 +15,8 @@ export default function EmailVoorkeurenForm({ initial, rol }: Props) {
   const [isPending, startTransition] = useTransition();
   const [saved, setSaved] = useState(false);
 
-  // Vrijwilliger ontvangt geen geautomatiseerde e-mails
-  if (rol === "VRIJWILLIGER") return null;
+  // Vrijwilligers en welzijnsmedewerkers ontvangen geen geautomatiseerde e-mails
+  if (isVrijwilligerRol(rol)) return null;
 
   function handleToggle(type: "activiteiten" | "digest") {
     const nieuweActiviteiten = type === "activiteiten" ? !activiteiten : activiteiten;

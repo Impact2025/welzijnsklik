@@ -50,6 +50,7 @@ const devProviders = [
 const DEMO_EMAILS = [
   "coordinator@demeerwende.nl",
   "vrijwilliger@demeerwende.nl",
+  "welzijnsmedewerker@demeerwende.nl",
   "familie@example.nl",
 ];
 

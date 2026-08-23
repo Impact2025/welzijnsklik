@@ -25,7 +25,10 @@ export default async function BriefjesPage({
   const exportUrl = `/api/export-briefjes?${exportParams.toString()}`;
 
   const vrijwilligers = await prisma.gebruiker.findMany({
-    where: { organisatieId, rol: "VRIJWILLIGER" },
+    where: {
+      organisatieId,
+      rol: { in: ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] },
+    },
     orderBy: { naam: "asc" },
   });
 

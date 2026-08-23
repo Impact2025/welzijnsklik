@@ -29,7 +29,11 @@ export default async function AnalyticsDashboard() {
     prisma.activiteit.count({
       where: { createdAt: { gte: eersteVorigeMaand, lt: eersteDezeMaand } },
     }),
-    prisma.gebruiker.count({ where: { rol: "VRIJWILLIGER" } }),
+    prisma.gebruiker.count({
+      where: {
+        rol: { in: ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] },
+      },
+    }),
     prisma.activiteit.findMany({
       where: { createdAt: { gte: zeveDagenGeleden } },
       select: { createdAt: true },

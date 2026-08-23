@@ -17,7 +17,7 @@ export default async function VrijwilligerMeldingenPage() {
     // Aanmeldingen met statusupdate (bevestigd / afgewezen)
     prisma.hulpReactie.findMany({
       where: {
-        vrijwilligerId,
+        gebruikerId: vrijwilligerId,
         status: { in: ["bevestigd", "afgewezen"] },
       },
       include: {
@@ -32,7 +32,7 @@ export default async function VrijwilligerMeldingenPage() {
         organisatieId,
         status: "open",
         datum: { gte: new Date() },
-        reacties: { none: { vrijwilligerId } },
+        reacties: { none: { gebruikerId: vrijwilligerId } },
       },
       orderBy: { datum: "asc" },
       take: 5,

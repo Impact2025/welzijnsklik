@@ -46,7 +46,7 @@ export default async function VrijwilligerHulpGevraagdPage() {
         select: { reacties: { where: { status: { not: "afgewezen" } } } },
       },
       reacties: {
-        where: { vrijwilligerId },
+        where: { gebruikerId: vrijwilligerId },
         select: { id: true, bericht: true, status: true },
       },
     },
@@ -55,7 +55,7 @@ export default async function VrijwilligerHulpGevraagdPage() {
 
   const mijnaanmeldingen = await prisma.hulpReactie.findMany({
     where: {
-      vrijwilligerId,
+      gebruikerId: vrijwilligerId,
       hulpGevraagd: { datum: { lt: new Date() }, organisatieId },
     },
     include: {

@@ -5,12 +5,7 @@ import SignOutButton from "@/components/SignOutButton";
 import EmailVoorkeurenForm from "@/components/EmailVoorkeurenForm";
 import ProfielFotoUpload from "@/components/ProfielFotoUpload";
 import { User, Building2, Shield, Download } from "lucide-react";
-
-const ROL_LABELS: Record<string, string> = {
-  COORDINATOR: "Coördinator",
-  VRIJWILLIGER: "Vrijwilliger",
-  FAMILIE: "Familie",
-};
+import { ROL_LABELS } from "@/lib/rollen";
 
 export default async function AccountPage() {
   const session = await auth();

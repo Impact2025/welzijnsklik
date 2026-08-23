@@ -3,13 +3,14 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { isVrijwilligerRol } from "@/lib/rollen";
 
 export async function stuurBericht(aanId: string, inhoud: string) {
   const session = await auth();
   if (!session?.user?.gebruikerId) throw new Error("Niet geautoriseerd");
 
   const rol = session.user.rol;
-  if (rol !== "COORDINATOR" && rol !== "VRIJWILLIGER") throw new Error("Niet geautoriseerd");
+  if (rol !== "COORDINATOR" && !isVrijwilligerRol(rol)) throw new Error("Niet geautoriseerd");
 
   const inhoudTrimmed = inhoud.trim();
   if (!inhoudTrimmed || inhoudTrimmed.length > 2000) throw new Error("Ongeldig bericht");
@@ -55,7 +56,7 @@ export async function markeerGelezen(vanId: string) {
 export async function getOngelezeBerichten(): Promise<number> {
   const session = await auth();
   if (!session?.user?.gebruikerId) return 0;
-  if (session.user.rol !== "COORDINATOR" && session.user.rol !== "VRIJWILLIGER") return 0;
+  if (session.user.rol !== "COORDINATOR" && !isVrijwilligerRol(session.user.rol)) return 0;
 
   try {
     return prisma.bericht.count({

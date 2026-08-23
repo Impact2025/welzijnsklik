@@ -17,7 +17,7 @@ export async function nodigGebruikerUit(formData: FormData) {
 
   const naam = (formData.get("naam") as string | null)?.trim() ?? "";
   const email = (formData.get("email") as string | null)?.trim().toLowerCase() ?? "";
-  const rol = formData.get("rol") as "VRIJWILLIGER" | "FAMILIE" | "COORDINATOR";
+  const rol = formData.get("rol") as "VRIJWILLIGER" | "WELZIJNSMEDEWERKER" | "FAMILIE" | "COORDINATOR";
   const telefoon = (formData.get("telefoon") as string | null)?.trim() || null;
   const bewonerId = (formData.get("bewonerId") as string | null) || null;
   const relatie = (formData.get("relatie") as string | null)?.trim() || null;
@@ -97,7 +97,7 @@ export async function nodigGebruikerUit(formData: FormData) {
   });
   const orgNaam = organisatie?.naam ?? "Welzijnsklik";
   const rolLabel =
-    { VRIJWILLIGER: "vrijwilliger", COORDINATOR: "coördinator", FAMILIE: "familie" }[rol] ??
+    { VRIJWILLIGER: "vrijwilliger", WELZIJNSMEDEWERKER: "welzijnsmedewerker", COORDINATOR: "coördinator", FAMILIE: "familie" }[rol] ??
     "gebruiker";
 
   await sendEmail({
