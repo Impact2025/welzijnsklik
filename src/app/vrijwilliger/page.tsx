@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Plus, Heart, Users, Activity } from "lucide-react";
+import { Plus, Heart, Users, Activity, Megaphone, ArrowRight } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum, formatDuur } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
 
@@ -16,7 +16,7 @@ export default async function VrijwilligerDashboard() {
   const weekGeleden = new Date(nu.getTime() - 7 * 24 * 60 * 60 * 1000);
   const firstDay = new Date(nu.getFullYear(), nu.getMonth(), 1);
 
-  const [activiteiten, bewoners] = await Promise.all([
+  const [activiteiten, bewoners, openHulpvragen, openHulpCount] = await Promise.all([
     prisma.activiteit.findMany({
       where: { vrijwilligerId: gebruikerId },
       include: {
@@ -29,6 +29,22 @@ export default async function VrijwilligerDashboard() {
       where: { organisatieId },
       select: { id: true, naam: true },
       orderBy: { naam: "asc" },
+    }),
+    prisma.hulpGevraagd.findMany({
+      where: {
+        organisatieId,
+        status: "open",
+        datum: { gte: new Date() },
+      },
+      orderBy: { datum: "asc" },
+      take: 4,
+    }),
+    prisma.hulpGevraagd.count({
+      where: {
+        organisatieId,
+        status: "open",
+        datum: { gte: new Date() },
+      },
     }),
   ]);
 
@@ -122,6 +138,45 @@ export default async function VrijwilligerDashboard() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Open hulpvragen — call to action */}
+      {openHulpCount > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+                <Megaphone size={18} className="text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-amber-900">{openHulpCount} open hulpvragen</p>
+                <p className="text-xs text-amber-700">De coördinator zoekt nog vrijwilligers</p>
+              </div>
+            </div>
+            <Link
+              href="/vrijwilliger/hulp-gevraagd"
+              className="flex items-center gap-1 text-amber-700 text-xs font-semibold flex-shrink-0"
+            >
+              Bekijk <ArrowRight size={13} />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {openHulpvragen.map((h) => (
+              <Link
+                key={h.id}
+                href="/vrijwilliger/hulp-gevraagd"
+                className="block bg-white rounded-xl border border-amber-100 p-3 hover:border-amber-300 transition-colors"
+              >
+                <p className="text-sm font-medium text-gray-800 truncate">{h.titel}</p>
+                <p className="text-xs text-neutral-400 mt-0.5">
+                  {formatDuur(h.duurMinuten)} ·{" "}
+                  {formatDatum(new Date(h.datum), { weekday: "short", day: "numeric", month: "short" })}
+                  {h.aantalNodig > 1 ? ` · ${h.aantalNodig} vrijwilligers nodig` : ""}
+                </p>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
 
