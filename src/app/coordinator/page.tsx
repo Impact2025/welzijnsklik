@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { ChevronRight, Activity, UserPlus, Users, UserCheck, Clock } from "lucide-react";
+import { ChevronRight, Activity, UserPlus, Users, UserCheck, Clock, AlertTriangle } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum, formatDuur } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
 import { StatCard, EmptyState } from "@/components/ui";
@@ -26,7 +26,7 @@ export default async function CoordinatorDashboard() {
   const now = new Date();
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [activiteiten, bewoners, vrijwilligers, interesses] = await Promise.all([
+  const [activiteiten, bewoners, vrijwilligers, interesses, openHulpvragen, openHulpCount] = await Promise.all([
     prisma.activiteit.findMany({
       where: { bewoner: { organisatieId } },
       include: {
@@ -34,11 +34,22 @@ export default async function CoordinatorDashboard() {
         vrijwilliger: { select: { naam: true } },
       },
       orderBy: { createdAt: "desc" },
-      take: 50,
+      take: 200,
     }),
     prisma.bewoner.count({ where: { organisatieId } }),
-    prisma.gebruiker.count({ where: { organisatieId, rol: "VRIJWILLIGER" } }),
+    prisma.gebruiker.count({
+      where: {
+        organisatieId,
+        rol: { in: ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] },
+      },
+    }),
     prisma.wervingsinteresse.count({ where: { status: "nieuw", gebruiker: { organisatieId } } }),
+    prisma.hulpGevraagd.findMany({
+      where: { organisatieId, status: "open" },
+      orderBy: { datum: "asc" },
+      take: 6,
+    }),
+    prisma.hulpGevraagd.count({ where: { organisatieId, status: "open" } }),
   ]);
 
   const laatsteMetFoto = activiteiten.find(
@@ -87,6 +98,26 @@ export default async function CoordinatorDashboard() {
           <UitnodigForm organisatieId={organisatieId} />
         </div>
       </div>
+
+      {openHulpCount > 0 && (
+        <Link
+          href="/coordinator/hulp-gevraagd"
+          className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 lg:px-5 py-3.5 lg:py-4 hover:bg-amber-100 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center flex-shrink-0">
+            <AlertTriangle size={20} className="text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm lg:text-base font-semibold text-amber-900">
+              {openHulpCount} open hulpvragen
+            </p>
+            <p className="text-xs lg:text-sm text-amber-700 mt-0.5">
+              Er {openHulpCount === 1 ? "staat" : "staan"} nog hulpvragen die op invulling wachten.
+            </p>
+          </div>
+          <ChevronRight size={18} className="text-amber-500 flex-shrink-0" />
+        </Link>
+      )}
 
       <div className="lg:grid lg:grid-cols-3 lg:gap-8 space-y-6 lg:space-y-0">
         <div className="lg:col-span-2 space-y-6 lg:space-y-8">
@@ -196,6 +227,41 @@ export default async function CoordinatorDashboard() {
         </div>
 
         <div className="hidden lg:block lg:col-span-1 space-y-6 lg:space-y-8">
+          {openHulpCount > 0 && (
+            <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 lg:p-5 space-y-3 lg:space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-gray-900 text-[15px] lg:text-base">
+                  Open hulpvragen
+                </h2>
+                <span className="bg-amber-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                  {openHulpCount}
+                </span>
+              </div>
+              <div className="space-y-2.5">
+                {openHulpvragen.map((h) => (
+                  <Link
+                    key={h.id}
+                    href={`/coordinator/hulp-gevraagd/${h.id}`}
+                    className="block rounded-xl border border-neutral-100 p-3 hover:border-amber-300 hover:bg-amber-50/40 transition-colors"
+                  >
+                    <p className="text-sm font-medium text-gray-800 truncate">{h.titel}</p>
+                    <p className="text-xs text-neutral-400 mt-0.5">
+                      {formatDuur(h.duurMinuten)} ·{" "}
+                      {formatDatum(new Date(h.datum), { day: "numeric", month: "short" })}
+                      {h.aantalNodig > 1 ? ` · ${h.aantalNodig} vrijwilligers` : ""}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+              <Link
+                href="/coordinator/hulp-gevraagd"
+                className="block text-center text-amber-600 text-xs lg:text-sm font-semibold py-1.5"
+              >
+                Alle hulpvragen <ChevronRight size={13} className="inline" />
+              </Link>
+            </div>
+          )}
+
           {urenPerVrijwilliger.length > 0 && (
             <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 lg:p-5 space-y-3 lg:space-y-4">
               <h2 className="font-semibold text-gray-900 text-[15px] lg:text-base">Uren per vrijwilliger</h2>

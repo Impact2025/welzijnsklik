@@ -50,43 +50,64 @@ const ERVARING = [
   "",
 ];
 
-// Hulpvraag-sjablonen (titel, type-activiteit, duurMinuten, aantalNodig)
-const HULPVRAAG_TEMPLATES = [
-  { titel: "Wandeling in het park", type: "Wandelen", duur: 60, nodig: 2,
+// Hulpvraag-sjablonen (titel, type-activiteit, duurMinuten, aantalNodig, status)
+type Hv = { titel: string; type: string; duur: number; nodig: number; oms: string; status: "open" | "in_behandeling" | "gesloten" };
+const HULPVRAAG_TEMPLATES: Hv[] = [
+  { titel: "Wandeling in het park", type: "Wandelen", duur: 60, nodig: 2, status: "open",
     oms: "Een bewoner wil graag een keer per week een rustige wandeling maken in het park. Er is begeleiding met een rollator nodig." },
-  { titel: "Samen koffiedrinken", type: "Koffiedrinken", duur: 45, nodig: 1,
+  { titel: "Samen koffiedrinken", type: "Koffiedrinken", duur: 45, nodig: 1, status: "open",
     oms: "Gezellige koffiemiddag op de afdeling. Vrijwilliger die een praatje maakt en koffie inschenkt is welkom." },
-  { titel: "Voorlezen uit de krant", type: "Lezen", duur: 30, nodig: 1,
+  { titel: "Voorlezen uit de krant", type: "Lezen", duur: 30, nodig: 1, status: "in_behandeling",
     oms: "Een bewoner met slechte ogen wil graag dat iemand voorleest uit de lokale krant of een tijdschrift." },
-  { titel: "Muziekochtend organiseren", type: "Muziek", duur: 90, nodig: 2,
+  { titel: "Muziekochtend organiseren", type: "Muziek", duur: 90, nodig: 2, status: "open",
     oms: "We zoeken vrijwilligers die een muziekochtend willen begeleiden: liedjes draaien, meezingen en instrumenten uitdelen." },
-  { titel: "Boodschappen begeleiden", type: "Boodschappen", duur: 60, nodig: 1,
+  { titel: "Boodschappen begeleiden", type: "Boodschappen", duur: 60, nodig: 1, status: "open",
     oms: "Begeleiding bij een bezoek aan de supermarkt om kleine boodschappen te doen. Rolstoeltoegankelijk." },
-  { titel: "Gezelschap bij het avondeten", type: "Gezelschap", duur: 60, nodig: 2,
+  { titel: "Gezelschap bij het avondeten", type: "Gezelschap", duur: 60, nodig: 2, status: "open",
     oms: "Een eenzame bewoner zou graag gezelschap hebben tijdens het avondeten, gewoon even praten over de dag." },
-  { titel: "Schaak- en spelletjesmiddag", type: "Spelletjes", duur: 120, nodig: 3,
+  { titel: "Schaak- en spelletjesmiddag", type: "Spelletjes", duur: 120, nodig: 3, status: "in_behandeling",
     oms: "We organiseren een spelletjesmiddag met schaken, Rummikub en Mens erger je niet. Extra handen zijn welkom." },
-  { titel: "Tuinonderhoud samen doen", type: "Anders", duur: 90, nodig: 2,
+  { titel: "Tuinonderhoud samen doen", type: "Anders", duur: 90, nodig: 2, status: "open",
     oms: "In de binnentuin onkruid wieden en planten verzorgen, samen met een bewoner die van tuinieren houdt." },
-  { titel: "Fietstocht met duofiets", type: "Wandelen", duur: 60, nodig: 2,
+  { titel: "Fietstocht met duofiets", type: "Wandelen", duur: 60, nodig: 2, status: "open",
     oms: "Een bewoner wil graag een rondje op de duofiets. Twee vrijwilligers voor stabiliteit en gezelligheid." },
-  { titel: "Knutselworkshop", type: "Anders", duur: 90, nodig: 2,
+  { titel: "Knutselworkshop", type: "Anders", duur: 90, nodig: 2, status: "open",
     oms: "Wekelijkse knutselworkshop (kaarten, bloemen van papier). Vrijwilliger die handig is met materialen gevraagd." },
-  { titel: "Kamergesprekje voor een stille bewoner", type: "Gezelschap", duur: 30, nodig: 1,
+  { titel: "Kamergesprekje voor een stille bewoner", type: "Gezelschap", duur: 30, nodig: 1, status: "open",
     oms: "Een bewoner die weinig praat zoekt toch af en toe een rustig moment met iemand die er gewoon is." },
-  { titel: "Kerkbezoek begeleiden", type: "Wandelen", duur: 90, nodig: 1,
+  { titel: "Kerkbezoek begeleiden", type: "Wandelen", duur: 90, nodig: 1, status: "open",
     oms: "Begeleiding naar de zondagse kerkdienst in het dorp, inclusief rolstoel en terugweg." },
+  { titel: "Gezamenlijke filmavond", type: "Gezelschap", duur: 120, nodig: 2, status: "open",
+    oms: "Een filmavond in de huiskamer. Iemand die de beamer bedient en koffie/thee rondbrengt is welkom." },
+  { titel: "Breien en haken", type: "Anders", duur: 60, nodig: 1, status: "in_behandeling",
+    oms: "Een bewoner wil graag weer leren breien. Een geduldige vrijwilliger die het voordoet is gevraagd." },
+  { titel: "Bezoek aan het museum", type: "Wandelen", duur: 120, nodig: 2, status: "open",
+    oms: "Uitstapje naar het lokale museum. Twee begeleiders voor rolstoel en gezelligheid." },
+  { titel: "Taart bakken met bewoners", type: "Koffiedrinken", duur: 90, nodig: 2, status: "open",
+    oms: "Samen appeltaart bakken in de gemeenschappelijke keuken. Lekker en gezellig, inclusief opruimen." },
+  { titel: "Brieven schrijven naar familie", type: "Lezen", duur: 45, nodig: 1, status: "open",
+    oms: "Een bewoner wil graag brieven aan kleinkinderen dicteren. Vrijwilliger noteert en plakt de postzegel." },
+  { titel: "Yoga voor ouderen", type: "Anders", duur: 45, nodig: 1, status: "gesloten",
+    oms: "Zachte stoelyoga op de afdeling. Een vrijwilliger met ervaring in ontspanningsoefeningen gezocht." },
 ];
 
+const NOTITIE: Record<string, string> = {
+  Wandelen: "Een heerlijk rondje gemaakt, de bewoner genoot van de frisse lucht en de bloemen onderweg.",
+  Koffiedrinken: "Gezellig bijgekletst bij een kop koffie en een koekje. Veel gelachen om verhalen uit het verleden.",
+  Gezelschap: "Samen fotoalbums bekeken en herinneringen gedeeld. Een rustig, waardevol uurtje.",
+  Spelletjes: "Rummikub gespeeld. De bewoner was scherp en won met een mooie combinatie.",
+  Lezen: "Voor gelezen uit de krant. De bewoner vond het sportkatern het leukst.",
+  Muziek: "Liedjes uit vroeger jaren gezongen. De bewoner kende alle teksten nog uit het hoofd.",
+  Boodschappen: "Samen kleine boodschappen gedaan in de buurtwinkel. Gezellig en praktisch tegelijk.",
+  Anders: "Gezellige activiteit met de bewoner, afgestemd op diens interesses.",
+};
+
 function pick<T>(arr: T[], i: number): T {
-  return arr[i % arr.length];
-}
-function rnd<T>(arr: T[], seed: number): T {
-  return arr[(seed * 7 + 3) % arr.length];
+  return arr[((i % arr.length) + arr.length) % arr.length];
 }
 
 async function main() {
-  console.log("Seeding extra demo content...");
+  console.log("Seeding extra demo content (reset + nieuw)...");
 
   const organisatie = await prisma.organisatie.upsert({
     where: { id: "org_meerwende" },
@@ -95,18 +116,44 @@ async function main() {
   });
   const orgId = organisatie.id;
 
-  // ─── 15 BEWONERS ─────────────────────────────────────────────────────
+  // Coordinator voor aangemaaktDoor
+  const coordinator = await prisma.gebruiker.findFirst({
+    where: { rol: "COORDINATOR", organisatieId: orgId },
+  });
+  const aangemaaktDoor = coordinator?.id ?? orgId;
+
   const nu = new Date();
+  const startMaand = new Date(nu.getFullYear(), nu.getMonth(), 1);
+  const dagVanMaand = (offset: number) =>
+    new Date(startMaand.getFullYear(), startMaand.getMonth(), offset);
+
+  // ─── Reset eerdere demo-rows (idempotent opnieuw vullen) ─────────────
+  console.log("  Oude demo-rows verwijderen...");
+  await prisma.activiteit.deleteMany({
+    where: { id: { startsWith: "act_extra_" } },
+  });
+  await prisma.hulpGevraagd.deleteMany({
+    where: { id: { startsWith: "hulp_extra_" } },
+  });
+  await prisma.gebruiker.deleteMany({
+    where: { email: { endsWith: "@demo.nl" } },
+  });
+  await prisma.user.deleteMany({
+    where: { email: { endsWith: "@demo.nl" } },
+  });
+  await prisma.bewoner.deleteMany({
+    where: { id: { startsWith: "bew_extra_" }, organisatieId: orgId },
+  });
+
+  // ─── 15 BEWONERS ─────────────────────────────────────────────────────
   const bewonerIds: string[] = [];
   for (let i = 0; i < 15; i++) {
     const id = `bew_extra_${i + 1}`;
     const naam = `${pick(VOORNAMEN, i * 2)} ${pick(ACHTERNAMEN, i * 3)}`;
     const toestemming = i % 4 !== 0; // ~75% toestemming
     const geb = new Date(1935 + (i * 3) % 40, (i * 5) % 12, (i * 7) % 27 + 1);
-    const b = await prisma.bewoner.upsert({
-      where: { id },
-      update: {},
-      create: {
+    await prisma.bewoner.create({
+      data: {
         id,
         naam,
         organisatieId: orgId,
@@ -118,9 +165,9 @@ async function main() {
         toestemmingDatum: toestemming ? new Date(2025, (i * 4) % 12, (i * 3) % 27 + 1) : null,
       },
     });
-    bewonerIds.push(b.id);
+    bewonerIds.push(id);
   }
-  console.log(`Bewoners: ${bewonerIds.length} extra aangemaakt/bijgewerkt`);
+  console.log(`Bewoners: ${bewonerIds.length} aangemaakt`);
 
   // ─── 20 VRIJWILLIGERS ────────────────────────────────────────────────
   const vrijwilligerIds: string[] = [];
@@ -136,14 +183,15 @@ async function main() {
       where: { userId: user.id },
       update: {},
       create: {
+        id: `geb_extra_${i + 1}`,
         naam,
         email,
         rol: "VRIJWILLIGER" as const,
         organisatieId: orgId,
         userId: user.id,
         telefoon: `06-${String(10000000 + i * 123457).slice(0, 8)}`,
-        voorkeurActiviteiten: [rnd(ACTIVITEIT_TYPES, i), rnd(ACTIVITEIT_TYPES, i + 5)].filter(
-          (v, idx, a) => a.indexOf(v) === idx
+        voorkeurActiviteiten: Array.from(
+          new Set([pick(ACTIVITEIT_TYPES, i), pick(ACTIVITEIT_TYPES, i + 5)])
         ),
         beschikbaarheid: pick(BESCHIKBAARHEID, i),
         ervaring: pick(ERVARING, i),
@@ -153,73 +201,56 @@ async function main() {
     });
     vrijwilligerIds.push(g.id);
   }
-  console.log(`Vrijwilligers: ${vrijwilligerIds.length} extra aangemaakt/bijgewerkt`);
+  console.log(`Vrijwilligers: ${vrijwilligerIds.length} aangemaakt`);
 
-  // ─── 10 ACTIVITEITEN (verspreid over bewoners & vrijwilligers) ──────
-  const activiteitTypes = [
-    "Wandelen", "Koffiedrinken", "Gezelschap", "Spelletjes",
-    "Lezen", "Muziek", "Boodschappen", "Wandelen", "Knutselen", "Muziek",
-  ];
-  const notitieTemplates: Record<string, string> = {
-    Wandelen: "Een heerlijk rondje gemaakt, de bewoner genoot van de frisse lucht en de bloemen onderweg.",
-    Koffiedrinken: "Gezellig bijgekletst bij een kop koffie en een koekje. Veel gelachen om verhalen uit het verleden.",
-    Gezelschap: "Samen fotoalbums bekeken en herinneringen gedeeld. Een rustig, waardevol uurtje.",
-    Spelletjes: "Rummikub gespeeld. De bewoner was scherp en won met een mooie combinatie.",
-    Lezen: "Voor gelezen uit de krant. De bewoner vond het sportkatern het leukst.",
-    Muziek: "Liedjes uit vroeger jaren gezongen. De bewoner kende alle teksten nog uit het hoofd.",
-    Boodschappen: "Samen kleine boodschappen gedaan in de buurtwinkel. Gezellig en praktisch tegelijk.",
-    Knutselen: "Kerstkaarten geknutseld van papier. De bewoner was creatief en trots op het resultaat.",
-  };
-  let aangemaakt = 0;
-  for (let i = 0; i < 10; i++) {
-    const type = activiteitTypes[i];
-    const bewonerId = pick(bewonerIds, i);
-    const vrijwilligerId = pick(vrijwilligerIds, i * 2);
-    const dagenGeleden = (i * 3) % 30;
-    const createdAt = new Date(nu.getTime() - dagenGeleden * 24 * 60 * 60 * 1000);
-    // Foto alleen als de bewoner toestemming heeft én het een foto-vriendelijk type is
-    const bewoner = await prisma.bewoner.findUnique({
-      where: { id: bewonerId },
-      select: { toestemmingFotos: true },
-    });
-    const fotoUrl =
-      bewoner?.toestemmingFotos && ["Wandelen", "Koffiedrinken", "Knutselen", "Gezelschap"].includes(type)
-        ? pick(FOTO_POOL, i)
-        : null;
-    await prisma.activiteit.upsert({
-      where: { id: `act_extra_${i + 1}` },
-      update: {},
-      create: {
-        id: `act_extra_${i + 1}`,
-        bewonerId,
-        vrijwilligerId,
-        type,
-        duurMinuten: rnd([30, 45, 60, 90], i),
-        notities: notitieTemplates[type] ?? "Gezellige activiteit met de bewoner.",
-        fotoUrl,
-        createdAt,
-      },
-    });
-    aangemaakt++;
+  // ─── ~55 ACTIVITEITEN verspreid over de hele maand ───────────────────
+  const typeSeq = ["Wandelen", "Koffiedrinken", "Gezelschap", "Spelletjes", "Lezen", "Muziek", "Boodschappen", "Anders"];
+  const activiteitenPerDag: number[] = [1, 0, 1, 0, 2, 1, 2, 0, 1, 2, 1, 0, 2, 1, 1, 2, 0, 1, 2, 1, 1, 0, 2, 1, 1, 2, 0, 1, 2, 1, 1, 2, 2, 1, 0, 2, 1, 1, 2, 0, 1, 2, 1, 1, 2, 0, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1];
+  let actNr = 0;
+  for (let dag = 1; dag <= activiteitenPerDag.length; dag++) {
+    const aantal = activiteitenPerDag[dag - 1];
+    for (let k = 0; k < aantal; k++) {
+      actNr++;
+      const type = typeSeq[actNr % typeSeq.length];
+      const bewonerId = pick(bewonerIds, actNr);
+      const vrijwilligerId = pick(vrijwilligerIds, actNr * 2);
+      const bewoner = await prisma.bewoner.findUnique({
+        where: { id: bewonerId },
+        select: { toestemmingFotos: true },
+      });
+      const fotoUrl =
+        bewoner?.toestemmingFotos && ["Wandelen", "Koffiedrinken", "Anders", "Gezelschap"].includes(type)
+          ? pick(FOTO_POOL, actNr)
+          : null;
+      // Spreid over de dag: ochtend/middag/avond
+      const uur = 9 + ((actNr * 3) % 9);
+      const createdAt = new Date(dagVanMaand(dag).getTime() + uur * 60 * 60 * 1000);
+      await prisma.activiteit.create({
+        data: {
+          id: `act_extra_${actNr}`,
+          bewonerId,
+          vrijwilligerId,
+          type,
+          duurMinuten: pick([30, 45, 60, 90], actNr),
+          notities: NOTITIE[type] ?? NOTITIE.Anders,
+          fotoUrl,
+          createdAt,
+        },
+      });
+    }
   }
-  console.log(`Activiteiten: ${aangemaakt} extra aangemaakt`);
+  console.log(`Activiteiten: ${actNr} aangemaakt (verspreid over ${activiteitenPerDag.length} dagen)`);
 
-  // ─── 12 HULPVRAGEN ──────────────────────────────────────────────────
-  const coordinator = await prisma.gebruiker.findFirst({
-    where: { rol: "COORDINATOR", organisatieId: orgId },
-  });
-  const aangemaaktDoor = coordinator?.id ?? orgId;
-  let hulpAangemaakt = 0;
+  // ─── 18 HULPVRAGEN (14 open, 3 in_behandeling, 1 gesloten) ───────────
+  let hulpNr = 0;
   for (let i = 0; i < HULPVRAAG_TEMPLATES.length; i++) {
     const t = HULPVRAAG_TEMPLATES[i];
-    const dagenVanafNu = i % 2 === 0 ? i + 1 : -(i % 7) - 1; // mix van toekomst en recent verleden
+    hulpNr++;
+    const dagenVanafNu = (i % 10) + 1; // komende 1..10 dagen
     const datum = new Date(nu.getTime() + dagenVanafNu * 24 * 60 * 60 * 1000);
-    const status = i % 6 === 0 ? "gesloten" : i % 4 === 0 ? "in_behandeling" : "open";
-    await prisma.hulpGevraagd.upsert({
-      where: { id: `hulp_extra_${i + 1}` },
-      update: {},
-      create: {
-        id: `hulp_extra_${i + 1}`,
+    await prisma.hulpGevraagd.create({
+      data: {
+        id: `hulp_extra_${hulpNr}`,
         organisatieId: orgId,
         titel: t.titel,
         omschrijving: t.oms,
@@ -227,23 +258,23 @@ async function main() {
         duurMinuten: t.duur,
         aantalNodig: t.nodig,
         fotoUrl: i % 3 === 0 ? pick(FOTO_POOL, i) : null,
-        status,
+        status: t.status,
         aangemaaktDoor,
       },
     });
-    hulpAangemaakt++;
   }
-  console.log(`Hulpvragen: ${hulpAangemaakt} extra aangemaakt`);
+  console.log(`Hulpvragen: ${hulpNr} aangemaakt`);
 
   // ─── Samenvatting ────────────────────────────────────────────────────
-  const [tBew, tVrij, tAct, tHulp] = await Promise.all([
+  const [tBew, tVrij, tAct, tHulp, tOpen] = await Promise.all([
     prisma.bewoner.count({ where: { organisatieId: orgId } }),
     prisma.gebruiker.count({ where: { organisatieId: orgId, rol: "VRIJWILLIGER" } }),
     prisma.activiteit.count(),
     prisma.hulpGevraagd.count({ where: { organisatieId: orgId } }),
+    prisma.hulpGevraagd.count({ where: { organisatieId: orgId, status: "open" } }),
   ]);
   console.log(
-    `\nTotaal in De Meerwende → Bewoners: ${tBew}, Vrijwilligers: ${tVrij}, Activiteiten: ${tAct}, Hulpvragen: ${tHulp}`
+    `\nTotaal in De Meerwende → Bewoners: ${tBew}, Vrijwilligers: ${tVrij}, Activiteiten: ${tAct}, Hulpvragen: ${tHulp} (${tOpen} open)`
   );
 }
 
