@@ -211,6 +211,7 @@ export async function updateBlok(blokId: string, formData: FormData) {
   const session = await requireCoordinator();
   const kop = (formData.get("kop") as string) || null;
   const tekst = (formData.get("tekst") as string) || null;
+  const fotoUrl = (formData.get("fotoUrl") as string) || null;
 
   const blok = await prisma.nieuwsbriefBlok.findFirst({
     where: { id: blokId, draft: { organisatieId: session.user.organisatieId } },
@@ -221,10 +222,29 @@ export async function updateBlok(blokId: string, formData: FormData) {
 
   await prisma.nieuwsbriefBlok.update({
     where: { id: blokId },
-    data: { kop, tekst },
+    data: { kop, tekst, ...(fotoUrl !== null ? { fotoUrl } : {}) },
   });
 
   revalidatePath(`/coordinator/nieuwsbrieven/${blok.draftId}/edit`);
+}
+
+export async function addAfbeeldingBlok(draftId: string) {
+  const session = await requireCoordinator();
+  const draft = await getDraftVoorEdit(draftId, session.user.organisatieId!);
+  if (draft.status === "verzonden") throw new Error("Al verzonden");
+
+  await prisma.nieuwsbriefBlok.create({
+    data: {
+      draftId,
+      type: "afbeelding",
+      kop: "Bijschrift bij de foto",
+      tekst: "",
+      fotoUrl: null,
+      volgorde: draft.blokken.length,
+    },
+  });
+
+  revalidatePath(`/coordinator/nieuwsbrieven/${draftId}/edit`);
 }
 
 export async function removeBlok(blokId: string) {
@@ -334,10 +354,10 @@ export async function verstuurNieuwsbrief(id: string) {
         };
       }
       return {
-        type: b.type as "tekst" | "activiteit",
+        type: b.type as "tekst" | "activiteit" | "afbeelding",
         kop: b.kop,
         tekst: b.tekst,
-        fotoUrl: null,
+        fotoUrl: b.fotoUrl,
         vrijwilligerNaam: b.vrijwilligerNaam,
         bewonerNaam: b.bewonerNaam,
       };
@@ -425,10 +445,10 @@ export async function verstuurTestNieuwsbrief(id: string) {
         };
       }
       return {
-        type: b.type as "tekst" | "activiteit",
+        type: b.type as "tekst" | "activiteit" | "afbeelding",
         kop: b.kop,
         tekst: b.type === "tekst" && b.tekst ? markdownNaarHtml(b.tekst) : b.tekst,
-        fotoUrl: null,
+        fotoUrl: b.fotoUrl,
         vrijwilligerNaam: b.vrijwilligerNaam,
         bewonerNaam: b.bewonerNaam,
       };

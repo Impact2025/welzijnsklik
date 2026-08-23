@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { markdownNaarHtml } from "@/lib/markdown";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.RESEND_FROM_EMAIL ?? "noreply@welzijnsklik.nl";
@@ -278,7 +279,7 @@ export function toestemmingHtml(
 // ═════════════════════════════════════════════════════════════
 
 export interface NieuwsbriefBlokHtml {
-  type: "activiteit" | "tekst";
+  type: "activiteit" | "tekst" | "afbeelding";
   kop?: string | null;
   tekst?: string | null;
   fotoUrl?: string | null; // moet een PUBLIEKE url zijn (geen private blob)
@@ -301,19 +302,41 @@ export function nieuwsbriefHtml(opts: {
 
   const aanhef = ontvangerNaam ? `Beste ${esc(ontvangerNaam)},` : "Beste betrokkene,";
 
+  const fotoDiv = (url: string | null | undefined, alt: string) =>
+    url
+      ? `<div style="border-radius:16px;overflow:hidden;background:#f5f2ed;margin:10px 0;">
+          <img src="${esc(url)}" alt="${esc(alt)}" style="width:100%;max-height:420px;object-fit:cover;display:block;" />
+        </div>`
+      : "";
+
   const blokHtml = blokken
     .map((b) => {
+      if (b.type === "afbeelding") {
+        // Eigen geüploade foto met bijschrift
+        return `
+        <div style="margin:22px 0;">
+          ${fotoDiv(b.fotoUrl, b.kop ?? "foto")}
+          ${
+            b.kop
+              ? `<p style="font-size:13px;color:#817a6e;margin:8px 0 0;font-style:italic;text-align:center;">${esc(b.kop)}</p>`
+              : ""
+          }
+        </div>
+        <div class="divider"></div>`;
+      }
+
       if (b.type === "tekst") {
-        const inhoud = (b.tekst ?? "").replace(/\n/g, "<br>");
+        const inhoud = b.tekst ? markdownNaarHtml(b.tekst) : "";
+        const toonFoto = !!b.fotoUrl;
         return `
         <div style="margin:20px 0;">
           ${b.kop ? `<h2 style="font-size:16px;font-weight:700;margin:0 0 8px;color:#1a1714;">${esc(b.kop)}</h2>` : ""}
-          <p style="font-size:14px;line-height:1.6;color:#655e54;margin:0;">${inhoud}</p>
+          ${toonFoto ? fotoDiv(b.fotoUrl, b.kop ?? "foto") : ""}
+          ${inhoud ? `<p style="font-size:14px;line-height:1.6;color:#655e54;margin:0;">${inhoud}</p>` : ""}
         </div>`;
       }
 
-      // Activiteit-blok mét foto
-      const heeftFoto = !!b.fotoUrl;
+      // Activiteit-blok mét foto + metadata
       const onderschrift = b.tekst
         ? `<p style="font-size:14px;line-height:1.6;color:#655e54;margin:12px 0 0;">${esc(b.tekst)}</p>`
         : "";
@@ -329,15 +352,7 @@ export function nieuwsbriefHtml(opts: {
               ? `<h2 style="font-size:16px;font-weight:700;margin:0 0 8px;color:#1a1714;">${esc(b.kop)}</h2>`
               : ""
           }
-          ${
-            heeftFoto
-              ? `<div style="border-radius:16px;overflow:hidden;background:#f5f2ed;">
-              <img src="${esc(b.fotoUrl!)}" alt="${
-                b.bewonerNaam ? esc(b.bewonerNaam) : "foto"
-              }" style="width:100%;max-height:360px;object-fit:cover;display:block;" />
-            </div>`
-              : ""
-          }
+          ${fotoDiv(b.fotoUrl, b.bewonerNaam ?? "foto")}
           ${meta ? `<p style="font-size:12px;color:#a39b8e;margin:8px 0 0;font-weight:600;">${meta}</p>` : ""}
           ${onderschrift}
         </div>

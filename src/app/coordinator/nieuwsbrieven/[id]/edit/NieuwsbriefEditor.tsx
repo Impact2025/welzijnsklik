@@ -21,6 +21,7 @@ import {
   saveNieuwsbriefDraft,
   addActiviteitBlok,
   addTekstBlok,
+  addAfbeeldingBlok,
   updateBlok,
   removeBlok,
   reorderBlok,
@@ -30,7 +31,7 @@ import {
 
 interface Blok {
   id: string;
-  type: "activiteit" | "tekst";
+  type: "activiteit" | "tekst" | "afbeelding";
   kop: string;
   tekst: string;
   fotoUrl: string | null;
@@ -142,6 +143,47 @@ export function NieuwsbriefEditor({
     } finally {
       setBusyId(null);
     }
+  }
+
+  async function voegAfbeeldingToe() {
+    setBusyId("afbeelding");
+    try {
+      await addAfbeeldingBlok(draft.id);
+      router.refresh();
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  // Upload een eigen foto naar een PUBLIEKE blob en koppel die aan een blok.
+  async function uploadFotoVoorBlok(b: Blok, file: File) {
+    setBusyId(`up-${b.id}`);
+    setError(null);
+    try {
+      const fd = new FormData();
+      fd.set("file", file);
+      const res = await fetch("/api/upload-nieuwsbrief-foto", {
+        method: "POST",
+        body: file,
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error ?? "Upload mislukt");
+      }
+      const { url } = await res.json();
+      await updateBlokFoto(b.id, url);
+      router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload mislukt");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function updateBlokFoto(blokId: string, fotoUrl: string) {
+    const fd = new FormData();
+    fd.set("fotoUrl", fotoUrl);
+    await updateBlok(blokId, fd);
   }
 
   async function updateBlokVeld(b: Blok, veld: "kop" | "tekst", waarde: string) {
@@ -317,13 +359,22 @@ export function NieuwsbriefEditor({
           <div className="lg:col-span-3 space-y-3">
             <div className="flex items-center justify-between">
               <h2 className="font-semibold text-gray-900 text-[15px]">Inhoud nieuwsbrief</h2>
-              <button
-                onClick={voegTekstToe}
-                disabled={verzonden || busyId === "tekst"}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-warm-200 rounded-xl text-sm font-medium text-warm-700 hover:bg-warm-50 transition-colors disabled:opacity-50"
-              >
-                <Type size={13} /> Tekstblok
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={voegTekstToe}
+                  disabled={verzonden || busyId === "tekst"}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-warm-200 rounded-xl text-sm font-medium text-warm-700 hover:bg-warm-50 transition-colors disabled:opacity-50"
+                >
+                  <Type size={13} /> Tekstblok
+                </button>
+                <button
+                  onClick={voegAfbeeldingToe}
+                  disabled={verzonden || busyId === "afbeelding"}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-white border border-warm-200 rounded-xl text-sm font-medium text-warm-700 hover:bg-warm-50 transition-colors disabled:opacity-50"
+                >
+                  <ImageIcon size={13} /> Afbeelding
+                </button>
+              </div>
             </div>
 
             {blokken.length === 0 && (
@@ -339,7 +390,7 @@ export function NieuwsbriefEditor({
               <div key={b.id} className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-warm-400">
-                    {b.type === "activiteit" ? "Activiteit met foto" : "Tekstbericht"}
+                    {b.type === "activiteit" ? "Activiteit met foto" : b.type === "afbeelding" ? "Eigen afbeelding" : "Tekstbericht"}
                   </span>
                   <div className="flex items-center gap-1">
                     <button
@@ -399,6 +450,55 @@ export function NieuwsbriefEditor({
                     dangerouslySetInnerHTML={{ __html: mdPreview(b.tekst) }}
                   />
                 )}
+                {/* Eigen foto uploaden (afbeelding-blok, of optioneel bij tekstblok) */}
+                {(b.type === "afbeelding" || b.type === "tekst") && (
+                  <div className="mt-2">
+                    {b.fotoUrl ? (
+                      <div className="relative">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={b.fotoUrl}
+                          alt=""
+                          className="w-full h-44 object-cover rounded-xl bg-warm-100"
+                        />
+                        {!verzonden && (
+                          <button
+                            type="button"
+                            onClick={() => updateBlokFoto(b.id, "")}
+                            className="absolute top-2 right-2 bg-white/90 rounded-lg p-1.5 text-red-600 hover:bg-white shadow-sm"
+                            title="Foto verwijderen"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      !verzonden && (
+                        <label className="flex flex-col items-center justify-center gap-1.5 w-full px-3 py-4 rounded-xl border border-dashed border-warm-300 text-warm-500 hover:bg-warm-50 cursor-pointer transition-colors">
+                          <ImageIcon size={18} />
+                          <span className="text-xs font-medium">
+                            {b.type === "afbeelding" ? "Kies een afbeelding" : "Voeg een foto toe"}
+                          </span>
+                          <span className="text-[10px]">JPG, PNG, WebP of GIF · max 5 MB</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            disabled={busyId === `up-${b.id}`}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) uploadFotoVoorBlok(b, file);
+                            }}
+                          />
+                        </label>
+                      )
+                    )}
+                    {busyId === `up-${b.id}` && (
+                      <p className="text-xs text-warm-500 mt-1">Bezig met uploaden…</p>
+                    )}
+                  </div>
+                )}
+
                 {b.type === "activiteit" && (
                   <p className="text-xs text-warm-400 mt-2">
                     {b.vrijwilligerNaam}
@@ -553,6 +653,22 @@ function PreviewPane({ draft, blokken }: { draft: DraftInfo; blokken: Blok[] }) 
                 src={getFotoUrl(b.fotoUrl, b.bronActiviteitId ?? "") ?? ""}
                 alt=""
                 className="w-full h-48 object-cover rounded-xl mb-3 bg-warm-100"
+              />
+            )}
+            {b.type === "afbeelding" && b.fotoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={b.fotoUrl}
+                alt=""
+                className="w-full h-48 object-cover rounded-xl mb-3 bg-warm-100"
+              />
+            )}
+            {b.type === "tekst" && b.fotoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={b.fotoUrl}
+                alt=""
+                className="w-full h-40 object-cover rounded-xl mb-3 bg-warm-100"
               />
             )}
             {b.kop && <h2 className="font-semibold text-gray-900 text-[15px] mb-1">{b.kop}</h2>}

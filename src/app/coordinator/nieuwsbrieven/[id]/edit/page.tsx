@@ -49,7 +49,7 @@ export default async function EditNieuwsbriefPage({
         }}
         blokken={draft.blokken.map((b) => ({
           id: b.id,
-          type: b.type as "activiteit" | "tekst",
+          type: b.type as "activiteit" | "tekst" | "afbeelding",
           kop: b.kop ?? "",
           tekst: b.tekst ?? "",
           fotoUrl: b.fotoUrl ?? null,
