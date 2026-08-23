@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Card, PageHeader } from "@/components/ui";
 import { Loader2, Save } from "lucide-react";
+import RichTextEditor from "@/components/RichTextEditor";
 
 interface Nieuwsbrief {
   id: string;
@@ -95,13 +96,12 @@ export default function NieuwsbriefEditPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-warm-900 mb-1">Inhoud (HTML)</label>
-            <textarea
+            <label className="block text-sm font-medium text-warm-900 mb-1">Inhoud</label>
+            <RichTextEditor
               name="inhoud"
-              rows={12}
-              required
               defaultValue={item!.inhoud}
-              className="w-full px-3 py-2 rounded-xl border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono"
+              onChange={() => {}}
+              placeholder="Begin met schrijven — of plak tekst uit Word of Google Docs…"
             />
           </div>
 

@@ -59,7 +59,7 @@ interface TemplateParams {
   footer?: string;
 }
 
-function baseHtml({ title, preheader, body, cta, footer }: TemplateParams): string {
+export function baseHtml({ title, preheader, body, cta, footer }: TemplateParams): string {
   return `<!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -83,10 +83,15 @@ function baseHtml({ title, preheader, body, cta, footer }: TemplateParams): stri
     .header h1 { color: #ffffff; font-size: 20px; font-weight: 700; margin: 12px 0 0; letter-spacing: 0.5px; }
     .header p { color: rgba(255,255,255,0.8); font-size: 13px; margin: 4px 0 0; }
     .body { padding: 32px 32px 24px; color: #1a1714; }
-    .body h2 { font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #1a1714; }
+    .body h1 { font-size: 22px; font-weight: 700; margin: 0 0 14px; color: #1a1714; }
+    .body h2 { font-size: 16px; font-weight: 700; margin: 20px 0 10px; color: #1a1714; }
+    .body h3 { font-size: 14px; font-weight: 700; margin: 16px 0 8px; color: #1a1714; }
     .body p { font-size: 14px; line-height: 1.6; color: #655e54; margin: 0 0 12px; }
-    .body ul { margin: 8px 0 16px; padding-left: 20px; }
+    .body ul, .body ol { margin: 8px 0 16px; padding-left: 20px; }
     .body li { font-size: 14px; line-height: 1.6; color: #655e54; margin-bottom: 4px; }
+    .body a { color: #b45309; }
+    .body blockquote { margin: 12px 0; padding-left: 14px; border-left: 3px solid #e8e3db; color: #817a6e; font-style: italic; }
+    .body strong { color: #1a1714; }
     .cta-wrap { text-align: center; padding: 16px 0 8px; }
     .cta-btn { display: inline-block; background: #e5a500; color: #ffffff !important; font-size: 14px; font-weight: 700; padding: 14px 32px; border-radius: 12px; text-decoration: none; }
     .divider { height: 1px; background: #e8e3db; margin: 20px 0; }

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/ui";
+import { baseHtml } from "@/lib/email";
 import Link from "next/link";
 import { Send, Edit } from "lucide-react";
 
@@ -14,6 +15,16 @@ export default async function NieuwsbriefPreviewPage({
   const nieuwsbrief = await prisma.nieuwsbrief.findUnique({ where: { id } });
 
   if (!nieuwsbrief) notFound();
+
+  // Exacte weergave van wat verzonden wordt (zelfde baseHtml-wrapper als
+  // sendNieuwsbrief) — een placeholder-token i.p.v. het echte afmeldToken,
+  // dat wordt pas per ontvanger aangemaakt bij het versturen.
+  const html = baseHtml({
+    title: nieuwsbrief.titel,
+    preheader: nieuwsbrief.onderwerp,
+    body: nieuwsbrief.inhoud,
+    footer: `Welzijnsklik · De Meerwende<br><a href="#">Afmelden voor deze nieuwsbrief</a>`,
+  });
 
   return (
     <div className="p-6 space-y-6">
@@ -44,54 +55,30 @@ export default async function NieuwsbriefPreviewPage({
 
       <div className="max-w-2xl mx-auto">
         <div className="bg-neutral-100 rounded-2xl p-4 mb-4">
-          <div className="flex items-start gap-3 text-sm">
-            <div className="space-y-1">
-              <div>
-                <span className="text-neutral-500 font-medium">Van: </span>
-                <span className="text-gray-700">Welzijnsklik &lt;noreply@welzijnsklik.nl&gt;</span>
-              </div>
-              <div>
-                <span className="text-neutral-500 font-medium">Aan: </span>
-                <span className="text-gray-700">Alle leads</span>
-              </div>
-              <div>
-                <span className="text-neutral-500 font-medium">Onderwerp: </span>
-                <span className="text-gray-700 font-semibold">{nieuwsbrief.onderwerp}</span>
-              </div>
+          <div className="space-y-1 text-sm">
+            <div>
+              <span className="text-neutral-500 font-medium">Van: </span>
+              <span className="text-gray-700">Welzijnsklik &lt;noreply@welzijnsklik.nl&gt;</span>
+            </div>
+            <div>
+              <span className="text-neutral-500 font-medium">Aan: </span>
+              <span className="text-gray-700">Alle leads</span>
+            </div>
+            <div>
+              <span className="text-neutral-500 font-medium">Onderwerp: </span>
+              <span className="text-gray-700 font-semibold">{nieuwsbrief.onderwerp}</span>
             </div>
           </div>
         </div>
 
-        <div
-          className="bg-white rounded-2xl border border-neutral-100 shadow-sm overflow-hidden"
-          style={{ fontFamily: "Georgia, serif" }}
-        >
-          <div
-            style={{
-              background: "#005e9f",
-              padding: "24px 32px",
-              color: "#fff",
-            }}
-          >
-            <p style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>{nieuwsbrief.titel}</p>
-          </div>
-          <div
-            style={{ padding: "32px", color: "#333", lineHeight: 1.7, fontSize: 15 }}
-            dangerouslySetInnerHTML={{ __html: nieuwsbrief.inhoud }}
+        <div className="rounded-2xl border border-neutral-100 shadow-sm overflow-hidden bg-warm-50">
+          <iframe
+            title="E-mail preview"
+            srcDoc={html}
+            className="w-full"
+            style={{ height: 720, border: "none" }}
+            sandbox=""
           />
-          <div
-            style={{
-              borderTop: "1px solid #eee",
-              padding: "16px 32px",
-              background: "#f9f9f9",
-              fontSize: 12,
-              color: "#999",
-            }}
-          >
-            <p style={{ margin: 0 }}>
-              Welzijnsklik · Dit bericht is gestuurd omdat je een account hebt bij Welzijnsklik.
-            </p>
-          </div>
         </div>
       </div>
     </div>

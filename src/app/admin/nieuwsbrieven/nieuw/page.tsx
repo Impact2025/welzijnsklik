@@ -4,14 +4,19 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, Button } from "@/components/ui";
 import { PageHeader } from "@/components/ui";
-import { Loader2, Send } from "lucide-react";
+import RichTextEditor from "@/components/RichTextEditor";
 
 export default function NieuweNieuwsbriefForm() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inhoud, setInhoud] = useState("");
 
   async function handleSubmit(formData: FormData) {
+    if (!inhoud || inhoud === "<p></p>") {
+      setError("Vul de inhoud van de nieuwsbrief in.");
+      return;
+    }
     setLoading(true);
     setError(null);
 
@@ -72,14 +77,12 @@ export default function NieuweNieuwsbriefForm() {
 
           <div>
             <label className="block text-sm font-medium text-warm-900 mb-1">
-              Inhoud (HTML/meer-taal)
+              Inhoud
             </label>
-            <textarea
+            <RichTextEditor
               name="inhoud"
-              rows={10}
-              required
-              placeholder="<h1>Welkom bij onze maandelijkse update</h1><p>...</p>"
-              className="w-full px-3 py-2 rounded-xl border border-warm-200 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono text-sm"
+              onChange={setInhoud}
+              placeholder="Begin met schrijven — of plak tekst uit Word of Google Docs…"
             />
           </div>
 

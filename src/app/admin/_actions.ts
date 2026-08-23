@@ -3,8 +3,11 @@
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, baseHtml } from "@/lib/email";
 import { requireAdmin } from "@/lib/admin-auth";
+import { randomUUID } from "crypto";
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
 // ─── Blog ────────────────────────────────────────────────
 
@@ -77,10 +80,17 @@ export async function sendNieuwsbrief(id: string) {
 
   let verstuurt = 0;
   for (const lead of leads) {
+    const afmeldToken = randomUUID();
+    const html = baseHtml({
+      title: nieuwsbrief.titel,
+      preheader: nieuwsbrief.onderwerp,
+      body: nieuwsbrief.inhoud,
+      footer: `Welzijnsklik · De Meerwende<br><a href="${APP_URL}/afmelden/nieuwsbrief/${afmeldToken}">Afmelden voor deze nieuwsbrief</a>`,
+    });
     const ok = await sendEmail({
       to: lead.email,
       subject: nieuwsbrief.onderwerp,
-      html: nieuwsbrief.inhoud,
+      html,
     });
     if (ok) {
       verstuurt++;
@@ -90,6 +100,7 @@ export async function sendNieuwsbrief(id: string) {
           email: lead.email,
           naam: lead.naam,
           status: "verzonden",
+          afmeldToken,
         },
       });
     }
