@@ -376,8 +376,11 @@ model NieuwsbriefAbonnement {
   gebruiker   Gebruiker? @relation(fields: [gebruikerId], references: [id])
   email       String
   naam        String?
-  status      String   @default("verzonden")
+  status      String   @default("verzonden") // verzonden | afgemeld | gebounce
+  actief      Boolean  @default(true)
+  afmeldToken String?  @unique
   geopend     Boolean  @default(false)
+  geopendOp   DateTime?
   geklikt     Boolean  @default(false)
   gekliktOp   DateTime?
   createdAt   DateTime @default(now())
