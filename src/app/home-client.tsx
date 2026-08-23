@@ -152,7 +152,18 @@ export default function HomeClient() {
       { threshold: 0.08 }
     );
     cardRefs.current.forEach((el) => el && observer.observe(el));
-    return () => observer.disconnect();
+
+    // Vangnet: als de observer om wat voor reden dan ook niet (op tijd)
+    // vuurt, blijven kaarten anders permanent opacity:0 — content mag nooit
+    // afhankelijk zijn van deze animatie om zichtbaar te worden.
+    const fallback = setTimeout(() => {
+      setVisible((prev) => new Set([...prev, ...cardRefs.current.map((_, idx) => idx)]));
+    }, 1200);
+
+    return () => {
+      observer.disconnect();
+      clearTimeout(fallback);
+    };
   }, []);
 
   const reveal = (i: number) => ({

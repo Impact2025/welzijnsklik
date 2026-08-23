@@ -8,6 +8,14 @@ if (typeof WebSocket === "undefined") {
   neonConfig.webSocketConstructor = require("ws");
 }
 
+// Losse (niet-transactionele) queries via HTTP fetch i.p.v. de gepoolde
+// WebSocket sturen. De Pool-WebSocket bleek tussen serverless-invocations
+// in te kunnen doodlopen (Vercel freeze/Neon idle-timeout); een warme lambda
+// hergebruikte daarna een dode connectie, wat "Connection closed" gaf en het
+// dashboard oneindig liet hangen op de loading-skeleton. Transacties
+// (prisma.$transaction) blijven de Pool/WebSocket gebruiken.
+neonConfig.poolQueryViaFetch = true;
+
 function makePrismaClient() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) throw new Error("DATABASE_URL is niet ingesteld");
