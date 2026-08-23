@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { updateHulpReactieStatus, updateHulpStatus } from "@/lib/actions/hulp-gevraagd";
-import { CheckCircle2, XCircle, Lock, Unlock } from "lucide-react";
+import { CheckCircle2, XCircle, Ban, Lock, Unlock } from "lucide-react";
 
 export function ReactieKnopjes({ reactieId, huidigStatus }: { reactieId: string; huidigStatus: string }) {
   const [isPending, startTransition] = useTransition();
@@ -21,6 +21,23 @@ export function ReactieKnopjes({ reactieId, huidigStatus }: { reactieId: string;
         <XCircle size={11} />
         Afgewezen
       </span>
+    );
+  }
+  if (huidigStatus === "geweigerd") {
+    return (
+      <div className="flex items-center gap-2">
+        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-neutral-400 bg-neutral-100 px-2.5 py-1 rounded-full">
+          <Ban size={11} />
+          Niet geholpen
+        </span>
+        <button
+          disabled={isPending}
+          onClick={() => startTransition(() => updateHulpReactieStatus(reactieId, "bevestigd"))}
+          className="text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-full transition-colors disabled:opacity-60"
+        >
+          Toch bevestigen
+        </button>
+      </div>
     );
   }
 

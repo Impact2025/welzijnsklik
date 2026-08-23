@@ -62,7 +62,7 @@ export async function reageerOpHulp(hulpGevraagdId: string, bericht: string) {
 
   const hulp = await prisma.hulpGevraagd.findFirst({
     where: { id: hulpGevraagdId, organisatieId: session.user.organisatieId, status: "open" },
-    include: { _count: { select: { reacties: { where: { status: { not: "afgewezen" } } } } } },
+    include: { _count: { select: { reacties: { where: { status: { not: { in: ["afgewezen", "geweigerd"] } } } } } } },
   });
 
   if (!hulp) throw new Error("Niet gevonden of niet meer open");
@@ -71,10 +71,22 @@ export async function reageerOpHulp(hulpGevraagdId: string, bericht: string) {
     throw new Error("Er zijn al voldoende aanmeldingen");
   }
 
-  await prisma.hulpReactie.create({
-    data: {
+  // Upsert zodat een eerdere "geweigerd" (deze keer niet) netjes teruggedraaid
+  // wordt naar een aanmelding in plaats van een unique-constraint-fout te geven.
+  await prisma.hulpReactie.upsert({
+    where: {
+      hulpGevraagdId_gebruikerId: {
+        hulpGevraagdId,
+        gebruikerId: session.user.gebruikerId,
+      },
+    },
+    create: {
       hulpGevraagdId,
       gebruikerId: session.user.gebruikerId,
+      bericht: bericht?.trim() || null,
+    },
+    update: {
+      status: "aangemeld",
       bericht: bericht?.trim() || null,
     },
   });
@@ -111,11 +123,43 @@ export async function trekReactieIn(hulpGevraagdId: string) {
   // Heropen als het item "vol" was maar nu weer plek heeft
   const hulp = await prisma.hulpGevraagd.findUnique({
     where: { id: hulpGevraagdId },
-    include: { _count: { select: { reacties: { where: { status: { not: "afgewezen" } } } } } },
+    include: { _count: { select: { reacties: { where: { status: { not: { in: ["afgewezen", "geweigerd"] } } } } } } },
   });
   if (hulp?.status === "vol" && hulp._count.reacties < hulp.aantalNodig) {
     await prisma.hulpGevraagd.update({ where: { id: hulpGevraagdId }, data: { status: "open" } });
   }
+
+  revalidatePath("/vrijwilliger/hulp-gevraagd");
+  revalidatePath("/familie/hulp-gevraagd");
+  revalidatePath("/coordinator/hulp-gevraagd");
+}
+
+export async function weigerHulp(hulpGevraagdId: string, bericht?: string) {
+  const session = await auth();
+  if (!session?.user?.gebruikerId || !magReageren(session.user.rol)) {
+    throw new Error("Niet geautoriseerd");
+  }
+
+  // Markeer als "geweigerd" (deze keer niet). Een eventuele eerdere aanmelding
+  // of weigering wordt netjes overschreven zonder de unieke sleutel te breken.
+  await prisma.hulpReactie.upsert({
+    where: {
+      hulpGevraagdId_gebruikerId: {
+        hulpGevraagdId,
+        gebruikerId: session.user.gebruikerId,
+      },
+    },
+    create: {
+      hulpGevraagdId,
+      gebruikerId: session.user.gebruikerId,
+      status: "geweigerd",
+      bericht: bericht?.trim() || null,
+    },
+    update: {
+      status: "geweigerd",
+      bericht: bericht?.trim() || null,
+    },
+  });
 
   revalidatePath("/vrijwilliger/hulp-gevraagd");
   revalidatePath("/familie/hulp-gevraagd");

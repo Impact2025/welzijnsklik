@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { reageerOpHulp, trekReactieIn } from "@/lib/actions/hulp-gevraagd";
-import { HandHeart, Loader2, CheckCircle2, X } from "lucide-react";
+import { reageerOpHulp, trekReactieIn, weigerHulp } from "@/lib/actions/hulp-gevraagd";
+import { HandHeart, Loader2, CheckCircle2, X, Ban } from "lucide-react";
 
 interface Props {
   hulpId: string;
@@ -17,6 +17,37 @@ export default function AanmeldKnop({ hulpId, heeftGereageerd, reactieBericht, r
   const [bericht, setBericht] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // De vrijwilliger helpt deze keer niet (actief geweigerd).
+  if (heeftGereageerd && reactieStatus === "geweigerd") {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-between rounded-xl px-4 py-3 bg-neutral-100 border border-neutral-200">
+          <div className="flex items-center gap-2">
+            <Ban size={16} className="text-neutral-500" />
+            <span className="text-sm font-semibold text-neutral-600">
+              Je helpt deze keer niet
+            </span>
+          </div>
+          {isOpen && (
+            <button
+              disabled={isPending}
+              onClick={() => {
+                setError(null);
+                startTransition(() =>
+                  weigerHulp(hulpId).catch((e) => setError(e.message))
+                );
+              }}
+              className="text-xs text-neutral-400 hover:text-amber-600 transition-colors disabled:opacity-60"
+            >
+              {isPending ? <Loader2 size={12} className="animate-spin" /> : "Ongedaan maken"}
+            </button>
+          )}
+        </div>
+        {error && <p className="text-xs text-red-500 px-1">{error}</p>}
+      </div>
+    );
+  }
 
   if (heeftGereageerd) {
     const isBevestigd = reactieStatus === "bevestigd";
@@ -71,41 +102,53 @@ export default function AanmeldKnop({ hulpId, heeftGereageerd, reactieBericht, r
           className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 text-sm text-gray-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent resize-none"
         />
         {error && <p className="text-xs text-red-500">{error}</p>}
-        <div className="flex gap-2">
-          <button
-            disabled={isPending}
-            onClick={() => {
-              setError(null);
-              startTransition(() =>
-                reageerOpHulp(hulpId, bericht).catch((e) => {
-                  setError(e instanceof Error ? e.message : "Er ging iets mis");
-                })
-              );
-            }}
-            className="flex-1 flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-sm transition-colors disabled:opacity-60"
-          >
-            {isPending ? <Loader2 size={15} className="animate-spin" /> : <HandHeart size={15} />}
-            {isPending ? "Aanmelden…" : "Aanmelden"}
-          </button>
-          <button
-            disabled={isPending}
-            onClick={() => setShowForm(false)}
-            className="px-4 py-3 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-600 text-sm font-medium transition-colors disabled:opacity-60"
-          >
-            Annuleren
-          </button>
-        </div>
+        <button
+          disabled={isPending}
+          onClick={() => {
+            setError(null);
+            startTransition(() =>
+              reageerOpHulp(hulpId, bericht).catch((e) => {
+                setError(e instanceof Error ? e.message : "Er ging iets mis");
+              })
+            );
+          }}
+          className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-sm transition-colors disabled:opacity-60"
+        >
+          {isPending ? <Loader2 size={15} className="animate-spin" /> : <HandHeart size={15} />}
+          {isPending ? "Aanmelden…" : "Aanmelden"}
+        </button>
+        <button
+          disabled={isPending}
+          onClick={() => setShowForm(false)}
+          className="w-full text-sm text-neutral-400 hover:text-neutral-600 transition-colors py-1 disabled:opacity-60"
+        >
+          Annuleren
+        </button>
       </div>
     );
   }
 
   return (
-    <button
-      onClick={() => setShowForm(true)}
-      className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-sm transition-colors"
-    >
-      <HandHeart size={16} />
-      Ik doe mee!
-    </button>
+    <div className="space-y-2">
+      <button
+        onClick={() => setShowForm(true)}
+        className="w-full flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl text-sm transition-colors"
+      >
+        <HandHeart size={16} />
+        Ik doe mee!
+      </button>
+      <button
+        disabled={isPending}
+        onClick={() => {
+          setError(null);
+          startTransition(() => weigerHulp(hulpId).catch((e) => setError(e.message)));
+        }}
+        className="w-full flex items-center justify-center gap-2 text-sm text-neutral-400 hover:text-neutral-600 font-medium py-2 transition-colors disabled:opacity-60"
+      >
+        <Ban size={15} />
+        Deze keer niet
+      </button>
+      {error && <p className="text-xs text-red-500 px-1">{error}</p>}
+    </div>
   );
 }

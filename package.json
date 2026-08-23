@@ -10,7 +10,7 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts && tsx prisma/seed-extra.ts",
+    "db:seed": "tsx prisma/seed.ts && tsx prisma/seed-extra.ts && tsx prisma/seed-welzijnscheck.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

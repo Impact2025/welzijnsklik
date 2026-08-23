@@ -16,6 +16,7 @@ const REACTIE_CFG: Record<string, { label: string; bg: string; kleur: string }> 
   aangemeld: { label: "Aangemeld", bg: "bg-sky-100", kleur: "text-sky-700" },
   bevestigd: { label: "Bevestigd", bg: "bg-emerald-100", kleur: "text-emerald-700" },
   afgewezen: { label: "Afgewezen", bg: "bg-neutral-100", kleur: "text-neutral-500" },
+  geweigerd: { label: "Niet geholpen", bg: "bg-neutral-100", kleur: "text-neutral-500" },
 };
 
 function formatDatum(datum: Date) {
@@ -49,7 +50,7 @@ export default async function HulpGevraagdDetailPage({
     where: { id, organisatieId },
     include: {
       reacties: {
-        include: { vrijwilliger: { select: { naam: true, email: true, telefoon: true } } },
+        include: { gebruiker: { select: { naam: true, email: true, telefoon: true } } },
         orderBy: { createdAt: "asc" },
       },
     },
@@ -61,6 +62,7 @@ export default async function HulpGevraagdDetailPage({
   const bevestigd = hulp.reacties.filter((r) => r.status === "bevestigd");
   const aangemeld = hulp.reacties.filter((r) => r.status === "aangemeld");
   const afgewezen = hulp.reacties.filter((r) => r.status === "afgewezen");
+  const geweigerd = hulp.reacties.filter((r) => r.status === "geweigerd");
 
   return (
     <div className="px-4 py-6 space-y-5">
@@ -156,16 +158,16 @@ export default async function HulpGevraagdDetailPage({
           </div>
         ) : (
           <div className="space-y-2">
-            {[...aangemeld, ...bevestigd, ...afgewezen].map((r) => {
+            {[...aangemeld, ...bevestigd, ...afgewezen, ...geweigerd].map((r) => {
               const cfg = REACTIE_CFG[r.status] ?? REACTIE_CFG.aangemeld;
               return (
                 <div key={r.id} className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="font-semibold text-gray-900 text-sm">{r.vrijwilliger.naam}</p>
+                      <p className="font-semibold text-gray-900 text-sm">{r.gebruiker.naam}</p>
                       <p className="text-xs text-neutral-400 mt-0.5">
-                        {r.vrijwilliger.email}
-                        {r.vrijwilliger.telefoon && ` · ${r.vrijwilliger.telefoon}`}
+                        {r.gebruiker.email}
+                        {r.gebruiker.telefoon && ` · ${r.gebruiker.telefoon}`}
                       </p>
                     </div>
                     <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${cfg.bg} ${cfg.kleur}`}>
