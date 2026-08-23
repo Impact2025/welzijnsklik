@@ -14,9 +14,11 @@ interface SendParams {
   html: string;
   /** Als true: laat de fout doorvliegen ipv silent catch */
   throwOnError?: boolean;
+  /** Extra e-mailheaders (bijv. List-Unsubscribe voor AVG-compliance) */
+  headers?: Record<string, string>;
 }
 
-export async function sendEmail({ to, subject, html, throwOnError = false }: SendParams) {
+export async function sendEmail({ to, subject, html, throwOnError = false, headers }: SendParams) {
   const start = Date.now();
   console.log(`[email] → ${Array.isArray(to) ? to.join(", ") : to}: "${subject}"`);
 
@@ -26,6 +28,7 @@ export async function sendEmail({ to, subject, html, throwOnError = false }: Sen
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
+      ...(headers ? { headers } : {}),
     });
 
     if (error) {
@@ -289,8 +292,14 @@ export function nieuwsbriefHtml(opts: {
   intro?: string | null;
   blokken: NieuwsbriefBlokHtml[];
   doelgroepLabel: string;
+  ontvangerNaam?: string | null;
+  afmeldUrl?: string | null;
+  openPixelUrl?: string | null;
 }): string {
-  const { titel, organisatie, intro, blokken, doelgroepLabel } = opts;
+  const { titel, organisatie, intro, blokken, doelgroepLabel, ontvangerNaam, afmeldUrl, openPixelUrl } =
+    opts;
+
+  const aanhef = ontvangerNaam ? `Beste ${esc(ontvangerNaam)},` : "Beste betrokkene,";
 
   const blokHtml = blokken
     .map((b) => {
@@ -341,13 +350,23 @@ export function nieuwsbriefHtml(opts: {
     preheader: `${organisatie} deelt een update met ${doelgroepLabel}`,
     body: `
       <h2>${esc(titel)}</h2>
+      <p style="font-size:14px;line-height:1.6;color:#655e54;margin:0 0 12px;">${aanhef}</p>
       <p style="font-size:14px;line-height:1.6;color:#655e54;">${
         intro ? esc(intro).replace(/\n/g, "<br>") : ""
       }</p>
       ${blokHtml}
       <p style="font-size:13px;color:#817a6e;margin-top:16px;">Met vriendelijke groet,<br>Het team van ${esc(organisatie)}</p>
+      ${
+        openPixelUrl
+          ? `<img src="${esc(openPixelUrl)}" width="1" height="1" alt="" style="display:none;" />`
+          : ""
+      }
     `,
-    footer: `Welzijnsklik · ${esc(organisatie)}<br>Je ontvangt deze e-mail omdat je betrokken bent bij ${esc(organisatie)}.`,
+    footer: `Welzijnsklik · ${esc(organisatie)}<br>Je ontvangt deze e-mail omdat je betrokken bent bij ${esc(organisatie)}.${
+      afmeldUrl
+        ? `<br><a href="${esc(afmeldUrl)}">Meld je af voor deze nieuwsbrief</a>`
+        : ""
+    }`,
   });
 }
 

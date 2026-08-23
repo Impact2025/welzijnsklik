@@ -7,6 +7,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { sendEmail, nieuwsbriefHtml } from "@/lib/email";
 import { maakPubliekeFotoKopie } from "@/lib/foto-public";
+import { markdownNaarHtml } from "@/lib/markdown";
+import { randomBytes } from "crypto";
+
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXTAUTH_URL ?? "http://localhost:3000";
 
 /** Alleen coördinatoren mogen locatie-nieuwsbrieven beheren. */
 async function requireCoordinator() {
@@ -383,4 +387,73 @@ export async function verstuurNieuwsbrief(id: string) {
 
   revalidatePath("/coordinator/nieuwsbrieven");
   redirect("/coordinator/nieuwsbrieven");
+}
+
+
+// ─── Test-verzending (pro workflow) ─────────────────────────────
+// Stuurt de nieuwsbrief alleen naar de ingelogde coördinator om de
+// opmaak/afbeeldingen te controleren vóór de echte broadcast.
+
+export async function verstuurTestNieuwsbrief(id: string) {
+  const session = await requireCoordinator();
+  const organisatieId = session.user.organisatieId!;
+
+  const draft = await prisma.nieuwsbriefDraft.findFirst({
+    where: { id, organisatieId },
+    include: {
+      blokken: { orderBy: { volgorde: "asc" } },
+      organisatie: { select: { naam: true } },
+    },
+  });
+  if (!draft) throw new Error("Nieuwsbrief niet gevonden");
+  if (draft.blokken.length === 0) throw new Error("Voeg eerst blokken toe");
+
+  const ontvangerEmail = session.user.email;
+  if (!ontvangerEmail) throw new Error("Coördinator heeft geen e-mailadres");
+
+  const blokkenHtml = await Promise.all(
+    draft.blokken.map(async (b) => {
+      if (b.type === "activiteit" && b.fotoUrl) {
+        const pub = await maakPubliekeFotoKopie(b.fotoUrl, organisatieId);
+        return {
+          type: "activiteit" as const,
+          kop: b.kop,
+          tekst: b.tekst,
+          fotoUrl: pub,
+          vrijwilligerNaam: b.vrijwilligerNaam,
+          bewonerNaam: b.bewonerNaam,
+        };
+      }
+      return {
+        type: b.type as "tekst" | "activiteit",
+        kop: b.kop,
+        tekst: b.type === "tekst" && b.tekst ? markdownNaarHtml(b.tekst) : b.tekst,
+        fotoUrl: null,
+        vrijwilligerNaam: b.vrijwilligerNaam,
+        bewonerNaam: b.bewonerNaam,
+      };
+    })
+  );
+
+  const html = nieuwsbriefHtml({
+    titel: `[TEST] ${draft.titel}`,
+    organisatie: draft.organisatie.naam,
+    intro: draft.intro,
+    blokken: blokkenHtml,
+    doelgroepLabel: draft.doelgroep
+      .map((g) => (g === "FAMILIE" ? "familie" : "vrijwilligers"))
+      .join(" + "),
+    ontvangerNaam: session.user.naam ?? "coördinator",
+    afmeldUrl: `${APP_URL}/afmelden/nieuwsbrief/test`,
+    openPixelUrl: null,
+  });
+
+  const ok = await sendEmail({
+    to: ontvangerEmail,
+    subject: `[TEST] ${draft.titel}`,
+    html,
+  });
+
+  if (!ok) throw new Error("Test-e-mail kon niet worden verzonden (check RESEND_API_KEY)");
+  return { ok: true, naar: ontvangerEmail };
 }

@@ -25,6 +25,7 @@ import {
   removeBlok,
   reorderBlok,
   verstuurNieuwsbrief,
+  verstuurTestNieuwsbrief,
 } from "@/lib/actions/nieuwsbrieven";
 
 interface Blok {
@@ -57,6 +58,16 @@ interface DraftInfo {
   status: string;
   verstuurtAantal: number;
   verzondenOp: string | null;
+}
+
+function mdPreview(src: string): string {
+  // Minimal client-side preview mirror of lib/markdown.ts (escaped, no raw HTML)
+  const esc = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return esc(src)
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/\n/g, "<br>");
 }
 
 export function NieuwsbriefEditor({
@@ -170,6 +181,20 @@ export function NieuwsbriefEditor({
     } catch (e) {
       setError(e instanceof Error ? e.message : "Verzenden mislukt");
       setShowVerstuur(false);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function verstuurTest() {
+    setBusyId("test");
+    setError(null);
+    try {
+      const res = await verstuurTestNieuwsbrief(draft.id);
+      setError(null);
+      alert(`Test verzonden naar ${res.naar}. Controleer je inbox (incl. spam).`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Test verzenden mislukt");
     } finally {
       setBusyId(null);
     }
@@ -365,9 +390,15 @@ export function NieuwsbriefEditor({
                   disabled={verzonden}
                   onChange={(e) => updateBlokVeld(b, "tekst", e.target.value)}
                   rows={2}
-                  placeholder="Bijschrift of bericht…"
+                  placeholder="Bijschrift of bericht… (**vet**, *cursief*, - lijst)"
                   className="w-full px-3 py-1.5 rounded-lg border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-warm-50"
                 />
+                {b.type === "tekst" && b.tekst && (
+                  <p
+                    className="text-xs text-warm-500 mt-1.5"
+                    dangerouslySetInnerHTML={{ __html: mdPreview(b.tekst) }}
+                  />
+                )}
                 {b.type === "activiteit" && (
                   <p className="text-xs text-warm-400 mt-2">
                     {b.vrijwilligerNaam}
@@ -379,13 +410,22 @@ export function NieuwsbriefEditor({
             ))}
 
             {!verzonden && (
-              <button
-                onClick={() => setShowVerstuur(true)}
-                disabled={blokken.length === 0}
-                className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-brand-500 text-white rounded-2xl font-semibold text-sm hover:bg-brand-600 transition-colors disabled:opacity-50"
-              >
-                <Send size={16} /> Klaar? Verstuur nieuwsbrief
-              </button>
+              <>
+                <button
+                  onClick={() => setShowVerstuur(true)}
+                  disabled={blokken.length === 0}
+                  className="w-full flex items-center justify-center gap-2 px-5 py-3 bg-brand-500 text-white rounded-2xl font-semibold text-sm hover:bg-brand-600 transition-colors disabled:opacity-50"
+                >
+                  <Send size={16} /> Klaar? Verstuur nieuwsbrief
+                </button>
+                <button
+                  onClick={verstuurTest}
+                  disabled={blokken.length === 0 || busyId === "test"}
+                  className="w-full flex items-center justify-center gap-2 px-5 py-2.5 bg-white border border-warm-200 text-warm-700 rounded-2xl font-semibold text-sm hover:bg-warm-50 transition-colors disabled:opacity-50"
+                >
+                  {busyId === "test" ? "Bezig…" : "Verstuur test naar mijzelf"}
+                </button>
+              </>
             )}
           </div>
 
