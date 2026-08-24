@@ -60,7 +60,8 @@ const NAV_WELZIJNSMEDEWERKER: NavItem[] = [
   ...NAV_VRIJWILLIGER.slice(0, 2),
   { href: "/vrijwilliger/bewoners", icon: Users, label: "Bewoners" },
   { href: "/vrijwilliger/aandacht", icon: HeartHandshake, label: "Aandacht" },
-  ...NAV_VRIJWILLIGER.slice(2),
+  // Welzijncheck is alleen voor vrijwilligers, niet voor de welzijnsmedewerker.
+  ...NAV_VRIJWILLIGER.slice(2).filter((item) => item.href !== "/vrijwilliger/welzijnscheck"),
 ];
 
 // Mobiel-menu is te druk voor 8 items: Aandacht is niet voor de vrijwilliger
@@ -105,7 +106,6 @@ const NAV_MOBILE_MAP: Record<string, NavItem[]> = {
 
 const WELZIJNSCHECK_HREF: Record<string, string> = {
   VRIJWILLIGER: "/vrijwilliger/welzijnscheck",
-  WELZIJNSMEDEWERKER: "/vrijwilliger/welzijnscheck",
   COORDINATOR: "/coordinator/welzijnscheck",
 };
 
