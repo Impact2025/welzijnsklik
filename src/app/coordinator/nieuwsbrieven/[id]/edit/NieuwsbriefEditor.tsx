@@ -637,8 +637,8 @@ export function NieuwsbriefEditor({
               </p>
             </div>
             <p className="text-xs text-warm-500">
-              Foto's worden tijdelijk publiek gemaakt zodat ontvangers ze in de e-mail kunnen openen. Dit
-              kan niet ongedaan worden gemaakt.
+              {"Foto's worden tijdelijk publiek gemaakt zodat ontvangers ze in de e-mail kunnen openen. Dit"}
+              {"kan niet ongedaan worden gemaakt."}
             </p>
             <div className="flex items-center gap-3 pt-2">
               <button
