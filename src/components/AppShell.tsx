@@ -18,11 +18,13 @@ import {
   MessageSquare,
   Mail,
   HeartHandshake,
+  HelpCircle,
   type LucideIcon,
 } from "lucide-react";
 import { Avatar } from "@/components/ui";
 import { signOut } from "next-auth/react";
 import { ROL_HOME, ROL_NOTIFICATIES } from "@/lib/rollen";
+import { WelcomeTour, startWelcomeTour } from "@/components/tour/WelcomeTour";
 
 interface NavItem {
   href: string;
@@ -150,6 +152,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
           {welzijncheckHref && (
             <Link
               href={welzijncheckHref}
+              data-tour-href={welzijncheckHref}
               aria-label={welzijncheckDue ? "Welzijnscheck, nog niet ingevuld deze maand" : "Welzijnscheck"}
               className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
             >
@@ -161,6 +164,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
           )}
           <Link
             href={notificatieHref ?? (ROL_NOTIFICATIES[rol] ?? "#")}
+            data-tour-href={notificatieHref ?? (ROL_NOTIFICATIES[rol] ?? "#")}
             aria-label={notificatieBadge > 0 ? `Meldingen, ${notificatieBadge} nieuw` : "Meldingen"}
             className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
           >
@@ -171,8 +175,17 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
               </span>
             )}
           </Link>
+          <button
+            onClick={startWelcomeTour}
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
+            aria-label="Rondleiding opnieuw bekijken"
+            title="Rondleiding opnieuw bekijken"
+          >
+            <HelpCircle size={18} />
+          </button>
           <Link
             href="/account"
+            data-tour-href="/account"
             aria-label="Instellingen"
             className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
           >
@@ -186,7 +199,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
           >
             <LogOut size={18} />
           </button>
-          <Link href="/account" aria-label="Mijn account" className="ml-1">
+          <Link href="/account" data-tour-href="/account" aria-label="Mijn account" className="ml-1">
             <Avatar naam={naam} src={profielFoto} fotoId={gebruikerId} size="sm" />
           </Link>
         </div>
@@ -209,6 +222,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
               <Link
                 key={item.href}
                 href={item.href}
+                data-tour-href={item.href}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-150 ${
                   isActive
                     ? "bg-brand-50 text-brand-700 font-semibold"
@@ -229,7 +243,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
 
         <div className="mt-auto pt-4 border-t border-warm-200">
           <div className="flex items-center gap-3 px-2 py-2">
-            <Link href="/account" className="flex items-center gap-3 flex-1">
+            <Link href="/account" data-tour-href="/account" className="flex items-center gap-3 flex-1">
               <Avatar naam={naam} src={profielFoto} fotoId={gebruikerId} size="lg" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-900 truncate">{naam}</p>
@@ -255,6 +269,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
           <div className="flex items-center justify-end h-full gap-3">
             <Link
               href={notificatieHref ?? (ROL_NOTIFICATIES[rol] ?? "#")}
+              data-tour-href={notificatieHref ?? (ROL_NOTIFICATIES[rol] ?? "#")}
               aria-label={notificatieBadge > 0 ? `Meldingen, ${notificatieBadge} nieuw` : "Meldingen"}
               className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
             >
@@ -265,14 +280,23 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
                 </span>
               )}
             </Link>
+            <button
+              onClick={startWelcomeTour}
+              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
+              aria-label="Rondleiding opnieuw bekijken"
+              title="Rondleiding opnieuw bekijken"
+            >
+              <HelpCircle size={18} />
+            </button>
             <Link
               href="/account"
+              data-tour-href="/account"
               aria-label="Instellingen"
               className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
             >
               <Settings size={18} />
             </Link>
-            <Link href="/account" aria-label="Mijn account">
+            <Link href="/account" data-tour-href="/account" aria-label="Mijn account">
               <Avatar naam={naam} src={profielFoto} fotoId={gebruikerId} size="sm" />
             </Link>
           </div>
@@ -297,6 +321,7 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-tour-href={item.href}
                   className={`flex flex-col items-center gap-1 px-2 py-2 rounded-2xl transition-all duration-150 ${
                     isActive
                       ? "text-brand-600"
@@ -320,6 +345,8 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
           </div>
         </nav>
       )}
+
+      <WelcomeTour rol={rol} naam={naam} gebruikerId={gebruikerId} />
     </div>
   );
 }
