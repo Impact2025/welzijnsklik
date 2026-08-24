@@ -8,11 +8,10 @@
 // rood/oranje/groen-verdeling (RAG), waarna geldt:
 //
 //   gewogen welzijnsscore = (groen×1.0 + oranje×0.5 + rood×0.0) / totaal
-//   geluksmomenten        = totalUren × gewogen welzijnsscore × 0.5
+//   geluksmomenten        = totalUren × gewogen welzijnsscore × 5
 //
-// De schaalfactor 0.5 betekent: 1 uur vrijwilligerswerk levert maximaal 0.5
-// geluksmoment op (bij een volledig groene welzijnsscore) — oftewel 1
-// geluksmoment ≈ 2 uur positieve vrijwilligerservaring.
+// De schaalfactor 5 betekent: 1 uur vrijwilligerswerk levert maximaal 5
+// geluksmomenten op (bij een volledig groene welzijnsscore).
 
 export type RAG = "groen" | "oranje" | "rood";
 
@@ -22,7 +21,7 @@ export interface RAGVerdeling {
   rood: number;
 }
 
-const GELUKSMOMENTEN_SCHAALFACTOR = 0.5;
+const GELUKSMOMENTEN_SCHAALFACTOR = 5;
 
 // Score 1-5 uit de welzijnscheck → RAG-emmer.
 // 1-2 = rood (aanpassingsbehoefte), 3 = oranje (mogelijke zorg), 4-5 = groen (positief).
@@ -43,7 +42,7 @@ export function gewogenWelzijnsscore(v: RAGVerdeling): number {
   return (v.groen * 1.0 + v.oranje * 0.5 + v.rood * 0.0) / totaal;
 }
 
-// geluksmomenten = uren × gewogen welzijnsscore × 0.5
+// geluksmomenten = uren × gewogen welzijnsscore × 5
 export function berekenGeluksmomenten(totalUren: number, v: RAGVerdeling): number {
   if (totalUren <= 0) return 0;
   return totalUren * gewogenWelzijnsscore(v) * GELUKSMOMENTEN_SCHAALFACTOR;
