@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { reageerOpHulp, trekReactieIn, weigerHulp } from "@/lib/actions/hulp-gevraagd";
-import { HandHeart, Loader2, CheckCircle2, X, Ban } from "lucide-react";
+import { reageerOpHulp, trekReactieIn } from "@/lib/actions/hulp-gevraagd";
+import { HandHeart, Loader2, CheckCircle2, X } from "lucide-react";
 
 interface Props {
   hulpId: string;
@@ -12,42 +12,15 @@ interface Props {
   isOpen: boolean;
 }
 
-export default function AanmeldKnop({ hulpId, heeftGereageerd, reactieBericht, reactieStatus, isOpen }: Props) {
+export default function AanmeldKnop({ hulpId, heeftGereageerd: heeftGereageerdRuw, reactieBericht, reactieStatus, isOpen }: Props) {
   const [isPending, startTransition] = useTransition();
   const [bericht, setBericht] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // De vrijwilliger helpt deze keer niet (actief geweigerd).
-  if (heeftGereageerd && reactieStatus === "geweigerd") {
-    return (
-      <div className="space-y-2">
-        <div className="flex items-center justify-between rounded-xl px-4 py-3 bg-neutral-100 border border-neutral-200">
-          <div className="flex items-center gap-2">
-            <Ban size={16} className="text-neutral-500" />
-            <span className="text-sm font-semibold text-neutral-600">
-              Je helpt deze keer niet
-            </span>
-          </div>
-          {isOpen && (
-            <button
-              disabled={isPending}
-              onClick={() => {
-                setError(null);
-                startTransition(() =>
-                  weigerHulp(hulpId).catch((e) => setError(e.message))
-                );
-              }}
-              className="text-xs text-neutral-400 hover:text-amber-600 transition-colors disabled:opacity-60"
-            >
-              {isPending ? <Loader2 size={12} className="animate-spin" /> : "Ongedaan maken"}
-            </button>
-          )}
-        </div>
-        {error && <p className="text-xs text-red-500 px-1">{error}</p>}
-      </div>
-    );
-  }
+  // "Deze keer niet" bestaat niet meer als optie — een eerdere weigering
+  // telt daarom niet meer als een actieve reactie.
+  const heeftGereageerd = heeftGereageerdRuw && reactieStatus !== "geweigerd";
 
   if (heeftGereageerd) {
     const isBevestigd = reactieStatus === "bevestigd";

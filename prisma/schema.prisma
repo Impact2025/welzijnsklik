@@ -261,6 +261,7 @@ model HulpReactie {
   gebruiker      Gebruiker    @relation(fields: [gebruikerId], references: [id])
   bericht        String?
   status         String       @default("aangemeld")
+  statusGezien   Boolean      @default(true)
   createdAt      DateTime     @default(now())
   @@unique([hulpGevraagdId, gebruikerId])
 }

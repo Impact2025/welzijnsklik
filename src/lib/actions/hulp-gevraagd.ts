@@ -134,38 +134,6 @@ export async function trekReactieIn(hulpGevraagdId: string) {
   revalidatePath("/coordinator/hulp-gevraagd");
 }
 
-export async function weigerHulp(hulpGevraagdId: string, bericht?: string) {
-  const session = await auth();
-  if (!session?.user?.gebruikerId || !magReageren(session.user.rol)) {
-    throw new Error("Niet geautoriseerd");
-  }
-
-  // Markeer als "geweigerd" (deze keer niet). Een eventuele eerdere aanmelding
-  // of weigering wordt netjes overschreven zonder de unieke sleutel te breken.
-  await prisma.hulpReactie.upsert({
-    where: {
-      hulpGevraagdId_gebruikerId: {
-        hulpGevraagdId,
-        gebruikerId: session.user.gebruikerId,
-      },
-    },
-    create: {
-      hulpGevraagdId,
-      gebruikerId: session.user.gebruikerId,
-      status: "geweigerd",
-      bericht: bericht?.trim() || null,
-    },
-    update: {
-      status: "geweigerd",
-      bericht: bericht?.trim() || null,
-    },
-  });
-
-  revalidatePath("/vrijwilliger/hulp-gevraagd");
-  revalidatePath("/familie/hulp-gevraagd");
-  revalidatePath("/coordinator/hulp-gevraagd");
-}
-
 export async function bewerkHulpGevraagd(id: string, formData: FormData) {
   const session = await auth();
   if (!session?.user?.gebruikerId || session.user.rol !== "COORDINATOR") {
@@ -237,10 +205,31 @@ export async function updateHulpReactieStatus(reactieId: string, status: "bevest
 
   await prisma.hulpReactie.update({
     where: { id: reactieId },
-    data: { status },
+    data: { status, statusGezien: false },
   });
 
   revalidatePath("/coordinator/hulp-gevraagd");
+}
+
+/**
+ * Markeert statusupdates (bevestigd/afgewezen) op de eigen aanmeldingen als
+ * gezien, zodat de meldingenbadge niet blijft meetellen nadat de vrijwilliger
+ * de melding heeft bekeken.
+ */
+export async function markeerStatusUpdatesGezien() {
+  const session = await auth();
+  if (!session?.user?.gebruikerId) return;
+
+  await prisma.hulpReactie.updateMany({
+    where: {
+      gebruikerId: session.user.gebruikerId,
+      status: { in: ["bevestigd", "afgewezen"] },
+      statusGezien: false,
+    },
+    data: { statusGezien: true },
+  });
+
+  revalidatePath("/vrijwilliger", "layout");
 }
 
 export async function getOpenHulpVragenCount(): Promise<number> {
@@ -253,6 +242,7 @@ export async function getOpenHulpVragenCount(): Promise<number> {
       where: {
         organisatieId: session.user.organisatieId,
         status: "open",
+        datum: { gte: new Date() },
         reacties: { none: { gebruikerId: session.user.gebruikerId } },
       },
     });
@@ -286,6 +276,7 @@ export async function getVrijwilligerMeldingenCount(): Promise<number> {
         where: {
           gebruikerId,
           status: { in: ["bevestigd", "afgewezen"] },
+          statusGezien: false,
         },
       }),
     ]);

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Bell, CheckCircle2, XCircle, Megaphone, HandHeart } from "lucide-react";
 import Link from "next/link";
 import { EmptyState } from "@/components/ui";
+import { markeerStatusUpdatesGezien } from "@/lib/actions/hulp-gevraagd";
 
 function formatDatum(datum: Date) {
   return datum.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
@@ -40,6 +41,9 @@ export default async function VrijwilligerMeldingenPage() {
   ]);
 
   const heeftMeldingen = reacties.length > 0 || openHulp.length > 0;
+
+  // Statusupdates zijn nu bekeken — badge telt ze vanaf hier niet meer mee.
+  await markeerStatusUpdatesGezien();
 
   return (
     <div className="px-4 py-6 space-y-6">
