@@ -154,86 +154,73 @@ export default async function CoordinatorDashboard({
         </Link>
       )}
 
+      {/* Belangrijkste cijfers — direct zichtbaar, geen scrollen nodig */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+        {stats.map((s) => (
+          <StatCard key={s.label} {...s} />
+        ))}
+      </div>
+
+      <div className="lg:hidden">
+        <GeluksmomentenCard
+          data={geluksmomenten}
+          periodeHref={(p) => `/coordinator?geluk=${p}`}
+        />
+      </div>
+
       <div className="lg:grid lg:grid-cols-3 lg:gap-8 space-y-6 lg:space-y-0">
         <div className="lg:col-span-2 space-y-6 lg:space-y-8">
           {laatsteMetFoto && (
             <Link
               href="/coordinator/tijdlijn"
-              className="block bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden hover:shadow-md transition-shadow group"
+              className="flex items-center gap-3 lg:gap-4 bg-white rounded-2xl shadow-sm border border-neutral-100 p-3 lg:p-4 hover:shadow-md transition-shadow group"
             >
-              <div className="relative w-full aspect-[16/9] bg-warm-100 overflow-hidden">
+              <div className="relative w-16 h-16 lg:w-20 lg:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-warm-100">
                 <img
                   src={getFotoUrl(laatsteMetFoto.fotoUrl, laatsteMetFoto.bewonerId) ?? ""}
                   alt=""
-                  className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute top-3 left-3 flex items-center gap-1.5 bg-white/90 backdrop-blur rounded-full px-3 py-1.5 shadow-sm">
-                  {(() => {
-                    const cfg = ACTIVITEIT_ICON[laatsteMetFoto.type] ?? ACTIVITEIT_ICON.Anders;
-                    const Icon = cfg.icon;
-                    return (
-                      <>
-                        <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${cfg.bg}`}>
-                          <Icon size={12} className={cfg.kleur} />
-                        </div>
-                        <span className="text-xs font-bold text-gray-800">{laatsteMetFoto.type}</span>
-                      </>
-                    );
-                  })()}
-                </div>
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3">
-                  <p className="text-white font-bold text-sm lg:text-base drop-shadow-sm">
-                    {laatsteMetFoto.vrijwilliger.naam}
-                    <span className="font-normal opacity-80"> bij </span>
-                    {laatsteMetFoto.bewoner.naam}
-                  </p>
-                  <p className="text-white/80 text-xs lg:text-sm mt-0.5 drop-shadow-sm flex items-center gap-1.5">
-                    <Clock size={11} />
-                    {formatDuur(laatsteMetFoto.duurMinuten)}
-                    <span className="opacity-50">·</span>
-                    {formatDatum(new Date(laatsteMetFoto.createdAt), {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                </div>
               </div>
-              {laatsteMetFoto.notities && (
-                <div className="p-4 lg:p-5">
-                  <div className="bg-warm-50 rounded-xl p-3.5 lg:p-4 border border-warm-100">
-                    <div className="flex items-start gap-2.5 lg:gap-3">
-                      <div className="w-1 h-full min-h-[20px] bg-brand-500 rounded-full flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-[10px] lg:text-xs font-semibold text-warm-500 uppercase tracking-wider mb-0.5">
-                          {laatsteMetFoto.vrijwilliger.naam}
-                        </p>
-                        <p className="text-sm lg:text-base text-gray-700 leading-relaxed">
-                          {laatsteMetFoto.notities}
-                        </p>
+              <div className="flex-1 min-w-0">
+                {(() => {
+                  const cfg = ACTIVITEIT_ICON[laatsteMetFoto.type] ?? ACTIVITEIT_ICON.Anders;
+                  const Icon = cfg.icon;
+                  return (
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <div className={`w-4 h-4 rounded-md flex items-center justify-center ${cfg.bg}`}>
+                        <Icon size={10} className={cfg.kleur} />
                       </div>
+                      <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wide">
+                        {laatsteMetFoto.type}
+                      </span>
                     </div>
-                  </div>
-                </div>
-              )}
+                  );
+                })()}
+                <p className="text-sm lg:text-base font-semibold text-gray-900 truncate">
+                  {laatsteMetFoto.vrijwilliger.naam}
+                  <span className="font-normal text-neutral-400"> bij </span>
+                  {laatsteMetFoto.bewoner.naam}
+                </p>
+                <p className="text-xs text-neutral-400 mt-0.5 flex items-center gap-1.5">
+                  <Clock size={11} />
+                  {formatDuur(laatsteMetFoto.duurMinuten)}
+                  <span className="opacity-50">·</span>
+                  {formatDatum(new Date(laatsteMetFoto.createdAt), {
+                    day: "numeric",
+                    month: "short",
+                  })}
+                  {laatsteMetFoto.notities && (
+                    <>
+                      <span className="opacity-50">·</span>
+                      <span className="truncate">{laatsteMetFoto.notities}</span>
+                    </>
+                  )}
+                </p>
+              </div>
+              <ChevronRight size={16} className="text-neutral-300 flex-shrink-0" />
             </Link>
           )}
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
-            {stats.map((s) => (
-              <StatCard key={s.label} {...s} />
-            ))}
-          </div>
-
-          <div className="lg:hidden">
-            <GeluksmomentenCard
-              data={geluksmomenten}
-              periodeHref={(p) => `/coordinator?geluk=${p}`}
-            />
-          </div>
 
           {activiteitPerDag.length > 0 && (
             <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 lg:p-5 space-y-3 lg:space-y-4">
