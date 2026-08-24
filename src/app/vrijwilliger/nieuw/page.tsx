@@ -16,6 +16,7 @@ export default async function NieuweActiviteitPage() {
     select: {
       id: true,
       naam: true,
+      kamer: true,
       toestemmingFotos: true,
     },
   });

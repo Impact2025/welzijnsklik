@@ -14,12 +14,16 @@ import PhotoCaptureField from "@/components/PhotoCaptureField";
 interface Bewoner {
   id: string;
   naam: string;
+  kamer: string | null;
   toestemmingFotos: boolean;
 }
 
 export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
   const router = useRouter();
   const [bewonerId, setBewonerId] = useState("");
+  const [bewonerZoek, setBewonerZoek] = useState("");
+  const [bewonerOpen, setBewonerOpen] = useState(false);
+  const bewonerBoxRef = useRef<HTMLDivElement>(null);
   const [type, setType] = useState("");
   const [duur, setDuur] = useState("30");
   const [notities, setNotities] = useState("");
@@ -33,6 +37,24 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
 
   const gekozenBewoner = bewoners.find((b) => b.id === bewonerId);
   const magFoto = gekozenBewoner?.toestemmingFotos === true;
+
+  const gefilterdeBewoners = (() => {
+    const q = bewonerZoek.trim().toLowerCase();
+    if (!q) return bewoners;
+    return bewoners.filter(
+      (b) => b.naam.toLowerCase().includes(q) || b.kamer?.toLowerCase().includes(q)
+    );
+  })();
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (bewonerBoxRef.current && !bewonerBoxRef.current.contains(e.target as Node)) {
+        setBewonerOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // ─── Spraak-naar-tekst ───────────────────────────────────────────
   function startSpraakHerkenning() {
@@ -148,17 +170,46 @@ export default function ActiviteitForm({ bewoners }: { bewoners: Bewoner[] }) {
         <label className="block text-xs font-semibold text-neutral-400 uppercase tracking-widest">
           Bewoner <span className="text-red-400">*</span>
         </label>
-        <select
-          value={bewonerId}
-          onChange={(e) => setBewonerId(e.target.value)}
-          required
-          className="w-full border border-neutral-200 rounded-xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50 font-medium text-gray-800"
-        >
-          <option value="">Kies een bewoner…</option>
-          {bewoners.map((b) => (
-            <option key={b.id} value={b.id}>{b.naam}</option>
-          ))}
-        </select>
+        <div className="relative" ref={bewonerBoxRef}>
+          <input
+            type="text"
+            value={bewonerOpen ? bewonerZoek : (gekozenBewoner?.naam ?? "")}
+            onChange={(e) => {
+              setBewonerZoek(e.target.value);
+              setBewonerOpen(true);
+              setBewonerId("");
+            }}
+            onFocus={() => {
+              setBewonerOpen(true);
+              setBewonerZoek("");
+            }}
+            placeholder="Zoek op naam of kamernummer…"
+            className="w-full border border-neutral-200 rounded-xl px-3 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 bg-neutral-50 font-medium text-gray-800"
+          />
+          {bewonerOpen && (
+            <div className="absolute z-10 mt-1 w-full max-h-64 overflow-y-auto bg-white border border-neutral-200 rounded-xl shadow-lg">
+              {gefilterdeBewoners.length === 0 ? (
+                <p className="px-3 py-3 text-sm text-neutral-400">Geen bewoner gevonden.</p>
+              ) : (
+                gefilterdeBewoners.map((b) => (
+                  <button
+                    key={b.id}
+                    type="button"
+                    onClick={() => {
+                      setBewonerId(b.id);
+                      setBewonerZoek("");
+                      setBewonerOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2.5 text-sm hover:bg-amber-50 transition-colors flex items-center justify-between gap-2"
+                  >
+                    <span className="font-medium text-gray-800">{b.naam}</span>
+                    {b.kamer && <span className="text-xs text-neutral-400 flex-shrink-0">Kamer {b.kamer}</span>}
+                  </button>
+                ))
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Type */}
