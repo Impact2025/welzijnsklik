@@ -105,3 +105,14 @@ export function heeftAandachtNodig(score: number): boolean {
 
 // Hoe lang geleden mag een check zijn voordat de coördinator een nudge wil?
 export const VERLOOP_DAGEN = 14;
+
+// De welzijnscheck is een maandelijks ritueel — "gedaan" betekent: deze
+// kalendermaand al ingevuld. Gebruikt voor het badge-stipje in de topbar.
+export function welzijncheckDezeMaandGedaan(laatsteCheck: Date | null): boolean {
+  if (!laatsteCheck) return false;
+  const nu = new Date();
+  return (
+    laatsteCheck.getFullYear() === nu.getFullYear() &&
+    laatsteCheck.getMonth() === nu.getMonth()
+  );
+}

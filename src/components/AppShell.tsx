@@ -59,6 +59,18 @@ const NAV_WELZIJNSMEDEWERKER: NavItem[] = [
   ...NAV_VRIJWILLIGER.slice(2),
 ];
 
+// Mobiel-menu is te druk voor 8 items: Aandacht is niet voor de vrijwilliger
+// en de welzijncheck (maandelijks) staat als hart-icoon in de topbar in
+// plaats van in dit menu. "Nieuw" staat in het midden.
+const NAV_VRIJWILLIGER_MOBILE: NavItem[] = [
+  { href: "/vrijwilliger", icon: LayoutDashboard, label: "Dashboard", exact: true },
+  { href: "/vrijwilliger/agenda", icon: CalendarDays, label: "Agenda" },
+  { href: "/vrijwilliger/nieuw", icon: PlusCircle, label: "Nieuw", exact: true },
+  { href: "/vrijwilliger/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
+  { href: "/vrijwilliger/berichten", icon: MessageSquare, label: "Chat" },
+  { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Activiteiten" },
+];
+
 const NAV_FAMILIE: NavItem[] = [
   { href: "/familie", icon: Heart, label: "Tijdlijn", exact: true },
   { href: "/familie/agenda", icon: CalendarDays, label: "Agenda" },
@@ -74,6 +86,17 @@ const NAV_MAP: Record<string, NavItem[]> = {
   FAMILIE: NAV_FAMILIE,
 };
 
+// Losse (kortere) navigatie voor de onderbalk op mobiel. Rollen zonder
+// override vallen terug op NAV_MAP.
+const NAV_MOBILE_MAP: Record<string, NavItem[]> = {
+  VRIJWILLIGER: NAV_VRIJWILLIGER_MOBILE,
+};
+
+const WELZIJNSCHECK_HREF: Record<string, string> = {
+  VRIJWILLIGER: "/vrijwilliger/welzijnscheck",
+  WELZIJNSMEDEWERKER: "/vrijwilliger/welzijnscheck",
+};
+
 interface Props {
   rol: string;
   naam?: string;
@@ -86,11 +109,14 @@ interface Props {
   openHulpVragen?: number;
   ongelezeBerichten?: number;
   aandachtCount?: number;
+  welzijncheckDue?: boolean;
 }
 
-export default function AppShell({ rol, naam, profielFoto, gebruikerId, children, notificatieHref, notificatieBadge = 0, nieuweHulpReacties = 0, openHulpVragen = 0, ongelezeBerichten = 0, aandachtCount = 0 }: Props) {
+export default function AppShell({ rol, naam, profielFoto, gebruikerId, children, notificatieHref, notificatieBadge = 0, nieuweHulpReacties = 0, openHulpVragen = 0, ongelezeBerichten = 0, aandachtCount = 0, welzijncheckDue = false }: Props) {
   const pathname = usePathname();
   const navItems = NAV_MAP[rol] ?? [];
+  const mobileNavItems = NAV_MOBILE_MAP[rol] ?? navItems;
+  const welzijncheckHref = WELZIJNSCHECK_HREF[rol];
 
   const navBadge: Record<string, number> = {
     "/coordinator/meldingen": notificatieBadge,
@@ -111,6 +137,18 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
           <span className="font-semibold text-warm-900 text-[15px] tracking-tight">Welzijnsklik</span>
         </Link>
         <div className="flex items-center gap-0.5">
+          {welzijncheckHref && (
+            <Link
+              href={welzijncheckHref}
+              aria-label={welzijncheckDue ? "Welzijnscheck, nog niet ingevuld deze maand" : "Welzijnscheck"}
+              className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-warm-100 transition-colors text-warm-400"
+            >
+              <HeartPulse size={18} />
+              {welzijncheckDue && (
+                <span className="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full shadow-sm" />
+              )}
+            </Link>
+          )}
           <Link
             href={notificatieHref ?? (ROL_NOTIFICATIES[rol] ?? "#")}
             aria-label={notificatieBadge > 0 ? `Meldingen, ${notificatieBadge} nieuw` : "Meldingen"}
@@ -237,10 +275,10 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
       </div>
 
       {/* Bottom nav — mobile only */}
-      {navItems.length > 0 && (
+      {mobileNavItems.length > 0 && (
         <nav className="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur border-t border-warm-200 max-w-app mx-auto w-full safe-bottom lg:hidden">
           <div className="flex items-center justify-around px-2 h-16">
-            {navItems.map((item) => {
+            {mobileNavItems.map((item) => {
               const isActive = item.exact
                 ? pathname === item.href
                 : pathname.startsWith(item.href);
