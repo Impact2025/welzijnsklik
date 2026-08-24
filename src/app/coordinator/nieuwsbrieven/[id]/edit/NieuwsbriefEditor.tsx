@@ -17,6 +17,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { getFotoUrl } from "@/lib/foto";
+import { markdownNaarHtml } from "@/lib/markdown";
+import { RichTextField } from "./RichTextField";
 import {
   saveNieuwsbriefDraft,
   addActiviteitBlok,
@@ -66,8 +68,16 @@ function mdPreview(src: string): string {
   const esc = (s: string) =>
     s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   return esc(src)
+    .replace(/^###\s+(.*)$/gm, "<strong>$1</strong>")
+    .replace(/^##\s+(.*)$/gm, "<strong>$1</strong>")
+    .replace(/^&gt;\s?(.*)$/gm, "<em>$1</em>")
+    .replace(/^[-*]\s+(.*)$/gm, "• $1")
+    .replace(/^\d+\.\s+(.*)$/gm, "• $1")
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/~~([^~]+)~~/g, "<s>$1</s>")
     .replace(/\*([^*]+)\*/g, "<em>$1</em>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
     .replace(/\n/g, "<br>");
 }
 
@@ -436,14 +446,24 @@ export function NieuwsbriefEditor({
                   placeholder="Kop (optioneel)"
                   className="w-full px-3 py-1.5 rounded-lg border border-warm-200 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-brand-500 mb-2 disabled:bg-warm-50"
                 />
-                <textarea
-                  value={b.tekst}
-                  disabled={verzonden}
-                  onChange={(e) => updateBlokVeld(b, "tekst", e.target.value)}
-                  rows={2}
-                  placeholder="Bijschrift of bericht… (**vet**, *cursief*, - lijst)"
-                  className="w-full px-3 py-1.5 rounded-lg border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-warm-50"
-                />
+                {b.type === "tekst" ? (
+                  <RichTextField
+                    value={b.tekst}
+                    disabled={verzonden}
+                    onChange={(v) => updateBlokVeld(b, "tekst", v)}
+                    rows={4}
+                    placeholder="Schrijf je bericht…"
+                  />
+                ) : (
+                  <textarea
+                    value={b.tekst}
+                    disabled={verzonden}
+                    onChange={(e) => updateBlokVeld(b, "tekst", e.target.value)}
+                    rows={2}
+                    placeholder="Bijschrift"
+                    className="w-full px-3 py-1.5 rounded-lg border border-warm-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 disabled:bg-warm-50"
+                  />
+                )}
                 {b.type === "tekst" && b.tekst && (
                   <p
                     className="text-xs text-warm-500 mt-1.5"
@@ -672,8 +692,15 @@ function PreviewPane({ draft, blokken }: { draft: DraftInfo; blokken: Blok[] }) 
               />
             )}
             {b.kop && <h2 className="font-semibold text-gray-900 text-[15px] mb-1">{b.kop}</h2>}
-            {b.tekst && (
-              <p className="text-sm text-warm-700 leading-relaxed whitespace-pre-wrap">{b.tekst}</p>
+            {b.tekst && b.type === "tekst" ? (
+              <div
+                className="text-sm text-warm-700 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: markdownNaarHtml(b.tekst) }}
+              />
+            ) : (
+              b.tekst && (
+                <p className="text-sm text-warm-700 leading-relaxed whitespace-pre-wrap">{b.tekst}</p>
+              )
             )}
             {b.type === "activiteit" && (b.vrijwilligerNaam || b.bewonerNaam) && (
               <p className="text-xs text-warm-400 mt-2">

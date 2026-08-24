@@ -337,7 +337,7 @@ export function nieuwsbriefHtml(opts: {
         <div style="margin:20px 0;">
           ${b.kop ? `<h2 style="font-size:16px;font-weight:700;margin:0 0 8px;color:#1a1714;">${esc(b.kop)}</h2>` : ""}
           ${toonFoto ? fotoDiv(b.fotoUrl, b.kop ?? "foto") : ""}
-          ${inhoud ? `<p style="font-size:14px;line-height:1.6;color:#655e54;margin:0;">${inhoud}</p>` : ""}
+          ${inhoud}
         </div>`;
       }
 
