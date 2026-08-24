@@ -26,9 +26,8 @@ const ACTIVITEIT_TYPES = [
   "Lezen", "Muziek", "Boodschappen", "Anders",
 ];
 const FOTO_POOL = [
-  "https://images.unsplash.com/photo-1552083974-9732d1e8e1a7?w=400&q=80",
-  "https://images.unsplash.com/photo-1498804103079-a6351b050096?w=400&q=80",
-  "https://images.unsplash.com/photo-1610890716171-6b1bb98ffd09?w=400&q=80",
+  "/gebeurtenissen/demo-bewoner-rollator.png",
+  "/gebeurtenissen/demo-vrijwilliger-knutselen.png",
 ];
 const KAMERS = ["A101", "A102", "B201", "B202", "B203", "C301", "C302", "C303", "D401", "D402", "E501", "E502"];
 const BESCHIKBAARHEID = [
