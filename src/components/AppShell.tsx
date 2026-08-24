@@ -53,6 +53,12 @@ const NAV_VRIJWILLIGER: NavItem[] = [
   { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Activiteiten" },
 ];
 
+const NAV_WELZIJNSMEDEWERKER: NavItem[] = [
+  ...NAV_VRIJWILLIGER.slice(0, 2),
+  { href: "/vrijwilliger/bewoners", icon: Users, label: "Bewoners" },
+  ...NAV_VRIJWILLIGER.slice(2),
+];
+
 const NAV_FAMILIE: NavItem[] = [
   { href: "/familie", icon: Heart, label: "Tijdlijn", exact: true },
   { href: "/familie/agenda", icon: CalendarDays, label: "Agenda" },
@@ -64,7 +70,7 @@ const NAV_FAMILIE: NavItem[] = [
 const NAV_MAP: Record<string, NavItem[]> = {
   COORDINATOR: NAV_COORDINATOR,
   VRIJWILLIGER: NAV_VRIJWILLIGER,
-  WELZIJNSMEDEWERKER: NAV_VRIJWILLIGER,
+  WELZIJNSMEDEWERKER: NAV_WELZIJNSMEDEWERKER,
   FAMILIE: NAV_FAMILIE,
 };
 

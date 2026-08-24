@@ -5,17 +5,27 @@ import { Users, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { UitnodigForm } from "./UitnodigForm";
 import { ROL_LABELS, ROL_KLEUR } from "@/lib/rollen";
+import { ACTIVITEIT_TYPES } from "@/lib/activiteit";
 
-export default async function GebruikersBeheerPage() {
+export default async function GebruikersBeheerPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; interesse?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.gebruikerId || session.user.rol !== "COORDINATOR") {
     redirect("/geen-toegang");
   }
 
   const organisatieId = session.user.organisatieId!;
+  const { q, interesse } = await searchParams;
 
   const gebruikers = await prisma.gebruiker.findMany({
-    where: { organisatieId },
+    where: {
+      organisatieId,
+      ...(q ? { naam: { contains: q, mode: "insensitive" } } : {}),
+      ...(interesse ? { voorkeurActiviteiten: { has: interesse } } : {}),
+    },
     orderBy: [{ rol: "asc" }, { naam: "asc" }],
     select: {
       id: true,
@@ -36,6 +46,32 @@ export default async function GebruikersBeheerPage() {
         </div>
         <UitnodigForm organisatieId={organisatieId} />
       </div>
+
+      <form className="flex gap-2">
+        <input
+          type="search"
+          name="q"
+          defaultValue={q ?? ""}
+          placeholder="Zoek op naam..."
+          className="flex-1 px-3 py-2 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
+        />
+        <select
+          name="interesse"
+          defaultValue={interesse ?? ""}
+          className="w-48 px-3 py-2 rounded-xl border border-neutral-200 text-sm text-neutral-600 focus:outline-none focus:ring-2 focus:ring-amber-500"
+        >
+          <option value="">Alle interesses</option>
+          {ACTIVITEIT_TYPES.map((a) => (
+            <option key={a.label} value={a.label}>{a.label}</option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          className="px-4 py-2 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors"
+        >
+          Zoeken
+        </button>
+      </form>
 
       {/* Lijst */}
       <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">

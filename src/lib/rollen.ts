@@ -1,10 +1,11 @@
 /**
  * Gedeelde rol-helpers voor Welzijnsklik.
  *
- * Een WELZIJNSMEDEWERKER deelt exact dezelfde rechten en UI als een VRIJWILLIGER
- * (zelfde /vrijwilliger-routes, zelfde acties). Gebruik `isVrijwilligerRol()`
- * bij elke autorisatiecheck in plaats van `rol === "VRIJWILLIGER"`, zodat beide
- * rollen in één keer worden gedekt.
+ * Een WELZIJNSMEDEWERKER deelt dezelfde rechten en UI als een VRIJWILLIGER
+ * (zelfde /vrijwilliger-routes, zelfde acties), met één uitzondering:
+ * WELZIJNSMEDEWERKER mag daarnaast bewoners opzoeken via /vrijwilliger/bewoners.
+ * Gebruik `isVrijwilligerRol()` bij elke autorisatiecheck in plaats van
+ * `rol === "VRIJWILLIGER"`, zodat beide rollen in één keer worden gedekt.
  */
 
 export const VRIJWILLIGER_ROLLEN = ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] as const;
