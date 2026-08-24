@@ -1,7 +1,6 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { getOpenHulpVragenCount } from "@/lib/actions/hulp-gevraagd";
+import { getOpenHulpVragenCount, getVrijwilligerMeldingenCount } from "@/lib/actions/hulp-gevraagd";
 import { getOngelezeBerichten } from "@/lib/actions/berichten";
 import { isVrijwilligerRol } from "@/lib/rollen";
 import { getAandachtRoodCount } from "@/lib/aandacht";
@@ -17,23 +16,10 @@ export default async function VrijwilligerLayout({
     redirect("/geen-toegang");
   }
 
-  const weekGeleden = new Date();
-  weekGeleden.setDate(weekGeleden.getDate() - 7);
-  const gebruikerId = session.user.gebruikerId;
-
-  const [openHulpVragen, ongelezeBerichten, nieuweReacties, aandachtCount] = await Promise.all([
+  const [openHulpVragen, ongelezeBerichten, meldingenCount, aandachtCount] = await Promise.all([
     getOpenHulpVragenCount(),
     getOngelezeBerichten(),
-    gebruikerId
-      ? prisma.reactie
-          .count({
-            where: {
-              activiteit: { vrijwilligerId: gebruikerId },
-              createdAt: { gte: weekGeleden },
-            },
-          })
-          .catch(() => 0)
-      : Promise.resolve(0),
+    getVrijwilligerMeldingenCount(),
     getAandachtRoodCount(session.user.organisatieId!),
   ]);
 
@@ -43,7 +29,7 @@ export default async function VrijwilligerLayout({
       naam={session.user.naam ?? session.user.name ?? undefined}
       profielFoto={session.user.profielFoto}
       gebruikerId={session.user.gebruikerId}
-      notificatieBadge={nieuweReacties}
+      notificatieBadge={meldingenCount}
       openHulpVragen={openHulpVragen}
       ongelezeBerichten={ongelezeBerichten}
       aandachtCount={aandachtCount}

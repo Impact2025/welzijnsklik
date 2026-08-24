@@ -262,6 +262,39 @@ export async function getOpenHulpVragenCount(): Promise<number> {
   }
 }
 
+// Zelfde criteria als /vrijwilliger/meldingen: open oproepen waarop nog niet
+// gereageerd + statusupdates (bevestigd/afgewezen) op eigen aanmeldingen.
+export async function getVrijwilligerMeldingenCount(): Promise<number> {
+  const session = await auth();
+  if (!session?.user?.gebruikerId || !session.user.organisatieId) return 0;
+  if (!isVrijwilligerRol(session.user.rol)) return 0;
+
+  const gebruikerId = session.user.gebruikerId;
+  const organisatieId = session.user.organisatieId;
+
+  try {
+    const [openOproepen, statusUpdates] = await Promise.all([
+      prisma.hulpGevraagd.count({
+        where: {
+          organisatieId,
+          status: "open",
+          datum: { gte: new Date() },
+          reacties: { none: { gebruikerId } },
+        },
+      }),
+      prisma.hulpReactie.count({
+        where: {
+          gebruikerId,
+          status: { in: ["bevestigd", "afgewezen"] },
+        },
+      }),
+    ]);
+    return openOproepen + statusUpdates;
+  } catch {
+    return 0;
+  }
+}
+
 export async function getNieuweHulpReactiesCount(): Promise<number> {
   const session = await auth();
   if (!session?.user?.gebruikerId || !session.user.organisatieId) return 0;
