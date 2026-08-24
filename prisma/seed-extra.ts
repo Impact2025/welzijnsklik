@@ -132,6 +132,9 @@ async function main() {
   await prisma.activiteit.deleteMany({
     where: { id: { startsWith: "act_extra_" } },
   });
+  await prisma.activiteit.deleteMany({
+    where: { id: { startsWith: "act_aandacht_" } },
+  });
   await prisma.hulpGevraagd.deleteMany({
     where: { id: { startsWith: "hulp_extra_" } },
   });
@@ -143,6 +146,16 @@ async function main() {
   });
   await prisma.bewoner.deleteMany({
     where: { id: { startsWith: "bew_extra_" }, organisatieId: orgId },
+  });
+  // ─── Ook de "aandacht nodig" demo-bewoners resetten ─────────────────────
+  await prisma.activiteit.deleteMany({
+    where: { bewoner: { organisatieId: orgId, id: { startsWith: "bew_aandacht_" } } },
+  });
+  await prisma.aandachtOppak.deleteMany({
+    where: { organisatieId: orgId, bewoner: { id: { startsWith: "bew_aandacht_" } } },
+  });
+  await prisma.bewoner.deleteMany({
+    where: { id: { startsWith: "bew_aandacht_" }, organisatieId: orgId },
   });
 
   // ─── 15 BEWONERS ─────────────────────────────────────────────────────
@@ -202,6 +215,130 @@ async function main() {
     vrijwilligerIds.push(g.id);
   }
   console.log(`Vrijwilligers: ${vrijwilligerIds.length} aangemaakt`);
+
+  // ─── 3 BEWONERS MET "AANDACHT NODIG" (rood) ─────────────────────────────
+  // Deze bewoners hebben genoeg baseline-activiteiten (eigen ritme ~2x/week)
+  // maar GEEN activiteiten in de recente 14 dagen, en hun laatste activiteit
+  // is 15+ dagen geleden. → status "rood" (Aandacht nodig) in /coordinator/aandacht.
+  const aandachtBewoners = [
+    { id: "bew_aandacht_1", naam: "Willem de Vries",  kamer: "A102" },
+    { id: "bew_aandacht_2", naam: "Hendrika Bos",     kamer: "B201" },
+    { id: "bew_aandacht_3", naam: "Jan van Driel",    kamer: "B202" },
+  ];
+
+  for (const b of aandachtBewoners) {
+    const bew = await prisma.bewoner.upsert({
+      where: { id: b.id },
+      update: { naam: b.naam, kamer: b.kamer },
+      create: {
+        id: b.id,
+        naam: b.naam,
+        organisatieId: orgId,
+        kamer: b.kamer,
+        notities: `${b.naam} woont op kamer ${b.kamer}. De laatste tijd weinig activiteiten — aandacht nodig!`,
+        toestemmingFotos: false,
+      },
+    });
+    // Baseline-activiteiten: 8 activiteiten verdeeld over 4 weken (~2x/week)
+    // ALLEMAAL 16-30 dagen geleden, zodat de recente 14-dagen-periode leeg is.
+    for (let i = 0; i < 8; i++) {
+      const dagGeleden = 16 + i * 2; // 16, 18, 20, 22, 24, 26, 28, 30 dagen geleden
+      const createdAt = new Date(nu.getTime() - dagGeleden * 24 * 60 * 60 * 1000);
+      const type = ["Wandelen", "Koffiedrinken", "Gezelschap", "Spelletjes", "Lezen"][i % 5];
+      const vrijId = pick(vrijwilligerIds, i * 3);
+      await prisma.activiteit.create({
+        data: {
+          id: `act_aandacht_${b.id}_${i + 1}`,
+          bewonerId: bew.id,
+          vrijwilligerId: vrijId,
+          type,
+          duurMinuten: pick([30, 45, 60, 90], i),
+          notities: NOTITIE[type] ?? NOTITIE.Anders,
+          createdAt,
+        },
+      });
+    }
+  }
+  console.log(`  Aandacht-nodig bewoners: ${aandachtBewoners.length} aangemaakt (8 activiteiten in baseline-periode, 0 de laatste 14 dagen)`);
+
+  // ─── 1 BEWONER "OPGEPAKT" (rood, gemarkeerd door vrijwilliger) ────────────
+  // Identiek patroon als de rood-bewoners hierboven, maar met een aandachtOppak-record
+  // zodat de UI-status "opgepakt" (blauw) toont in plaats van "aandacht nodig" (rood).
+  const opgepaktBewoner = await prisma.bewoner.upsert({
+    where: { id: "bew_aandacht_opgepakt" },
+    update: { naam: "Piet Jansen", kamer: "C303" },
+    create: {
+      id: "bew_aandacht_opgepakt",
+      naam: "Piet Jansen",
+      organisatieId: orgId,
+      kamer: "C303",
+      notities: "Piet heeft een week niet gehad. Roderik heeft het opgepakt.",
+      toestemmingFotos: false,
+    },
+  });
+  for (let i = 0; i < 8; i++) {
+    const dagGeleden = 16 + i * 2;
+    const createdAt = new Date(nu.getTime() - dagGeleden * 24 * 60 * 60 * 1000);
+    const type = ["Wandelen", "Koffiedrinken", "Gezelschap", "Spelletjes", "Lezen"][i % 5];
+    await prisma.activiteit.create({
+      data: {
+        id: `act_aandacht_opgepakt_${i + 1}`,
+        bewonerId: opgepaktBewoner.id,
+        vrijwilligerId: pick(vrijwilligerIds, (i + 1) * 3),
+        type,
+        duurMinuten: pick([30, 45, 60, 90], i),
+        notities: NOTITIE[type] ?? NOTITIE.Anders,
+        createdAt,
+      },
+    });
+  }
+  // Markeer als opgepakt door de demo-vrijwilliger (Roderik Smits, user id 2)
+  const opgepaktVrijwilliger = await prisma.gebruiker.findFirst({
+    where: { email: "vrijwilliger@demeerwende.nl", organisatieId: orgId },
+  });
+  if (opgepaktVrijwilliger) {
+    await prisma.aandachtOppak.create({
+      data: {
+        organisatieId: orgId,
+        bewonerId: opgepaktBewoner.id,
+        gebruikerId: opgepaktVrijwilliger.id,
+        notitie: "Aangesteld om deze week een wandeling te maken samen.",
+      },
+    });
+  }
+  console.log(`  Opgepakte bewoner: Piet Jansen (C303) aangemaakt`);
+
+  // ─── 1 BEWONER "NIEUW" (minder dan minActiviteiten → status "nieuw") ─────
+  const nieuwBewoner = await prisma.bewoner.upsert({
+    where: { id: "bew_aandacht_nieuw" },
+    update: { naam: "Lotte van Driel", kamer: "D402" },
+    create: {
+      id: "bew_aandacht_nieuw",
+      naam: "Lotte van Driel",
+      organisatieId: orgId,
+      kamer: "D402",
+      notities: "Nieuwe bewoner, net binnen. Nog geen vast ritme.",
+      toestemmingFotos: true,
+    },
+  });
+  // Slechts 2 activiteiten — onder het minActiviteiten-drempel (3) → "nieuw"
+  for (let i = 0; i < 2; i++) {
+    const dagGeleden = 5 + i * 3; // 5 en 8 dagen geleden (binnen recente 14 dagen)
+    const createdAt = new Date(nu.getTime() - dagGeleden * 24 * 60 * 60 * 1000);
+    const type = ["Koffiedrinken", "Gezelschap"][i];
+    await prisma.activiteit.create({
+      data: {
+        id: `act_aandacht_nieuw_${i + 1}`,
+        bewonerId: nieuwBewoner.id,
+        vrijwilligerId: pick(vrijwilligerIds, (i + 5) * 3),
+        type,
+        duurMinuten: 45,
+        notities: NOTITIE[type] ?? NOTITIE.Anders,
+        createdAt,
+      },
+    });
+  }
+  console.log(`  Nieuwe bewoner: Lotte van Driel (D402) aangemaakt (2 activiteiten → status "nieuw")`);
 
   // ─── ~55 ACTIVITEITEN verspreid over de hele maand ───────────────────
   const typeSeq = ["Wandelen", "Koffiedrinken", "Gezelschap", "Spelletjes", "Lezen", "Muziek", "Boodschappen", "Anders"];
