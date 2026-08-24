@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight, Activity, UserPlus, Users, UserCheck, Clock, AlertTriangle } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum, formatDuur } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
+import { getBewonersAandacht } from "@/lib/aandacht";
 import { StatCard, EmptyState } from "@/components/ui";
 import { UitnodigForm } from "./gebruikers/UitnodigForm";
 
@@ -26,7 +27,7 @@ export default async function CoordinatorDashboard() {
   const now = new Date();
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [activiteiten, bewoners, vrijwilligers, interesses, openHulpvragen, openHulpCount] = await Promise.all([
+  const [activiteiten, bewoners, vrijwilligers, interesses, openHulpvragen, openHulpCount, aandachtData] = await Promise.all([
     prisma.activiteit.findMany({
       where: { bewoner: { organisatieId } },
       include: {
@@ -50,7 +51,10 @@ export default async function CoordinatorDashboard() {
       take: 6,
     }),
     prisma.hulpGevraagd.count({ where: { organisatieId, status: "open" } }),
+    getBewonersAandacht(organisatieId),
   ]);
+
+  const aandachtRood = aandachtData.filter((b) => b.status === "rood");
 
   const laatsteMetFoto = activiteiten.find(
     (a) => a.fotoUrl && a.bewoner.toestemmingFotos
@@ -116,6 +120,26 @@ export default async function CoordinatorDashboard() {
             </p>
           </div>
           <ChevronRight size={18} className="text-amber-500 flex-shrink-0" />
+        </Link>
+      )}
+
+      {aandachtRood.length > 0 && (
+        <Link
+          href="/coordinator/aandacht"
+          className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl px-4 lg:px-5 py-3.5 lg:py-4 hover:bg-red-100 transition-colors"
+        >
+          <div className="w-10 h-10 rounded-xl bg-red-500 flex items-center justify-center flex-shrink-0">
+            <AlertTriangle size={20} className="text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm lg:text-base font-semibold text-red-900">
+              {aandachtRood.length} {aandachtRood.length === 1 ? "bewoner heeft" : "bewoners hebben"} aandacht nodig
+            </p>
+            <p className="text-xs lg:text-sm text-red-700 mt-0.5">
+              Duidelijk minder activiteiten dan hun eigen gebruikelijke ritme.
+            </p>
+          </div>
+          <ChevronRight size={18} className="text-red-500 flex-shrink-0" />
         </Link>
       )}
 

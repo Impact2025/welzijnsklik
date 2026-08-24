@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getOpenHulpVragenCount } from "@/lib/actions/hulp-gevraagd";
 import { getOngelezeBerichten } from "@/lib/actions/berichten";
 import { isVrijwilligerRol } from "@/lib/rollen";
+import { getAandachtRoodCount } from "@/lib/aandacht";
 import AppShell from "@/components/AppShell";
 
 export default async function VrijwilligerLayout({
@@ -20,7 +21,7 @@ export default async function VrijwilligerLayout({
   weekGeleden.setDate(weekGeleden.getDate() - 7);
   const gebruikerId = session.user.gebruikerId;
 
-  const [openHulpVragen, ongelezeBerichten, nieuweReacties] = await Promise.all([
+  const [openHulpVragen, ongelezeBerichten, nieuweReacties, aandachtCount] = await Promise.all([
     getOpenHulpVragenCount(),
     getOngelezeBerichten(),
     gebruikerId
@@ -33,6 +34,7 @@ export default async function VrijwilligerLayout({
           })
           .catch(() => 0)
       : Promise.resolve(0),
+    getAandachtRoodCount(session.user.organisatieId!),
   ]);
 
   return (
@@ -44,6 +46,7 @@ export default async function VrijwilligerLayout({
       notificatieBadge={nieuweReacties}
       openHulpVragen={openHulpVragen}
       ongelezeBerichten={ongelezeBerichten}
+      aandachtCount={aandachtCount}
     >
       {children}
     </AppShell>

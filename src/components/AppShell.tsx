@@ -17,6 +17,7 @@ import {
   Megaphone,
   MessageSquare,
   Mail,
+  HeartHandshake,
   type LucideIcon,
 } from "lucide-react";
 import { Avatar } from "@/components/ui";
@@ -34,6 +35,7 @@ const NAV_COORDINATOR: NavItem[] = [
   { href: "/coordinator", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/coordinator/agenda", icon: CalendarDays, label: "Agenda" },
   { href: "/coordinator/bewoners", icon: Users, label: "Bewoners" },
+  { href: "/coordinator/aandacht", icon: HeartHandshake, label: "Aandacht" },
   { href: "/coordinator/welzijnscheck", icon: HeartPulse, label: "Welzijn" },
   { href: "/coordinator/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/coordinator/berichten", icon: MessageSquare, label: "Chat" },
@@ -43,6 +45,7 @@ const NAV_COORDINATOR: NavItem[] = [
 const NAV_VRIJWILLIGER: NavItem[] = [
   { href: "/vrijwilliger", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/vrijwilliger/agenda", icon: CalendarDays, label: "Agenda" },
+  { href: "/vrijwilliger/aandacht", icon: HeartHandshake, label: "Aandacht" },
   { href: "/vrijwilliger/welzijnscheck", icon: HeartPulse, label: "Welzijn" },
   { href: "/vrijwilliger/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/vrijwilliger/berichten", icon: MessageSquare, label: "Chat" },
@@ -76,9 +79,10 @@ interface Props {
   nieuweHulpReacties?: number;
   openHulpVragen?: number;
   ongelezeBerichten?: number;
+  aandachtCount?: number;
 }
 
-export default function AppShell({ rol, naam, profielFoto, gebruikerId, children, notificatieHref, notificatieBadge = 0, nieuweHulpReacties = 0, openHulpVragen = 0, ongelezeBerichten = 0 }: Props) {
+export default function AppShell({ rol, naam, profielFoto, gebruikerId, children, notificatieHref, notificatieBadge = 0, nieuweHulpReacties = 0, openHulpVragen = 0, ongelezeBerichten = 0, aandachtCount = 0 }: Props) {
   const pathname = usePathname();
   const navItems = NAV_MAP[rol] ?? [];
 
@@ -86,8 +90,10 @@ export default function AppShell({ rol, naam, profielFoto, gebruikerId, children
     "/coordinator/meldingen": notificatieBadge,
     "/coordinator/hulp-gevraagd": nieuweHulpReacties,
     "/coordinator/berichten": ongelezeBerichten,
+    "/coordinator/aandacht": aandachtCount,
     "/vrijwilliger/hulp-gevraagd": openHulpVragen,
     "/vrijwilliger/berichten": ongelezeBerichten,
+    "/vrijwilliger/aandacht": aandachtCount,
   };
 
   return (
