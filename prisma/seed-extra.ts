@@ -77,7 +77,7 @@ const HULPVRAAG_TEMPLATES: Hv[] = [
     oms: "Een bewoner die weinig praat zoekt toch af en toe een rustig moment met iemand die er gewoon is." },
   { titel: "Kerkbezoek begeleiden", type: "Wandelen", duur: 90, nodig: 1, status: "open",
     oms: "Begeleiding naar de zondagse kerkdienst in het dorp, inclusief rolstoel en terugweg." },
-  { titel: "Gezamenlijke filmavond", type: "Gezelschap", duur: 120, nodig: 2, status: "open",
+  { titel: "Filmavond thuis", type: "Gezelschap", duur: 120, nodig: 2, status: "open",
     oms: "Een filmavond in de huiskamer. Iemand die de beamer bedient en koffie/thee rondbrengt is welkom." },
   { titel: "Breien en haken", type: "Anders", duur: 60, nodig: 1, status: "in_behandeling",
     oms: "Een bewoner wil graag weer leren breien. Een geduldige vrijwilliger die het voordoet is gevraagd." },
@@ -138,6 +138,22 @@ async function main() {
   await prisma.hulpGevraagd.deleteMany({
     where: { id: { startsWith: "hulp_extra_" } },
   });
+  // ─── Reset ook demo-berichten (Bericht heeft FK naar Gebruiker.gebruikerId) ──
+  const demoGebruikers = await prisma.gebruiker.findMany({
+    where: { email: { endsWith: "@demo.nl" } },
+    select: { id: true },
+  });
+  if (demoGebruikers.length > 0) {
+    const gebruikerIds = demoGebruikers.map((g) => g.id);
+    await prisma.bericht.deleteMany({
+      where: {
+        OR: [
+          { vanId: { in: gebruikerIds } },
+          { aanId: { in: gebruikerIds } },
+        ],
+      },
+    });
+  }
   await prisma.gebruiker.deleteMany({
     where: { email: { endsWith: "@demo.nl" } },
   });
@@ -402,16 +418,108 @@ async function main() {
   }
   console.log(`Hulpvragen: ${hulpNr} aangemaakt`);
 
+  // ─── Reset demo-geplande-activiteiten (idempotent opnieuw vullen) ────
+  await prisma.geplandeActiviteit.deleteMany({
+    where: { id: { startsWith: "plan_" } },
+  });
+
+  // ─── ~8 GEPLANE ACTIVITEITEN (toekomstig) voor de vrijwilligers‑agenda ─
+  // Verspreid over de komende weken, zodat de agenda niet leeg / één‑item
+  // overkomt. Eén activiteit (plan_bingo_16sep) neemt de screenshot exact na.
+  const planActiviteiten = [
+    {
+      id: "plan_bingo_16sep",
+      titel: "Bingo",
+      type: "Spelletjes",
+      locatie: "Binnentuin",
+      datum: new Date("2026-09-16T14:00:00"),
+      duurMinuten: 180,
+      beschrijving: "Wekelijkse bingo-avond in de binnenplaats. Er zijn extra prijzen aanwezig.",
+    },
+    {
+      id: "plan_koffiedate_28aug",
+      titel: "Koffiedate & verhalen",
+      type: "Koffiedrinken",
+      locatie: "Gem. kamer A101",
+      datum: new Date("2026-08-28T10:30:00"),
+      duurMinuten: 60,
+      beschrijving: "Een gezellige ochtend met koffie en verhalen uit het verleden.",
+    },
+    {
+      id: "plan_wandeling_30aug",
+      titel: "Rondleiding bostuin",
+      type: "Wandelen",
+      locatie: "Bostuin",
+      datum: new Date("2026-08-30T11:00:00"),
+      duurMinuten: 90,
+      beschrijving: "Strolleroute langs de bewerkte bostuin, inclusief bankpauze.",
+    },
+    {
+      id: "plan_filmavond_5sep",
+      titel: "Filmavond: De burgemeester",
+      type: "Gezelschap",
+      locatie: "Huiskamer",
+      datum: new Date("2026-09-05T19:00:00"),
+      duurMinuten: 150,
+      beschrijving: "Klassieker uit 1979. Popcorn en drankjes worden voorzien.",
+    },
+    {
+      id: "plan_muziekochtend_8sep",
+      titel: "Muziekochtend met Roderik",
+      type: "Muziek",
+      locatie: "Activiteitenzolder",
+      datum: new Date("2026-09-08T10:00:00"),
+      duurMinuten: 90,
+      beschrijving: "Roderik speurt gitaar en zingt oude hits. Meelopen is gauw genoeg.",
+    },
+    {
+      id: "plan_knutselen_12sep",
+      titel: "Herfstbladeren knutselen",
+      type: "Anders",
+      locatie: "Atelier B201",
+      datum: new Date("2026-09-12T13:30:00"),
+      duurMinuten: 120,
+      beschrijving: "Maak een herfstdecoratie van echte bladeren en lijmen.",
+    },
+    {
+      id: "plan_scrabble_20sep",
+      titel: "Scrabble-toernooi",
+      type: "Spelletjes",
+      locatie: "Speelhoek C301",
+      datum: new Date("2026-09-20T14:00:00"),
+      duurMinuten: 120,
+      beschrijving: "Wedstrijd op 3 tafels. Alle niveaus welkom, nieuwe spelregels in 1 pagina.",
+    },
+  ];
+
+  for (const p of planActiviteiten) {
+    await prisma.geplandeActiviteit.create({
+      data: {
+        id: p.id,
+        organisatieId: orgId,
+        titel: p.titel,
+        type: p.type,
+        beschrijving: p.beschrijving,
+        locatie: p.locatie,
+        datum: p.datum,
+        duurMinuten: p.duurMinuten,
+        aangemaaktDoor,
+      },
+    });
+  }
+  console.log(`Geplande activiteiten: ${planActiviteiten.length} aangemaakt`);
+
   // ─── Samenvatting ────────────────────────────────────────────────────
-  const [tBew, tVrij, tAct, tHulp, tOpen] = await Promise.all([
+  const [tBew, tVrij, tAct, tHulp, tOpen, tPlan] = await Promise.all([
     prisma.bewoner.count({ where: { organisatieId: orgId } }),
     prisma.gebruiker.count({ where: { organisatieId: orgId, rol: "VRIJWILLIGER" } }),
     prisma.activiteit.count(),
     prisma.hulpGevraagd.count({ where: { organisatieId: orgId } }),
     prisma.hulpGevraagd.count({ where: { organisatieId: orgId, status: "open" } }),
+    prisma.geplandeActiviteit.count({ where: { organisatieId: orgId } }),
   ]);
   console.log(
-    `\nTotaal in De Meerwende → Bewoners: ${tBew}, Vrijwilligers: ${tVrij}, Activiteiten: ${tAct}, Hulpvragen: ${tHulp} (${tOpen} open)`
+    `\nTotaal in De Meerwende → Bewoners: ${tBew}, Vrijwilligers: ${tVrij}, Activiteiten: ${tAct}, Hulpvragen: ${tHulp} (${tOpen} open), Geplande activiteiten: ${tPlan}`
   );
 }
 
