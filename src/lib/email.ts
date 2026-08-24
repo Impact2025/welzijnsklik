@@ -390,6 +390,21 @@ export function nieuwsbriefHtml(opts: {
   });
 }
 
+export function welzijncheckReminderHtml(naam: string, organisatie: string): string {
+  const maandNaam = new Date().toLocaleDateString("nl-NL", { month: "long" });
+  return baseHtml({
+    title: "Tijd voor je welzijnscheck",
+    preheader: `Hoe gaat het met je deze ${maandNaam}?`,
+    body: `
+      <h2>Hoi ${esc(naam)},</h2>
+      <p>Het is weer de 1e van de maand — tijd om even bij jezelf stil te staan. Vul je maandelijkse welzijnscheck in, dan weet je coördinator hoe het met je gaat.</p>
+      <p>Het kost je maar een minuutje, en een eerlijk antwoord helpt het meest.</p>
+    `,
+    cta: { label: "Welzijnscheck invullen", url: `${APP_URL}/vrijwilliger/welzijnscheck` },
+    footer: `Welzijnsklik · ${esc(organisatie)}`,
+  });
+}
+
 export function weekDigestHtml(
   naam: string,
   stats: {

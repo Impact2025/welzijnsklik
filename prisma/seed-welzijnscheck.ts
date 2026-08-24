@@ -10,9 +10,12 @@ const adapter = new PrismaNeon({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });
 
 // ─── Demo welzijnschecks ───────────────────────────────────────────────────
-// Realistische verdeling: de meeste vrijwilligers zitten op 4-5, een paar
-// op 2-3 (aandacht), één op 1 (kritiek). Enkele vrijwilligers hebben nog
-// GEEN check → test de "geen check in 14 dagen" staat in de coördinator-view.
+// De welzijnscheck is maandelijks. Voor een realistisch dashboard (trends,
+// geluksmomenten per maand/kwartaal) zaaien we 3 maanden geschiedenis: deze
+// maand, vorige maand en de maand daarvoor. Realistische verdeling: de
+// meeste vrijwilligers zitten op 4-5, een paar op 2-3 (aandacht), één op 1
+// (kritiek). Enkele vrijwilligers missen hun check van DEZE maand → test de
+// "geen check in 14 dagen" staat in de coördinator-view.
 
 const SCORE_POOL = [
   5, 5, 4, 5, 4, 3, 5, 4, 2, 5, // 1-10
@@ -35,6 +38,26 @@ const NOTITIE_PER_SCORE: Record<number, string> = {
 
 function dagenGeleden(n: number): Date {
   return new Date(Date.now() - n * 24 * 60 * 60 * 1000);
+}
+
+// Datum in een eerdere maand (monthOffset=0 → deze maand, 1 → vorige, 2 →
+// twee maanden terug), rond het begin van de maand — checks komen binnen
+// na de maandelijkse herinnering op de 1e.
+function maandDatum(monthOffset: number, dag: number): Date {
+  const nu = new Date();
+  return new Date(nu.getFullYear(), nu.getMonth() - monthOffset, dag);
+}
+
+function clamp(score: number): number {
+  return Math.min(5, Math.max(1, score));
+}
+
+function stemmingVoorScore(score: number): "ZEER_LAAG" | "LAAG" | "NEUTRAAL" | "GOED" | "UITSTEKEND" {
+  return score === 1 ? "ZEER_LAAG"
+    : score === 2 ? "LAAG"
+    : score === 3 ? "NEUTRAAL"
+    : score === 4 ? "GOED"
+    : "UITSTEKEND";
 }
 
 async function main() {
@@ -67,44 +90,53 @@ async function main() {
   }
 
   let gemaakt = 0;
-  // Sla de laatste ~5 vrijwilligers over zodat er "geen check" rijen ontstaan
+  // Sla de laatste ~5 vrijwilligers over voor DEZE maand, zodat er "geen
+  // check" rijen ontstaan (hun geschiedenis van de 2 maanden ervoor blijft
+  // wel bestaan, voor de trend).
   const zonderCheck = Math.min(5, Math.floor(vrijwilligers.length / 4));
+  const MAANDEN_TERUG = [2, 1, 0]; // oud → nieuw, zodat logs chronologisch zijn
 
   for (let i = 0; i < vrijwilligers.length; i++) {
     const v = vrijwilligers[i];
-    if (i >= vrijwilligers.length - zonderCheck) {
-      console.log(`  ${v.naam}: (geen check — test 'geen check in 14d')`);
-      continue;
+    const mist = i >= vrijwilligers.length - zonderCheck;
+    const scoreLog: string[] = [];
+
+    for (const monthOffset of MAANDEN_TERUG) {
+      if (monthOffset === 0 && mist) continue; // mist alleen de check van deze maand
+
+      // Lichte drift per maand, zodat er een zichtbare trend ontstaat.
+      const drift = ((i + monthOffset) % 3) - 1; // -1, 0 of +1
+      const score = clamp(SCORE_POOL[i % SCORE_POOL.length] + drift);
+      const id = `wc_demo_${i + 1}_${monthOffset}`;
+      const createdAt =
+        monthOffset === 0
+          ? dagenGeleden(i % 13) // deze maand: verspreid over de laatste ~2 weken
+          : maandDatum(monthOffset, 2 + (i % 7)); // eerdere maanden: begin van de maand
+
+      await prisma.welzijnscheck.create({
+        data: {
+          id,
+          organisatieId: orgId,
+          vrijwilligerId: v.id,
+          score,
+          stemming: stemmingVoorScore(score),
+          notitie: NOTITIE_PER_SCORE[score],
+          aandachtspunten: AANDACHT_PER_SCORE[score] ?? [],
+          anoniem: false,
+          createdAt,
+        },
+      });
+      gemaakt++;
+      scoreLog.push(`${score}/5`);
     }
 
-    const score = SCORE_POOL[i % SCORE_POOL.length];
-    const id = `wc_demo_${i + 1}`;
-    const createdAt = dagenGeleden(i % 13); // verspreid over ~2 weken
-
-    await prisma.welzijnscheck.create({
-      data: {
-        id,
-        organisatieId: orgId,
-        vrijwilligerId: v.id,
-        score,
-        stemming:
-          score === 1 ? "ZEER_LAAG"
-          : score === 2 ? "LAAG"
-          : score === 3 ? "NEUTRAAL"
-          : score === 4 ? "GOED"
-          : "UITSTEKEND",
-        notitie: NOTITIE_PER_SCORE[score],
-        aandachtspunten: AANDACHT_PER_SCORE[score] ?? [],
-        anoniem: false,
-        createdAt,
-      },
-    });
-    gemaakt++;
-    console.log(`  ${v.naam}: ${score}/5 ${score <= 2 ? "⚠ aandacht" : ""}`);
+    console.log(
+      `  ${v.naam}: ${scoreLog.join(" → ") || "(geen checks)"}${mist ? " — mist check deze maand" : ""}`
+    );
   }
 
-  console.log(`\n${gemaakt} welzijnschecks aangemaakt (${zonderCheck} vrijwilligers zonder check).`);
-  console.log("Bekijk ze op /coordinator/welzijnscheck");
+  console.log(`\n${gemaakt} welzijnschecks aangemaakt over 3 maanden (${zonderCheck} vrijwilligers zonder check deze maand).`);
+  console.log("Bekijk ze op /coordinator/welzijnscheck en /coordinator (geluksmomenten)");
 }
 
 main()
