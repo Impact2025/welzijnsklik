@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   for (const v of vrijwilligers) {
     const ok = await sendEmail({
       to: v.email,
-      subject: "Tijd voor je welzijnscheck 💬",
+      subject: "Tijd voor je welzijnscheck",
       html: welzijncheckReminderHtml(v.naam, v.organisatie.naam),
     });
     if (ok) verzonden++;

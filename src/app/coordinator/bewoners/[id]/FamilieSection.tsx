@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Users, UserPlus, Loader2, X, Phone, Mail, Pencil, Save } from "lucide-react";
+import { Users, UserPlus, Loader2, X, Phone, Mail, Pencil, Save, Check } from "lucide-react";
 import { nodigGebruikerUit, updateFamilielid } from "@/lib/actions/gebruikers";
 import { signIn } from "next-auth/react";
 
@@ -196,7 +196,7 @@ export function FamilieSection({
             {success ? (
               <div className="py-6 text-center space-y-2">
                 <div className="inline-flex items-center justify-center w-12 h-12 bg-emerald-100 rounded-2xl">
-                  <span className="text-2xl">✓</span>
+                  <Check size={22} className="text-emerald-600" strokeWidth={2.5} />
                 </div>
                 <p className="font-semibold text-gray-900">Uitnodiging verstuurd!</p>
               </div>

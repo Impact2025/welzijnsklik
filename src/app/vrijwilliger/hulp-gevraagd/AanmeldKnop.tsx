@@ -137,17 +137,6 @@ export default function AanmeldKnop({ hulpId, heeftGereageerd, reactieBericht, r
         <HandHeart size={16} />
         Ik doe mee!
       </button>
-      <button
-        disabled={isPending}
-        onClick={() => {
-          setError(null);
-          startTransition(() => weigerHulp(hulpId).catch((e) => setError(e.message)));
-        }}
-        className="w-full flex items-center justify-center gap-2 text-sm text-neutral-400 hover:text-neutral-600 font-medium py-2 transition-colors disabled:opacity-60"
-      >
-        <Ban size={15} />
-        Deze keer niet
-      </button>
       {error && <p className="text-xs text-red-500 px-1">{error}</p>}
     </div>
   );

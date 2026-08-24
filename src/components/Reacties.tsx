@@ -2,9 +2,18 @@
 
 import { useState, useTransition } from "react";
 import { toggleReactie, plaatsBericht, verwijderReactie } from "@/lib/actions/reacties";
-import { X, Send } from "lucide-react";
+import { X, Send, Heart, Smile, ThumbsUp, PartyPopper, Frown, Hand, Flame, Laugh, type LucideIcon } from "lucide-react";
 
-const EMOJI = ["❤️", "😊", "👍", "🎉", "😢", "🙏", "🔥", "😂"];
+const REACTIES: { id: string; icon: LucideIcon; label: string }[] = [
+  { id: "hart", icon: Heart, label: "Vind ik leuk" },
+  { id: "blij", icon: Smile, label: "Blij" },
+  { id: "duim", icon: ThumbsUp, label: "Duim omhoog" },
+  { id: "gejuich", icon: PartyPopper, label: "Gejuich" },
+  { id: "verdriet", icon: Frown, label: "Verdrietig" },
+  { id: "dank", icon: Hand, label: "Dank je wel" },
+  { id: "vuur", icon: Flame, label: "Top" },
+  { id: "lach", icon: Laugh, label: "Grappig" },
+];
 
 interface ReactieData {
   id: string;
@@ -26,32 +35,32 @@ export default function Reacties({ activiteitId, reacties: initieleReacties, geb
   const [bericht, setBericht] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  // Groepeer emoji-reacties
-  const emojiGroepen = new Map<string, { count: number; users: string[] }>();
+  // Groepeer reacties per soort
+  const reactieGroepen = new Map<string, { count: number; users: string[] }>();
 
   for (const r of reacties) {
     const key = r.emoji;
-    if (!emojiGroepen.has(key)) emojiGroepen.set(key, { count: 0, users: [] });
-    const g = emojiGroepen.get(key)!;
+    if (!reactieGroepen.has(key)) reactieGroepen.set(key, { count: 0, users: [] });
+    const g = reactieGroepen.get(key)!;
     g.count++;
     g.users.push(r.gebruiker.naam);
   }
 
   // Haal berichten uit reacties
-  const berichten = reacties.filter((r) => r.emoji === "💬" || r.bericht);
+  const berichten = reacties.filter((r) => r.emoji === "bericht" || r.bericht);
 
-  function handleEmoji(emoji: string) {
+  function handleReactie(id: string) {
     startTransition(async () => {
-      await toggleReactie(activiteitId, emoji);
+      await toggleReactie(activiteitId, id);
       // Optimistische update
       setReacties((prev) => {
-        const bestaand = prev.find((r) => r.emoji === emoji && r.gebruiker.id === gebruikersId);
+        const bestaand = prev.find((r) => r.emoji === id && r.gebruiker.id === gebruikersId);
         if (bestaand) {
           return prev.filter((r) => r.id !== bestaand.id);
         }
         return [
           ...prev,
-          { id: `opt-${Date.now()}`, emoji, bericht: null, createdAt: new Date(), gebruiker: { id: gebruikersId, naam: gebruikersNaam } },
+          { id: `opt-${Date.now()}`, emoji: id, bericht: null, createdAt: new Date(), gebruiker: { id: gebruikersId, naam: gebruikersNaam } },
         ];
       });
     });
@@ -64,7 +73,7 @@ export default function Reacties({ activiteitId, reacties: initieleReacties, geb
       await plaatsBericht(activiteitId, bericht.trim());
       setReacties((prev) => [
         ...prev,
-        { id: `opt-${Date.now()}`, emoji: "💬", bericht: bericht.trim(), createdAt: new Date(), gebruiker: { id: gebruikersId, naam: gebruikersNaam } },
+        { id: `opt-${Date.now()}`, emoji: "bericht", bericht: bericht.trim(), createdAt: new Date(), gebruiker: { id: gebruikersId, naam: gebruikersNaam } },
       ]);
       setBericht("");
     });
@@ -79,27 +88,27 @@ export default function Reacties({ activiteitId, reacties: initieleReacties, geb
 
   return (
     <div className="mt-3 pt-3 border-t border-neutral-100 space-y-2">
-      {/* Emoji balk */}
+      {/* Reactiebalk */}
       <div className="flex flex-wrap items-center gap-1.5">
-        {EMOJI.map((emoji) => {
-          const isActief = reacties.some((r) => r.emoji === emoji && r.gebruiker.id === gebruikersId && !r.bericht);
-          const groep = emojiGroepen.get(emoji);
+        {REACTIES.map(({ id, icon: Icon, label }) => {
+          const isActief = reacties.some((r) => r.emoji === id && r.gebruiker.id === gebruikersId && !r.bericht);
+          const groep = reactieGroepen.get(id);
 
           return (
             <button
-              key={emoji}
-              onClick={() => handleEmoji(emoji)}
+              key={id}
+              onClick={() => handleReactie(id)}
               disabled={isPending}
-              className={`text-lg leading-none px-2.5 py-1.5 rounded-lg transition-all ${
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg transition-all ${
                 isActief
-                  ? "bg-amber-100 ring-1 ring-amber-300 scale-110"
-                  : "hover:bg-neutral-100"
+                  ? "bg-amber-100 ring-1 ring-amber-300 text-amber-700"
+                  : "text-neutral-500 hover:bg-neutral-100"
               } disabled:opacity-50`}
-              title={groep ? `${groep.users.join(", ")}` : emoji}
+              title={groep ? `${groep.users.join(", ")}` : label}
             >
-              {emoji}
+              <Icon size={16} strokeWidth={2} />
               {groep && groep.count > 1 && (
-                <span className="text-[10px] font-bold text-neutral-500 ml-0.5 align-top">{groep.count}</span>
+                <span className="text-[10px] font-bold">{groep.count}</span>
               )}
             </button>
           );
@@ -119,7 +128,6 @@ export default function Reacties({ activiteitId, reacties: initieleReacties, geb
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <span className="text-[11px] font-semibold text-gray-800">{r.gebruiker.naam}</span>
-                    {r.emoji !== "💬" && <span className="text-sm leading-none">{r.emoji}</span>}
                   </div>
                   {r.bericht && (
                     <p className="text-sm text-gray-700 leading-snug">{r.bericht}</p>

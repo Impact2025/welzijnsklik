@@ -4,8 +4,6 @@ import Link from "next/link";
 import { Plus, Heart, Users, Activity, Megaphone, ArrowRight } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum, formatDuur } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
-import { getGeluksmomentenPersoonlijk } from "@/lib/actions/geluksmomenten";
-import { PersoonlijkeGeluksmomentenCard } from "@/components/PersoonlijkeGeluksmomentenCard";
 
 export default async function VrijwilligerDashboard() {
   const session = await auth();
@@ -18,7 +16,7 @@ export default async function VrijwilligerDashboard() {
   const weekGeleden = new Date(nu.getTime() - 7 * 24 * 60 * 60 * 1000);
   const firstDay = new Date(nu.getFullYear(), nu.getMonth(), 1);
 
-  const [activiteiten, bewoners, openHulpvragen, openHulpCount, geluksmomenten] = await Promise.all([
+  const [activiteiten, bewoners, openHulpvragen, openHulpCount] = await Promise.all([
     prisma.activiteit.findMany({
       where: { vrijwilligerId: gebruikerId },
       include: {
@@ -48,7 +46,6 @@ export default async function VrijwilligerDashboard() {
         datum: { gte: new Date() },
       },
     }),
-    getGeluksmomentenPersoonlijk(gebruikerId, "maand"),
   ]);
 
   // Stats
@@ -97,8 +94,6 @@ export default async function VrijwilligerDashboard() {
           <p className="text-[11px] text-warm-500 mt-0.5 font-medium">Bewoners</p>
         </div>
       </div>
-
-      <PersoonlijkeGeluksmomentenCard data={geluksmomenten} voornaam={voornaam} />
 
       {/* Laatste foto — hero */}
       {laatsteMetFoto && (

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 /**
- * Plaats of verwijder een emoji-reactie (toggle).
+ * Plaats of verwijder een reactie (toggle).
  */
 export async function toggleReactie(activiteitId: string, emoji: string) {
   const session = await auth();
@@ -44,7 +44,7 @@ export async function plaatsBericht(activiteitId: string, bericht: string) {
     data: {
       activiteitId,
       gebruikerId: session.user.gebruikerId,
-      emoji: "💬", // berichten krijgen een vast icoon
+      emoji: "bericht", // berichten krijgen een vaste reactiesoort
       bericht: bericht.trim(),
     },
   });
