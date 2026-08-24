@@ -1,12 +1,15 @@
 import { auth } from "@/auth";
-import { getBewonersAandacht } from "@/lib/aandacht";
+import { getBewonersAandacht, getAandachtInstellingen } from "@/lib/aandacht";
 import { AandachtOverzicht } from "@/components/AandachtOverzicht";
 
 export default async function VrijwilligerAandacht() {
   const session = await auth();
   const organisatieId = session!.user.organisatieId!;
 
-  const data = await getBewonersAandacht(organisatieId);
+  const [data, instellingen] = await Promise.all([
+    getBewonersAandacht(organisatieId),
+    getAandachtInstellingen(organisatieId),
+  ]);
 
   return (
     <div className="px-4 py-6 space-y-5">
@@ -16,7 +19,7 @@ export default async function VrijwilligerAandacht() {
           Welke bewoners hebben minder activiteiten dan hun eigen gebruikelijke ritme.
         </p>
       </div>
-      <AandachtOverzicht data={data} />
+      <AandachtOverzicht data={data} recentDagen={instellingen.recentDagen} />
     </div>
   );
 }

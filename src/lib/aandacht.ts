@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
  * rustig is en dat blijft, niet.
  */
 
-export type AandachtStatus = "rood" | "oranje" | "groen" | "nieuw";
+export type AandachtStatus = "rood" | "oranje" | "opgepakt" | "groen" | "nieuw";
 
 export interface BewonerAandacht {
   id: string;
@@ -21,13 +21,17 @@ export interface BewonerAandacht {
   gemiddeldPerWeek: number;
   afwijkingsScore: number | null;
   status: AandachtStatus;
+  onderliggendeStatus: AandachtStatus;
+  opgepaktDoor: string | null;
+  opgepaktOp: Date | null;
 }
 
 const STATUS_VOLGORDE: Record<AandachtStatus, number> = {
   rood: 0,
   oranje: 1,
-  nieuw: 2,
-  groen: 3,
+  opgepakt: 2,
+  nieuw: 3,
+  groen: 4,
 };
 
 export interface AandachtInstellingen {
@@ -114,6 +118,12 @@ export async function getBewonersAandacht(organisatieId: string): Promise<Bewone
         orderBy: { createdAt: "desc" },
       },
       _count: { select: { activiteiten: true } },
+      aandachtOppakken: {
+        where: { createdAt: { gte: recentVanaf } },
+        select: { createdAt: true, gebruiker: { select: { naam: true } } },
+        orderBy: { createdAt: "desc" },
+        take: 1,
+      },
     },
     orderBy: { naam: "asc" },
   });
@@ -151,6 +161,12 @@ export async function getBewonersAandacht(organisatieId: string): Promise<Bewone
       }
     }
 
+    const onderliggendeStatus = status;
+    const oppak = b.aandachtOppakken[0];
+    if (oppak && (status === "rood" || status === "oranje")) {
+      status = "opgepakt";
+    }
+
     return {
       id: b.id,
       naam: b.naam,
@@ -163,6 +179,9 @@ export async function getBewonersAandacht(organisatieId: string): Promise<Bewone
       gemiddeldPerWeek: Math.round(gemiddeldPerWeek * 10) / 10,
       afwijkingsScore: afwijkingsScore !== null ? Math.round(afwijkingsScore * 100) / 100 : null,
       status,
+      onderliggendeStatus,
+      opgepaktDoor: oppak?.gebruiker.naam ?? null,
+      opgepaktOp: oppak?.createdAt ?? null,
     };
   });
 
@@ -176,4 +195,27 @@ export async function getBewonersAandacht(organisatieId: string): Promise<Bewone
 export async function getAandachtRoodCount(organisatieId: string): Promise<number> {
   const data = await getBewonersAandacht(organisatieId);
   return data.filter((b) => b.status === "rood").length;
+}
+
+/** Markeert een bewoner als "opgepakt": onderdrukt de rode/oranje status tijdelijk (binnen het recent-venster). */
+export async function markeerAandachtOpgepakt(params: {
+  organisatieId: string;
+  bewonerId: string;
+  gebruikerId: string;
+  notitie?: string;
+}): Promise<void> {
+  const bewoner = await prisma.bewoner.findFirst({
+    where: { id: params.bewonerId, organisatieId: params.organisatieId },
+    select: { id: true },
+  });
+  if (!bewoner) throw new Error("Bewoner niet gevonden");
+
+  await prisma.aandachtOppak.create({
+    data: {
+      organisatieId: params.organisatieId,
+      bewonerId: params.bewonerId,
+      gebruikerId: params.gebruikerId,
+      notitie: params.notitie,
+    },
+  });
 }

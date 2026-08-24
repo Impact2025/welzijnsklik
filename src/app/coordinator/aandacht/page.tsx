@@ -1,14 +1,17 @@
 import { auth } from "@/auth";
 import Link from "next/link";
 import { Settings } from "lucide-react";
-import { getBewonersAandacht } from "@/lib/aandacht";
+import { getBewonersAandacht, getAandachtInstellingen } from "@/lib/aandacht";
 import { AandachtOverzicht } from "@/components/AandachtOverzicht";
 
 export default async function CoordinatorAandacht() {
   const session = await auth();
   const organisatieId = session!.user.organisatieId!;
 
-  const data = await getBewonersAandacht(organisatieId);
+  const [data, instellingen] = await Promise.all([
+    getBewonersAandacht(organisatieId),
+    getAandachtInstellingen(organisatieId),
+  ]);
 
   return (
     <div className="px-4 py-6 lg:py-8 space-y-5 max-w-4xl mx-auto">
@@ -27,7 +30,11 @@ export default async function CoordinatorAandacht() {
           <span className="hidden sm:inline">Instellingen</span>
         </Link>
       </div>
-      <AandachtOverzicht data={data} bewonerHref={(id) => `/coordinator/bewoners/${id}`} />
+      <AandachtOverzicht
+        data={data}
+        bewonerHref={(id) => `/coordinator/bewoners/${id}`}
+        recentDagen={instellingen.recentDagen}
+      />
     </div>
   );
 }

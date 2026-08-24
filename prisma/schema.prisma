@@ -112,6 +112,7 @@ model Gebruiker {
   analyticsEvents AnalyticsEvent[]
   registratieTokens RegistratieToken[]
   welzijnschecks Welzijnscheck[]
+  aandachtOppakken AandachtOppak[]
 
   // Intake velden voor vrijwilligers
   beschikbaarheid String?
@@ -143,6 +144,7 @@ model Bewoner {
   activiteiten       Activiteit[]
   familieleden       FamilieKoppeling[]
   toestemmingsLog    ToestemmingLog[]
+  aandachtOppakken   AandachtOppak[]
   createdAt          DateTime    @default(now())
 }
 
@@ -210,6 +212,27 @@ model ActiviteitLog {
   actie           String
   details         String?
   createdAt       DateTime @default(now())
+}
+
+// ─── Aandacht (afwijkend activiteitenritme bewoners) ──────────────────────
+// Een coördinator/welzijnsmedewerker kan een bewoner met status rood/oranje
+// (zie src/lib/aandacht.ts) markeren als "opgepakt". Zolang het record geldig
+// is (binnen het recent-venster) wordt de rode/oranje status onderdrukt in de
+// UI, zodat dezelfde naam niet blijft hangen terwijl er al iets aan gedaan is.
+// Verbetert de bewoner niet binnen dat venster, dan keert de status vanzelf terug.
+
+model AandachtOppak {
+  id            String    @id @default(cuid())
+  organisatieId String
+  bewonerId     String
+  bewoner       Bewoner   @relation(fields: [bewonerId], references: [id], onDelete: Cascade)
+  gebruikerId   String
+  gebruiker     Gebruiker @relation(fields: [gebruikerId], references: [id])
+  notitie       String?   @db.Text
+  createdAt     DateTime  @default(now())
+
+  @@index([bewonerId])
+  @@index([organisatieId])
 }
 
 model HulpGevraagd {

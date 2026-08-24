@@ -2,7 +2,12 @@
 
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-import { updateAandachtInstellingen, type AandachtInstellingen } from "@/lib/aandacht";
+import { isVrijwilligerRol } from "@/lib/rollen";
+import {
+  updateAandachtInstellingen,
+  markeerAandachtOpgepakt,
+  type AandachtInstellingen,
+} from "@/lib/aandacht";
 
 function valideer(waarden: AandachtInstellingen) {
   if (waarden.recentDagen < 1 || waarden.recentDagen > 90) {
@@ -33,6 +38,25 @@ export async function updateAandachtInstellingenAction(waarden: AandachtInstelli
 
   revalidatePath("/coordinator/aandacht");
   revalidatePath("/coordinator/aandacht/instellingen");
+  revalidatePath("/coordinator");
+  revalidatePath("/vrijwilliger/aandacht");
+}
+
+export async function markeerAandachtOpgepaktAction(bewonerId: string, notitie?: string) {
+  const session = await auth();
+  if (!session?.user || !(session.user.rol === "COORDINATOR" || isVrijwilligerRol(session.user.rol))) {
+    throw new Error("Niet geautoriseerd");
+  }
+  if (!session.user.gebruikerId) throw new Error("Niet geautoriseerd");
+
+  await markeerAandachtOpgepakt({
+    organisatieId: session.user.organisatieId!,
+    bewonerId,
+    gebruikerId: session.user.gebruikerId,
+    notitie: notitie?.trim() || undefined,
+  });
+
+  revalidatePath("/coordinator/aandacht");
   revalidatePath("/coordinator");
   revalidatePath("/vrijwilliger/aandacht");
 }
