@@ -73,6 +73,12 @@ const NAV_VRIJWILLIGER_MOBILE: NavItem[] = [
   { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Activiteiten" },
 ];
 
+// Zelfde reden als hierboven: Welzijn staat als hart-icoon in de topbar,
+// zodat er ruimte overblijft in de onderbalk op mobiel.
+const NAV_COORDINATOR_MOBILE: NavItem[] = NAV_COORDINATOR.filter(
+  (item) => item.href !== "/coordinator/welzijnscheck"
+);
+
 const NAV_FAMILIE: NavItem[] = [
   { href: "/familie", icon: Heart, label: "Tijdlijn", exact: true },
   { href: "/familie/agenda", icon: CalendarDays, label: "Agenda" },
@@ -92,11 +98,13 @@ const NAV_MAP: Record<string, NavItem[]> = {
 // override vallen terug op NAV_MAP.
 const NAV_MOBILE_MAP: Record<string, NavItem[]> = {
   VRIJWILLIGER: NAV_VRIJWILLIGER_MOBILE,
+  COORDINATOR: NAV_COORDINATOR_MOBILE,
 };
 
 const WELZIJNSCHECK_HREF: Record<string, string> = {
   VRIJWILLIGER: "/vrijwilliger/welzijnscheck",
   WELZIJNSMEDEWERKER: "/vrijwilliger/welzijnscheck",
+  COORDINATOR: "/coordinator/welzijnscheck",
 };
 
 interface Props {
