@@ -8,19 +8,32 @@ export default defineConfig({
   workers: 1,
   reporter: "html",
   use: {
-    baseURL: "http://localhost:8765",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
     trace: "on-first-retry",
   },
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        launchOptions: {
+          // Launch the test browser WITHOUT user extensions. The local Chrome
+          // profile injects a CSP (via an adblocker/shield extension) that
+          // disables eval() — which breaks Next.js dev-mode source maps / the
+          // React error overlay. A clean chromium here avoids that entirely.
+          ignoreDefaultArgs: ["--enable-automation"],
+          args: ["--no-sandbox", "--disable-extensions", "--disable-dev-shm-usage"],
+        },
+      },
     },
   ],
   webServer: {
     command: "npm run dev",
-    url: "http://localhost:8765",
-    reuseExistingServer: !process.env.CI,
+    url: process.env.PLAYWRIGHT_BASE_URL || "http://localhost:3000",
+    // Always spawn a dedicated server in dev too. Re-using an
+    // externally-running dev-server (reuseExistingServer: true) leaves a
+    // zombie `next dev` holding port 3000 after the spec run finishes.
+    reuseExistingServer: !!process.env.CI,
     timeout: 30_000,
   },
 });
