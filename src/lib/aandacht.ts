@@ -23,10 +23,6 @@ export interface BewonerAandacht {
   status: AandachtStatus;
 }
 
-const BASELINE_DAGEN = 90;
-const RECENT_DAGEN = 14;
-const MIN_ACTIVITEITEN_VOOR_BASELINE = 3;
-
 const STATUS_VOLGORDE: Record<AandachtStatus, number> = {
   rood: 0,
   oranje: 1,
@@ -34,10 +30,75 @@ const STATUS_VOLGORDE: Record<AandachtStatus, number> = {
   groen: 3,
 };
 
+export interface AandachtInstellingen {
+  recentDagen: number;
+  baselineDagen: number;
+  drempelRood: number;
+  drempelOranje: number;
+  minActiviteiten: number;
+}
+
+const STANDAARD_INSTELLINGEN: AandachtInstellingen = {
+  recentDagen: 14,
+  baselineDagen: 90,
+  drempelRood: 0.5,
+  drempelOranje: 0.7,
+  minActiviteiten: 3,
+};
+
+/** Haalt de per-organisatie drempelwaarden op (of de standaardwaarden als de organisatie ze nog niet heeft ingesteld). */
+export async function getAandachtInstellingen(organisatieId: string): Promise<AandachtInstellingen> {
+  const instellingen = await prisma.adminInstellingen.findUnique({
+    where: { organisatieId },
+    select: {
+      aandachtRecentDagen: true,
+      aandachtBaselineDagen: true,
+      aandachtDrempelRood: true,
+      aandachtDrempelOranje: true,
+      aandachtMinActiviteiten: true,
+    },
+  });
+  if (!instellingen) return STANDAARD_INSTELLINGEN;
+  return {
+    recentDagen: instellingen.aandachtRecentDagen,
+    baselineDagen: instellingen.aandachtBaselineDagen,
+    drempelRood: instellingen.aandachtDrempelRood,
+    drempelOranje: instellingen.aandachtDrempelOranje,
+    minActiviteiten: instellingen.aandachtMinActiviteiten,
+  };
+}
+
+export async function updateAandachtInstellingen(
+  organisatieId: string,
+  waarden: AandachtInstellingen
+): Promise<void> {
+  await prisma.adminInstellingen.upsert({
+    where: { organisatieId },
+    create: {
+      organisatieId,
+      aandachtRecentDagen: waarden.recentDagen,
+      aandachtBaselineDagen: waarden.baselineDagen,
+      aandachtDrempelRood: waarden.drempelRood,
+      aandachtDrempelOranje: waarden.drempelOranje,
+      aandachtMinActiviteiten: waarden.minActiviteiten,
+    },
+    update: {
+      aandachtRecentDagen: waarden.recentDagen,
+      aandachtBaselineDagen: waarden.baselineDagen,
+      aandachtDrempelRood: waarden.drempelRood,
+      aandachtDrempelOranje: waarden.drempelOranje,
+      aandachtMinActiviteiten: waarden.minActiviteiten,
+    },
+  });
+}
+
 export async function getBewonersAandacht(organisatieId: string): Promise<BewonerAandacht[]> {
+  const { recentDagen, baselineDagen, drempelRood, drempelOranje, minActiviteiten } =
+    await getAandachtInstellingen(organisatieId);
+
   const now = new Date();
-  const baselineVanaf = new Date(now.getTime() - BASELINE_DAGEN * 86400000);
-  const recentVanaf = new Date(now.getTime() - RECENT_DAGEN * 86400000);
+  const baselineVanaf = new Date(now.getTime() - baselineDagen * 86400000);
+  const recentVanaf = new Date(now.getTime() - recentDagen * 86400000);
   const dertigVanaf = new Date(now.getTime() - 30 * 86400000);
 
   const bewoners = await prisma.bewoner.findMany({
@@ -72,18 +133,18 @@ export async function getBewonersAandacht(organisatieId: string): Promise<Bewone
     const baselineWeken = Math.max((now.getTime() - baselineStart.getTime()) / (7 * 86400000), 1);
     const gemiddeldPerWeek = activiteiten.length / baselineWeken;
 
-    const genoegData = b._count.activiteiten >= MIN_ACTIVITEITEN_VOOR_BASELINE;
+    const genoegData = b._count.activiteiten >= minActiviteiten;
 
     let status: AandachtStatus = "nieuw";
     let afwijkingsScore: number | null = null;
 
     if (genoegData) {
-      const verwacht = gemiddeldPerWeek * (RECENT_DAGEN / 7);
+      const verwacht = gemiddeldPerWeek * (recentDagen / 7);
       afwijkingsScore = verwacht > 0 ? aantalLaatste14Dagen / verwacht : aantalLaatste14Dagen > 0 ? 1 : 0;
 
-      if (afwijkingsScore < 0.5 && (dagenSindsLaatste === null || dagenSindsLaatste >= RECENT_DAGEN)) {
+      if (afwijkingsScore < drempelRood && (dagenSindsLaatste === null || dagenSindsLaatste >= recentDagen)) {
         status = "rood";
-      } else if (afwijkingsScore < 0.7) {
+      } else if (afwijkingsScore < drempelOranje) {
         status = "oranje";
       } else {
         status = "groen";

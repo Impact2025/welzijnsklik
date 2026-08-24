@@ -345,6 +345,15 @@ model AdminInstellingen {
   nieuwsbriefFrom    String?
   logoUrl            String?
   primaireKleur      String?
+
+  // Aandacht-signalering: drempelwaarden voor "afwijkt van eigen ritme".
+  // Zie src/lib/aandacht.ts — instelbaar per organisatie i.p.v. vaste code-constanten.
+  aandachtRecentDagen      Int   @default(14)  // venster waarover recente activiteit geteld wordt
+  aandachtBaselineDagen    Int   @default(90)  // periode waarover het eigen gemiddelde bepaald wordt
+  aandachtDrempelRood      Float @default(0.5) // < dit deel van eigen gemiddelde = rood
+  aandachtDrempelOranje    Float @default(0.7) // < dit deel van eigen gemiddelde = oranje
+  aandachtMinActiviteiten  Int   @default(3)   // minimum activiteiten totaal voor een betrouwbare baseline
+
   gewijzigdOp        DateTime  @default(now()) @updatedAt
 }
 
