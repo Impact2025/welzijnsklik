@@ -114,3 +114,49 @@ export function formatDatum(
 ): string {
   return d.toLocaleDateString("nl-NL", opt);
 }
+
+// ─── Periode-groepering (agenda, hulp gevraagd) ────────────────────────────
+// Groepeert een chronologisch gesorteerde lijst in "Deze week", "Volgende
+// week" en daarna per maand, zodat lange lijsten overzichtelijk blijven.
+
+export interface Periode<T> {
+  label: string;
+  items: T[];
+}
+
+export function groepeerPerPeriode<T>(
+  items: T[],
+  getDatum: (item: T) => Date
+): Periode<T>[] {
+  const nu = new Date();
+  const vandaag = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate());
+  const dagVanWeek = (vandaag.getDay() + 6) % 7; // maandag = 0
+  const startVolgendeWeek = new Date(vandaag);
+  startVolgendeWeek.setDate(vandaag.getDate() - dagVanWeek + 7);
+  const startWeekDaarna = new Date(startVolgendeWeek);
+  startWeekDaarna.setDate(startVolgendeWeek.getDate() + 7);
+
+  const groepen = new Map<string, T[]>();
+  const volgorde: string[] = [];
+
+  for (const item of items) {
+    const d = getDatum(item);
+    let label: string;
+    if (d < startVolgendeWeek) {
+      label = "Deze week";
+    } else if (d < startWeekDaarna) {
+      label = "Volgende week";
+    } else {
+      const maandLabel = d.toLocaleDateString("nl-NL", { month: "long" });
+      const naam = maandLabel.charAt(0).toUpperCase() + maandLabel.slice(1);
+      label = d.getFullYear() !== nu.getFullYear() ? `${naam} ${d.getFullYear()}` : naam;
+    }
+    if (!groepen.has(label)) {
+      groepen.set(label, []);
+      volgorde.push(label);
+    }
+    groepen.get(label)!.push(item);
+  }
+
+  return volgorde.map((label) => ({ label, items: groepen.get(label)! }));
+}

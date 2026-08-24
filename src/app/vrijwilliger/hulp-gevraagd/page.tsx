@@ -4,6 +4,7 @@ import { Calendar, Clock, Users, Megaphone } from "lucide-react";
 import { EmptyState } from "@/components/ui";
 import AanmeldKnop from "./AanmeldKnop";
 import { getFotoUrl } from "@/lib/foto";
+import { groepeerPerPeriode } from "@/lib/activiteit";
 
 const STATUS_CFG: Record<string, { label: string; bg: string; kleur: string }> = {
   open: { label: "Open", bg: "bg-emerald-100", kleur: "text-emerald-700" },
@@ -65,6 +66,8 @@ export default async function VrijwilligerHulpGevraagdPage() {
     take: 5,
   });
 
+  const itemsPerPeriode = groepeerPerPeriode(items, (item) => new Date(item.datum));
+
   return (
     <div className="px-4 py-6 space-y-6">
       {/* Header */}
@@ -85,8 +88,13 @@ export default async function VrijwilligerHulpGevraagdPage() {
           description="De coördinator plaatst hier oproepen als er hulp nodig is. Kom later nog eens kijken!"
         />
       ) : (
-        <div className="space-y-4">
-          {items.map((item) => {
+        <div className="space-y-6">
+          {itemsPerPeriode.map((periode) => (
+          <div key={periode.label} className="space-y-4">
+            <h2 className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider px-0.5">
+              {periode.label}
+            </h2>
+          {periode.items.map((item) => {
             const cfg = STATUS_CFG[item.status] ?? STATUS_CFG.open;
             const eigenReactie = item.reacties[0];
             const bezet = item._count.reacties;
@@ -108,7 +116,7 @@ export default async function VrijwilligerHulpGevraagdPage() {
                 <div className="p-4 space-y-4">
                   {/* Titel + status badge */}
                   <div className="flex items-start justify-between gap-2">
-                    <h2 className="font-bold text-gray-900 leading-snug">{item.titel}</h2>
+                    <h3 className="font-bold text-gray-900 leading-snug">{item.titel}</h3>
                     <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${cfg.bg} ${cfg.kleur}`}>
                       {cfg.label}
                     </span>
@@ -162,6 +170,8 @@ export default async function VrijwilligerHulpGevraagdPage() {
               </div>
             );
           })}
+          </div>
+          ))}
         </div>
       )}
 
