@@ -172,7 +172,7 @@ export async function addActiviteitBlok(draftId: string, activiteitId: string) {
   if (!activiteit) throw new Error("Activiteit niet gevonden");
 
   const volgorde = draft.blokken.length;
-  await prisma.nieuwsbriefBlok.create({
+  const blok = await prisma.nieuwsbriefBlok.create({
     data: {
       draftId,
       type: "activiteit",
@@ -187,6 +187,7 @@ export async function addActiviteitBlok(draftId: string, activiteitId: string) {
   });
 
   revalidatePath(`/coordinator/nieuwsbrieven/${draftId}/edit`);
+  return blok;
 }
 
 export async function addTekstBlok(draftId: string) {
@@ -194,7 +195,7 @@ export async function addTekstBlok(draftId: string) {
   const draft = await getDraftVoorEdit(draftId, session.user.organisatieId!);
   if (draft.status === "verzonden") throw new Error("Al verzonden");
 
-  await prisma.nieuwsbriefBlok.create({
+  const blok = await prisma.nieuwsbriefBlok.create({
     data: {
       draftId,
       type: "tekst",
@@ -205,6 +206,7 @@ export async function addTekstBlok(draftId: string) {
   });
 
   revalidatePath(`/coordinator/nieuwsbrieven/${draftId}/edit`);
+  return blok;
 }
 
 export async function updateBlok(blokId: string, formData: FormData) {
@@ -233,7 +235,7 @@ export async function addAfbeeldingBlok(draftId: string) {
   const draft = await getDraftVoorEdit(draftId, session.user.organisatieId!);
   if (draft.status === "verzonden") throw new Error("Al verzonden");
 
-  await prisma.nieuwsbriefBlok.create({
+  const blok = await prisma.nieuwsbriefBlok.create({
     data: {
       draftId,
       type: "afbeelding",
@@ -245,6 +247,7 @@ export async function addAfbeeldingBlok(draftId: string) {
   });
 
   revalidatePath(`/coordinator/nieuwsbrieven/${draftId}/edit`);
+  return blok;
 }
 
 export async function removeBlok(blokId: string) {

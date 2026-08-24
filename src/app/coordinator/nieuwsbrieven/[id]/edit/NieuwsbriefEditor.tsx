@@ -135,7 +135,8 @@ export function NieuwsbriefEditor({
     setBusyId(a.id);
     setError(null);
     try {
-      await addActiviteitBlok(draft.id, a.id);
+      const blok = await addActiviteitBlok(draft.id, a.id);
+      if (blok) setBlokken((list) => [...list, blok as Blok]);
       setActiviteiten((list) => list.map((x) => (x.id === a.id ? { ...x, gekozen: true } : x)));
       router.refresh();
     } catch (e) {
@@ -147,9 +148,13 @@ export function NieuwsbriefEditor({
 
   async function voegTekstToe() {
     setBusyId("tekst");
+    setError(null);
     try {
-      await addTekstBlok(draft.id);
+      const blok = await addTekstBlok(draft.id);
+      setBlokken((list) => [...list, blok as Blok]);
       router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Toevoegen mislukt");
     } finally {
       setBusyId(null);
     }
@@ -157,9 +162,13 @@ export function NieuwsbriefEditor({
 
   async function voegAfbeeldingToe() {
     setBusyId("afbeelding");
+    setError(null);
     try {
-      await addAfbeeldingBlok(draft.id);
+      const blok = await addAfbeeldingBlok(draft.id);
+      setBlokken((list) => [...list, blok as Blok]);
       router.refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Toevoegen mislukt");
     } finally {
       setBusyId(null);
     }
