@@ -390,6 +390,28 @@ export function nieuwsbriefHtml(opts: {
   });
 }
 
+export function coordinatorBerichtHtml(opts: {
+  naam: string;
+  coordinatorNaam: string;
+  inhoud: string;
+  organisatie: string;
+}): string {
+  const { naam, coordinatorNaam, inhoud, organisatie } = opts;
+  return baseHtml({
+    title: "Bericht van je coördinator",
+    preheader: `${coordinatorNaam} heeft je een bericht gestuurd`,
+    body: `
+      <h2>Hoi ${esc(naam)},</h2>
+      <p>${esc(coordinatorNaam)} heeft dit bericht gestuurd via Welzijnsklik:</p>
+      <div style="background:#f5f2ed; border-radius:12px; padding:16px; margin:16px 0;">
+        <p style="margin:0; white-space:pre-wrap;">${esc(inhoud)}</p>
+      </div>
+    `,
+    cta: { label: "Bekijk en reageer", url: `${APP_URL}/vrijwilliger/berichten` },
+    footer: `Welzijnsklik · ${esc(organisatie)}`,
+  });
+}
+
 export function welzijncheckReminderHtml(naam: string, organisatie: string): string {
   const maandNaam = new Date().toLocaleDateString("nl-NL", { month: "long" });
   return baseHtml({

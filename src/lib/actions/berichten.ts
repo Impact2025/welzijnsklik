@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { isVrijwilligerRol } from "@/lib/rollen";
+import { sendEmail, coordinatorBerichtHtml } from "@/lib/email";
 
 export async function stuurBericht(aanId: string, inhoud: string) {
   const session = await auth();
@@ -39,7 +40,7 @@ export async function stuurBericht(aanId: string, inhoud: string) {
   revalidatePath(`/${aanRol}/berichten`);
 }
 
-export async function stuurBerichtAanIedereen(inhoud: string) {
+export async function stuurBerichtAanIedereen(inhoud: string, ookPerEmail = false) {
   const session = await auth();
   if (!session?.user?.gebruikerId) throw new Error("Niet geautoriseerd");
   if (session.user.rol !== "COORDINATOR") throw new Error("Niet geautoriseerd");
@@ -47,13 +48,17 @@ export async function stuurBerichtAanIedereen(inhoud: string) {
   const inhoudTrimmed = inhoud.trim();
   if (!inhoudTrimmed || inhoudTrimmed.length > 2000) throw new Error("Ongeldig bericht");
 
-  const ontvangers = await prisma.gebruiker.findMany({
-    where: {
-      organisatieId: session.user.organisatieId,
-      rol: { in: ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] },
-    },
-    select: { id: true },
-  });
+  const [ontvangers, coordinator, organisatie] = await Promise.all([
+    prisma.gebruiker.findMany({
+      where: {
+        organisatieId: session.user.organisatieId,
+        rol: { in: ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] },
+      },
+      select: { id: true, naam: true, email: true },
+    }),
+    prisma.gebruiker.findUnique({ where: { id: session.user.gebruikerId }, select: { naam: true } }),
+    prisma.organisatie.findUnique({ where: { id: session.user.organisatieId! }, select: { naam: true } }),
+  ]);
 
   if (ontvangers.length === 0) return;
 
@@ -72,6 +77,23 @@ export async function stuurBerichtAanIedereen(inhoud: string) {
     revalidatePath(`/vrijwilliger/berichten/${session.user.gebruikerId}`);
   }
   revalidatePath("/vrijwilliger/berichten");
+
+  if (ookPerEmail) {
+    await Promise.all(
+      ontvangers.map((o) =>
+        sendEmail({
+          to: o.email,
+          subject: `Bericht van ${coordinator?.naam ?? "je coördinator"}`,
+          html: coordinatorBerichtHtml({
+            naam: o.naam,
+            coordinatorNaam: coordinator?.naam ?? "Je coördinator",
+            inhoud: inhoudTrimmed,
+            organisatie: organisatie?.naam ?? "Welzijnsklik",
+          }),
+        })
+      )
+    );
+  }
 }
 
 export async function markeerGelezen(vanId: string) {

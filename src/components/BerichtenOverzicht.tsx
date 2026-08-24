@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
-import { MessageSquare, Plus, Search, Megaphone, Send, Loader2, X } from "lucide-react";
+import { MessageSquare, Plus, Search, Megaphone, Send, Loader2, X, Mail } from "lucide-react";
 import { Avatar } from "@/components/ui";
 import { stuurBerichtAanIedereen } from "@/lib/actions/berichten";
 
@@ -78,6 +78,7 @@ function ThreadRow({ t, ikId }: { t: Thread; ikId: string }) {
 
 function BroadcastComposer({ onClose }: { onClose: () => void }) {
   const [inhoud, setInhoud] = useState("");
+  const [ookPerEmail, setOokPerEmail] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [verzonden, setVerzonden] = useState(false);
@@ -88,7 +89,7 @@ function BroadcastComposer({ onClose }: { onClose: () => void }) {
     setError(null);
     startTransition(async () => {
       try {
-        await stuurBerichtAanIedereen(inhoud);
+        await stuurBerichtAanIedereen(inhoud, ookPerEmail);
         setVerzonden(true);
         setInhoud("");
       } catch (err) {
@@ -110,7 +111,9 @@ function BroadcastComposer({ onClose }: { onClose: () => void }) {
       </div>
 
       {verzonden ? (
-        <p className="text-sm text-emerald-600">Verstuurd naar alle vrijwilligers en pro&apos;s.</p>
+        <p className="text-sm text-emerald-600">
+          Verstuurd naar alle vrijwilligers en pro&apos;s{ookPerEmail ? ", ook per e-mail" : ""}.
+        </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-2">
           <textarea
@@ -122,11 +125,21 @@ function BroadcastComposer({ onClose }: { onClose: () => void }) {
             className="w-full resize-none bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-sm text-gray-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
           />
           {error && <p className="text-xs text-red-500">{error}</p>}
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between gap-2">
+            <label className="flex items-center gap-1.5 text-xs text-neutral-500 select-none">
+              <input
+                type="checkbox"
+                checked={ookPerEmail}
+                onChange={(e) => setOokPerEmail(e.target.checked)}
+                className="rounded border-neutral-300 text-amber-500 focus:ring-amber-300"
+              />
+              <Mail size={13} className="text-neutral-400" />
+              Ook per e-mail versturen
+            </label>
             <button
               type="submit"
               disabled={!inhoud.trim() || isPending}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium disabled:opacity-40 transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium disabled:opacity-40 transition-colors flex-shrink-0"
             >
               {isPending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
               Verstuur naar iedereen
