@@ -5,8 +5,10 @@ import { ChevronRight, Activity, UserPlus, Users, UserCheck, Clock, AlertTriangl
 import { ACTIVITEIT_ICON, formatDatum, formatDuur } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
 import { getBewonersAandacht } from "@/lib/aandacht";
+import { getGeluksmomentenOverzicht, type GeluksmomentenPeriode } from "@/lib/actions/geluksmomenten";
 import { StatCard, EmptyState } from "@/components/ui";
 import { UitnodigForm } from "./gebruikers/UitnodigForm";
+import { GeluksmomentenCard } from "@/components/GeluksmomentenCard";
 
 function ActiviteitIcon({ type }: { type: string }) {
   const cfg = ACTIVITEIT_ICON[type] ?? ACTIVITEIT_ICON.Anders;
@@ -18,16 +20,24 @@ function ActiviteitIcon({ type }: { type: string }) {
   );
 }
 
-export default async function CoordinatorDashboard() {
+export default async function CoordinatorDashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ geluk?: string }>;
+}) {
   const session = await auth();
   const organisatieId = session!.user.organisatieId!;
   const naam = session!.user.naam ?? session!.user.name ?? "Coordinator";
   const voornaam = naam.split(" ")[0];
 
+  const { geluk } = await searchParams;
+  const geluksPeriode: GeluksmomentenPeriode =
+    geluk === "maand" || geluk === "kwartaal" ? geluk : "week";
+
   const now = new Date();
   const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [activiteiten, bewoners, vrijwilligers, interesses, openHulpvragen, openHulpCount, aandachtData] = await Promise.all([
+  const [activiteiten, bewoners, vrijwilligers, interesses, openHulpvragen, openHulpCount, aandachtData, geluksmomenten] = await Promise.all([
     prisma.activiteit.findMany({
       where: { bewoner: { organisatieId } },
       include: {
@@ -46,12 +56,13 @@ export default async function CoordinatorDashboard() {
     }),
     prisma.wervingsinteresse.count({ where: { status: "nieuw", gebruiker: { organisatieId } } }),
     prisma.hulpGevraagd.findMany({
-      where: { organisatieId, status: "open" },
+      where: { organisatieId, status: "open", datum: { gte: new Date() } },
       orderBy: { datum: "asc" },
       take: 6,
     }),
-    prisma.hulpGevraagd.count({ where: { organisatieId, status: "open" } }),
+    prisma.hulpGevraagd.count({ where: { organisatieId, status: "open", datum: { gte: new Date() } } }),
     getBewonersAandacht(organisatieId),
+    getGeluksmomentenOverzicht(organisatieId, geluksPeriode),
   ]);
 
   const aandachtRood = aandachtData.filter((b) => b.status === "rood");
@@ -217,6 +228,13 @@ export default async function CoordinatorDashboard() {
             ))}
           </div>
 
+          <div className="lg:hidden">
+            <GeluksmomentenCard
+              data={geluksmomenten}
+              periodeHref={(p) => `/coordinator?geluk=${p}`}
+            />
+          </div>
+
           {activiteitPerDag.length > 0 && (
             <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 lg:p-5 space-y-3 lg:space-y-4">
               <h2 className="font-semibold text-gray-900 text-[15px] lg:text-base">Activiteiten deze maand</h2>
@@ -251,6 +269,11 @@ export default async function CoordinatorDashboard() {
         </div>
 
         <div className="hidden lg:block lg:col-span-1 space-y-6 lg:space-y-8">
+          <GeluksmomentenCard
+            data={geluksmomenten}
+            periodeHref={(p) => `/coordinator?geluk=${p}`}
+          />
+
           {openHulpCount > 0 && (
             <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 lg:p-5 space-y-3 lg:space-y-4">
               <div className="flex items-center justify-between">
