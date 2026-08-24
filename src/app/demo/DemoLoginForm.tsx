@@ -41,6 +41,18 @@ const DEMO_ACCOUNTS = [
     badge: "bg-emerald-600",
   },
   {
+    email: "welzijnsmedewerker@demeerwende.nl",
+    label: "Welzijnsmedewerker",
+    beschrijving: "Hulp vragen beantwoorden, bewoners begeleiden",
+    naam: "Sanne de Wit",
+    icon: Users,
+    bg: "bg-teal-50 border-teal-200",
+    hover: "hover:bg-teal-100 hover:border-teal-300",
+    iconBg: "bg-teal-100",
+    iconColor: "text-teal-600",
+    badge: "bg-teal-600",
+  },
+  {
     email: "familie@example.nl",
     label: "Familie",
     beschrijving: "Tijdlijn, meehelpen",
