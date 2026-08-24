@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Users, Camera, ChevronRight, Activity } from "lucide-react";
+import { Users, Camera, ChevronRight, Activity, Search } from "lucide-react";
 import { NieuwBewonersForm } from "./NieuwBewonersForm";
 
 export default async function BewonersOverzicht({
@@ -50,6 +50,13 @@ export default async function BewonersOverzicht({
           placeholder="Kamernummer..."
           className="w-36 px-3 py-2 rounded-xl border border-neutral-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
         />
+        <button
+          type="submit"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-500 text-white text-sm font-medium hover:bg-amber-600 transition-colors flex-shrink-0"
+        >
+          <Search size={14} />
+          Zoeken
+        </button>
       </form>
 
       <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
