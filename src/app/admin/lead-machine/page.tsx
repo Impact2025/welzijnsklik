@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import {
-  Search, Star, StarOff, Download, ExternalLink, Mail, Phone,
-  MapPin, Zap, Loader2, Trash2, CheckCircle2, RefreshCw,
-  Database, TrendingUp, Settings2, ChevronDown, ChevronUp, Clock,
-  ArrowRight, Building2, UserPlus, Users,
+  Star, StarOff, Download, ExternalLink, Mail, Phone,
+  Zap, Trash2, CheckCircle2,
+  Database, Users,
 } from 'lucide-react';
 import { Card, PageHeader, Badge, Button, EmptyState } from '@/components/ui';
 
@@ -341,24 +340,28 @@ function SavedLeads({ refreshKey }: { refreshKey: number }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const fetchLeads = useCallback(async () => {
-    setLoading(true);
-    try {
-      const qs = new URLSearchParams({ limit: '50' });
-      if (search) qs.set('search', search);
-      if (statusFilter !== 'all') qs.set('status', statusFilter);
-      const res = await fetch(`/api/admin/lead-machine/leads?${qs}`);
-      const data = await res.json();
-      setLeads(data.leads ?? []);
-      setTotal(data.total ?? 0);
-    } catch {
-      console.error('Fetch leads failed');
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      setLoading(true);
+      try {
+        const qs = new URLSearchParams({ limit: '50' });
+        if (search) qs.set('search', search);
+        if (statusFilter !== 'all') qs.set('status', statusFilter);
+        const res = await fetch(`/api/admin/lead-machine/leads?${qs}`);
+        const data = await res.json();
+        if (cancelled) return;
+        setLeads(data.leads ?? []);
+        setTotal(data.total ?? 0);
+      } catch {
+        if (!cancelled) console.error('Fetch leads failed');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  }, [search, statusFilter]);
-
-  useEffect(() => { fetchLeads(); }, [fetchLeads, refreshKey]);
+    load();
+    return () => { cancelled = true; };
+  }, [search, statusFilter, refreshKey]);
 
   const updateStatus = async (id: string, status: string) => {
     await fetch('/api/admin/lead-machine/leads', {
