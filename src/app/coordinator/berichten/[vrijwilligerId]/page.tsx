@@ -7,6 +7,7 @@ import { markeerGelezen } from "@/lib/actions/berichten";
 import ChatInput from "@/components/ChatInput";
 import ChatScroll from "@/components/ChatScroll";
 import { Avatar } from "@/components/ui";
+import { ROL_LABELS } from "@/lib/rollen";
 
 function tijdStempel(datum: Date) {
   return datum.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" }) +
@@ -60,7 +61,7 @@ export default async function CoordinatorChatPage({
           <Avatar naam={vrijwilliger.naam} src={vrijwilliger.profielFoto} fotoId={vrijwilliger.id} size="sm" />
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-gray-900 text-sm truncate">{vrijwilliger.naam}</p>
-            <p className="text-xs text-neutral-400">Vrijwilliger</p>
+            <p className="text-xs text-neutral-400">{ROL_LABELS[vrijwilliger.rol]}</p>
           </div>
         </div>
       </div>

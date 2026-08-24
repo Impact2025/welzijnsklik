@@ -39,6 +39,41 @@ export async function stuurBericht(aanId: string, inhoud: string) {
   revalidatePath(`/${aanRol}/berichten`);
 }
 
+export async function stuurBerichtAanIedereen(inhoud: string) {
+  const session = await auth();
+  if (!session?.user?.gebruikerId) throw new Error("Niet geautoriseerd");
+  if (session.user.rol !== "COORDINATOR") throw new Error("Niet geautoriseerd");
+
+  const inhoudTrimmed = inhoud.trim();
+  if (!inhoudTrimmed || inhoudTrimmed.length > 2000) throw new Error("Ongeldig bericht");
+
+  const ontvangers = await prisma.gebruiker.findMany({
+    where: {
+      organisatieId: session.user.organisatieId,
+      rol: { in: ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] },
+    },
+    select: { id: true },
+  });
+
+  if (ontvangers.length === 0) return;
+
+  await prisma.bericht.createMany({
+    data: ontvangers.map((o) => ({
+      organisatieId: session.user.organisatieId!,
+      vanId: session.user.gebruikerId!,
+      aanId: o.id,
+      inhoud: inhoudTrimmed,
+    })),
+  });
+
+  revalidatePath("/coordinator/berichten");
+  for (const o of ontvangers) {
+    revalidatePath(`/coordinator/berichten/${o.id}`);
+    revalidatePath(`/vrijwilliger/berichten/${session.user.gebruikerId}`);
+  }
+  revalidatePath("/vrijwilliger/berichten");
+}
+
 export async function markeerGelezen(vanId: string) {
   const session = await auth();
   if (!session?.user?.gebruikerId) return;
