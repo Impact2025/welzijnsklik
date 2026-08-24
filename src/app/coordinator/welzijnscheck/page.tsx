@@ -98,11 +98,10 @@ export default async function CoordinatorWelzijnscheckPage() {
               </p>
               <div className="flex flex-wrap gap-2 mt-2">
                 {aandachtRijen.map((r) => {
-                  const info = welzijnsInfo(r.laatsteScore!);
                   return (
                     <Link
                       key={r.vrijwilligerId}
-                      href={`/coordinator/berichten/${r.vrijwilligerId}`}
+                      href={`/coordinator/welzijnscheck/${r.vrijwilligerId}`}
                       className="inline-flex items-center gap-1.5 text-xs font-medium bg-white border border-red-200 text-red-700 px-2.5 py-1 rounded-full hover:bg-red-100 transition-colors"
                     >
                       {r.anoniem ? "Anoniem" : r.naam} · {r.laatsteScore}/5
@@ -142,7 +141,7 @@ export default async function CoordinatorWelzijnscheckPage() {
               return (
                 <Link
                   key={r.vrijwilligerId}
-                  href={`/coordinator/berichten/${r.vrijwilligerId}`}
+                  href={heeftCheck ? `/coordinator/welzijnscheck/${r.vrijwilligerId}` : `/coordinator/berichten/${r.vrijwilligerId}`}
                   className={`flex items-center gap-3 px-4 py-3.5 hover:bg-neutral-50 transition-colors group ${
                     aandacht ? "bg-red-50/60" : ""
                   }`}

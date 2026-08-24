@@ -99,6 +99,48 @@ export async function vulWelzijnscheckNamensIn(
   return { ok: true as const };
 }
 
+export interface WelzijnscheckDetail {
+  id: string;
+  score: number;
+  stemming: WelzijnscheckStemming;
+  notitie: string | null;
+  aandachtspunten: string[];
+  anoniem: boolean;
+  createdAt: Date;
+}
+
+// Volledige check-geschiedenis van één vrijwilliger — voor de coördinator.
+export async function getWelzijnscheckGeschiedenis(
+  organisatieId: string,
+  vrijwilligerId: string
+): Promise<{ naam: string; checks: WelzijnscheckDetail[] } | null> {
+  const vrijwilliger = await prisma.gebruiker.findFirst({
+    where: {
+      id: vrijwilligerId,
+      organisatieId,
+      rol: { in: ["VRIJWILLIGER", "WELZIJNSMEDEWERKER"] },
+    },
+    select: { naam: true },
+  });
+  if (!vrijwilliger) return null;
+
+  const checks = await prisma.welzijnscheck.findMany({
+    where: { organisatieId, vrijwilligerId },
+    select: {
+      id: true,
+      score: true,
+      stemming: true,
+      notitie: true,
+      aandachtspunten: true,
+      anoniem: true,
+      createdAt: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  return { naam: vrijwilliger.naam, checks };
+}
+
 export interface WelzijnscheckRij {
   vrijwilligerId: string;
   naam: string;
