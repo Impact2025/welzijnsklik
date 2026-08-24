@@ -1,9 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
-import { CalendarDays, MapPin, Clock, Megaphone, HandHeart, Users } from "lucide-react";
+import { CalendarDays, HandHeart } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDuur, formatDatum, groepeerPerPeriode } from "@/lib/activiteit";
-import { getFotoUrl } from "@/lib/foto";
 import AanmeldKnop from "@/app/vrijwilliger/hulp-gevraagd/AanmeldKnop";
 
 function formatTijd(d: Date) {
@@ -15,37 +13,26 @@ export default async function VrijwilligerAgendaPage() {
   const organisatieId = session!.user.organisatieId!;
   const gebruikerId = session!.user.gebruikerId!;
 
-  const [activiteiten, hulpVragen] = await Promise.all([
-    prisma.geplandeActiviteit.findMany({
-      where: { organisatieId, datum: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } },
-      include: {
-        hulpGevraagd: {
-          include: {
-            _count: { select: { reacties: { where: { status: { not: { in: ["afgewezen", "geweigerd"] } } } } } },
-            reacties: { where: { gebruikerId }, select: { id: true, bericht: true, status: true } },
-          },
+  const activiteiten = await prisma.geplandeActiviteit.findMany({
+    where: { organisatieId, datum: { gte: new Date(new Date().setHours(0, 0, 0, 0)) } },
+    include: {
+      hulpGevraagd: {
+        include: {
+          _count: { select: { reacties: { where: { status: { not: { in: ["afgewezen", "geweigerd"] } } } } } },
+          reacties: { where: { gebruikerId }, select: { id: true, bericht: true, status: true } },
         },
       },
-      orderBy: { datum: "asc" },
-    }),
-    prisma.hulpGevraagd.findMany({
-      where: { organisatieId, status: { in: ["open", "vol"] }, datum: { gte: new Date() }, geplandeActiviteit: null },
-      include: {
-        _count: { select: { reacties: { where: { status: { not: { in: ["afgewezen", "geweigerd"] } } } } } },
-        reacties: { where: { gebruikerId }, select: { id: true, bericht: true, status: true } },
-      },
-      orderBy: { datum: "asc" },
-    }),
-  ]);
+    },
+    orderBy: { datum: "asc" },
+  });
 
   const activiteitenPerPeriode = groepeerPerPeriode(activiteiten, (a) => new Date(a.datum));
-  const hulpVragenPerPeriode = groepeerPerPeriode(hulpVragen, (h) => new Date(h.datum));
 
   return (
     <div className="px-4 py-6 space-y-6">
       <div>
         <h1 className="text-xl font-bold text-gray-900">Agenda</h1>
-        <p className="text-sm text-neutral-500 mt-0.5">Activiteiten en waar hulp gevraagd wordt</p>
+        <p className="text-sm text-neutral-500 mt-0.5">Geplande activiteiten</p>
       </div>
 
       {/* Activiteiten */}
@@ -103,58 +90,6 @@ export default async function VrijwilligerAgendaPage() {
           ))
         )}
       </div>
-
-      {/* Losse hulpvragen */}
-      {hulpVragen.length > 0 && (
-        <div className="space-y-3">
-          <h2 className="font-semibold text-gray-900 text-[15px] flex items-center gap-1.5">
-            <Megaphone size={15} className="text-amber-500" />
-            Hulp gevraagd
-          </h2>
-          {hulpVragenPerPeriode.map((periode) => (
-            <div key={periode.label} className="space-y-3">
-              <h3 className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider px-0.5">
-                {periode.label}
-              </h3>
-              {periode.items.map((h) => {
-                const eigenReactie = h.reacties[0];
-                const bezet = h._count.reacties;
-                const vrij = h.aantalNodig - bezet;
-                const isOpen = h.status === "open";
-                return (
-                  <div key={h.id} className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden">
-                    {h.fotoUrl && (
-                      <div className="w-full h-32 bg-neutral-100 overflow-hidden">
-                        <img src={getFotoUrl(h.fotoUrl, h.id, "hulp") ?? ""} alt="" className="w-full h-full object-cover" />
-                      </div>
-                    )}
-                    <div className="p-4 space-y-3">
-                      <h3 className="font-bold text-gray-900 leading-snug">{h.titel}</h3>
-                      <div className="space-y-1.5">
-                        <div className="flex items-center gap-2 text-sm text-neutral-600">
-                          <Clock size={14} className="text-amber-500 flex-shrink-0" />
-                          <span>{formatTijd(new Date(h.datum))} · {formatDuur(h.duurMinuten)}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-neutral-600">
-                          <Users size={14} className="text-amber-500 flex-shrink-0" />
-                          <span>{isOpen && vrij > 0 ? `Nog ${vrij} plek${vrij !== 1 ? "ken" : ""}` : `${h.aantalNodig} vrijwilliger${h.aantalNodig !== 1 ? "s" : ""} nodig`}</span>
-                        </div>
-                      </div>
-                      <AanmeldKnop
-                        hulpId={h.id}
-                        heeftGereageerd={!!eigenReactie}
-                        reactieBericht={eigenReactie?.bericht}
-                        reactieStatus={eigenReactie?.status}
-                        isOpen={isOpen}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }
