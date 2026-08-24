@@ -42,10 +42,11 @@ const NAV_COORDINATOR: NavItem[] = [
   { href: "/coordinator/nieuwsbrieven", icon: Mail, label: "Nieuwsbrief" },
 ];
 
+// Aandacht (welzijnsritme-signalering) is alleen voor coordinator en
+// welzijnsmedewerker, niet voor de gewone vrijwilliger of familie.
 const NAV_VRIJWILLIGER: NavItem[] = [
   { href: "/vrijwilliger", icon: LayoutDashboard, label: "Dashboard", exact: true },
   { href: "/vrijwilliger/agenda", icon: CalendarDays, label: "Agenda" },
-  { href: "/vrijwilliger/aandacht", icon: HeartHandshake, label: "Aandacht" },
   { href: "/vrijwilliger/welzijnscheck", icon: HeartPulse, label: "Welzijn" },
   { href: "/vrijwilliger/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/vrijwilliger/berichten", icon: MessageSquare, label: "Chat" },
@@ -56,6 +57,7 @@ const NAV_VRIJWILLIGER: NavItem[] = [
 const NAV_WELZIJNSMEDEWERKER: NavItem[] = [
   ...NAV_VRIJWILLIGER.slice(0, 2),
   { href: "/vrijwilliger/bewoners", icon: Users, label: "Bewoners" },
+  { href: "/vrijwilliger/aandacht", icon: HeartHandshake, label: "Aandacht" },
   ...NAV_VRIJWILLIGER.slice(2),
 ];
 

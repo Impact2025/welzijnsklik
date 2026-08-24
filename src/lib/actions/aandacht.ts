@@ -2,7 +2,6 @@
 
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
-import { isVrijwilligerRol } from "@/lib/rollen";
 import {
   updateAandachtInstellingen,
   markeerAandachtOpgepakt,
@@ -44,7 +43,7 @@ export async function updateAandachtInstellingenAction(waarden: AandachtInstelli
 
 export async function markeerAandachtOpgepaktAction(bewonerId: string, notitie?: string) {
   const session = await auth();
-  if (!session?.user || !(session.user.rol === "COORDINATOR" || isVrijwilligerRol(session.user.rol))) {
+  if (!session?.user || !(session.user.rol === "COORDINATOR" || session.user.rol === "WELZIJNSMEDEWERKER")) {
     throw new Error("Niet geautoriseerd");
   }
   if (!session.user.gebruikerId) throw new Error("Niet geautoriseerd");

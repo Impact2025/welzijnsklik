@@ -18,12 +18,14 @@ export default async function VrijwilligerLayout({
     redirect("/geen-toegang");
   }
 
+  const isWelzijnsmedewerker = session.user.rol === "WELZIJNSMEDEWERKER";
+
   const [openHulpVragen, ongelezeBerichten, meldingenCount, aandachtCount, laatsteCheck] =
     await Promise.all([
       getOpenHulpVragenCount(),
       getOngelezeBerichten(),
       getVrijwilligerMeldingenCount(),
-      getAandachtRoodCount(session.user.organisatieId!),
+      isWelzijnsmedewerker ? getAandachtRoodCount(session.user.organisatieId!) : Promise.resolve(0),
       prisma.welzijnscheck.findFirst({
         where: { vrijwilligerId: session.user.gebruikerId! },
         orderBy: { createdAt: "desc" },

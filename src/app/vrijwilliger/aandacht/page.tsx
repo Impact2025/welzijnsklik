@@ -1,9 +1,13 @@
 import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 import { getBewonersAandacht, getAandachtInstellingen } from "@/lib/aandacht";
 import { AandachtOverzicht } from "@/components/AandachtOverzicht";
 
 export default async function VrijwilligerAandacht() {
   const session = await auth();
+  if (session?.user.rol !== "WELZIJNSMEDEWERKER") {
+    redirect("/geen-toegang");
+  }
   const organisatieId = session!.user.organisatieId!;
 
   const [data, instellingen] = await Promise.all([
