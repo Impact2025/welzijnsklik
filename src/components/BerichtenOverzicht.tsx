@@ -19,7 +19,7 @@ export type Thread = {
 
 const ROL_LABEL: Record<Rol, string> = {
   VRIJWILLIGER: "Vrijwilliger",
-  WELZIJNSMEDEWERKER: "Pro",
+  WELZIJNSMEDEWERKER: "Collega",
 };
 
 const ROL_BADGE: Record<Rol, string> = {
@@ -112,14 +112,14 @@ function BroadcastComposer({ onClose }: { onClose: () => void }) {
 
       {verzonden ? (
         <p className="text-sm text-emerald-600">
-          Verstuurd naar alle vrijwilligers en pro&apos;s{ookPerEmail ? ", ook per e-mail" : ""}.
+          Verstuurd naar alle vrijwilligers en collega&apos;s{ookPerEmail ? ", ook per e-mail" : ""}.
         </p>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-2">
           <textarea
             value={inhoud}
             onChange={(e) => setInhoud(e.target.value)}
-            placeholder="Schrijf een bericht voor alle vrijwilligers en pro's…"
+            placeholder="Schrijf een bericht voor alle vrijwilligers en collega's…"
             rows={3}
             maxLength={2000}
             className="w-full resize-none bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-sm text-gray-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-amber-300"
@@ -205,7 +205,7 @@ export default function BerichtenOverzicht({ threads, ikId }: { threads: Thread[
         <div className="space-y-5">
           {pros.length > 0 && (
             <div className="space-y-2">
-              <h2 className="text-[12px] font-semibold text-neutral-400 uppercase tracking-wider">Pro&apos;s</h2>
+              <h2 className="text-[12px] font-semibold text-neutral-400 uppercase tracking-wider">Collega&apos;s</h2>
               <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 overflow-hidden divide-y divide-neutral-50">
                 {pros.map((t) => (
                   <ThreadRow key={t.id} t={t} ikId={ikId} />

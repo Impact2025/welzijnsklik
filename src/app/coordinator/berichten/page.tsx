@@ -57,7 +57,7 @@ export default async function CoordinatorBerichtenPage() {
     <div className="px-4 py-6 space-y-5">
       <div>
         <h1 className="text-xl font-bold text-gray-900">Berichten</h1>
-        <p className="text-sm text-neutral-500 mt-0.5">Gesprekken met vrijwilligers en pro&apos;s</p>
+        <p className="text-sm text-neutral-500 mt-0.5">Gesprekken met vrijwilligers en collega&apos;s</p>
       </div>
 
       <BerichtenOverzicht threads={threads} ikId={ikId} />

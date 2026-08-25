@@ -96,6 +96,31 @@ export async function stuurBerichtAanIedereen(inhoud: string, ookPerEmail = fals
   }
 }
 
+export async function verwijderBericht(berichtId: string) {
+  const session = await auth();
+  if (!session?.user?.gebruikerId) throw new Error("Niet geautoriseerd");
+
+  const bericht = await prisma.bericht.findFirst({
+    where: { id: berichtId, vanId: session.user.gebruikerId },
+  });
+  if (!bericht) throw new Error("Bericht niet gevonden");
+
+  const ontvanger = await prisma.gebruiker.findUnique({
+    where: { id: bericht.aanId },
+    select: { rol: true },
+  });
+
+  await prisma.bericht.delete({ where: { id: berichtId } });
+
+  const vanRol = session.user.rol === "COORDINATOR" ? "coordinator" : "vrijwilliger";
+  const aanRol = ontvanger?.rol === "COORDINATOR" ? "coordinator" : "vrijwilliger";
+
+  revalidatePath(`/${vanRol}/berichten/${bericht.aanId}`);
+  revalidatePath(`/${aanRol}/berichten/${bericht.vanId}`);
+  revalidatePath(`/${vanRol}/berichten`);
+  revalidatePath(`/${aanRol}/berichten`);
+}
+
 export async function markeerGelezen(vanId: string) {
   const session = await auth();
   if (!session?.user?.gebruikerId) return;
