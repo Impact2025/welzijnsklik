@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Plus, Heart, Users, Activity, Megaphone, ArrowRight } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum, formatDuur } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
+import { reactieIcon } from "@/lib/reactie-iconen";
 import { getGeluksmomentenPersoonlijk } from "@/lib/actions/geluksmomenten";
 import { PersoonlijkeGeluksmomentenCard } from "@/components/PersoonlijkeGeluksmomentenCard";
 
@@ -18,7 +19,7 @@ export default async function VrijwilligerDashboard() {
   const weekGeleden = new Date(nu.getTime() - 7 * 24 * 60 * 60 * 1000);
   const firstDay = new Date(nu.getFullYear(), nu.getMonth(), 1);
 
-  const [activiteiten, bewoners, openHulpvragen, openHulpCount, geluksmomenten] = await Promise.all([
+  const [activiteiten, bewoners, openHulpvragen, openHulpCount, geluksmomenten, recenteReacties] = await Promise.all([
     prisma.activiteit.findMany({
       where: { vrijwilligerId: gebruikerId },
       include: {
@@ -49,6 +50,15 @@ export default async function VrijwilligerDashboard() {
       },
     }),
     getGeluksmomentenPersoonlijk(gebruikerId, "maand"),
+    prisma.reactie.findMany({
+      where: { activiteit: { vrijwilligerId: gebruikerId } },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+      include: {
+        gebruiker: { select: { naam: true } },
+        activiteit: { select: { type: true, bewoner: { select: { naam: true } } } },
+      },
+    }),
   ]);
 
   // Stats
@@ -99,6 +109,49 @@ export default async function VrijwilligerDashboard() {
       </div>
 
       <PersoonlijkeGeluksmomentenCard data={geluksmomenten} voornaam={voornaam} />
+
+      {/* Berichten van familie */}
+      {recenteReacties.length > 0 && (
+        <div className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-gray-900 text-[15px]">Berichten van familie</h2>
+            <Link
+              href="/vrijwilliger/notificaties"
+              className="text-brand-600 text-xs font-semibold flex items-center gap-0.5"
+            >
+              Alles
+              <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div className="space-y-2.5">
+            {recenteReacties.map((r) => {
+              const ReactieIcon = reactieIcon(r.emoji);
+              return (
+                <div key={r.id} className="flex items-start gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    {ReactieIcon ? (
+                      <ReactieIcon size={13} className="text-amber-600" />
+                    ) : (
+                      <Heart size={12} className="text-amber-600" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-800">
+                      <span className="font-semibold">{r.gebruiker.naam}</span>
+                      <span className="text-warm-400">
+                        {" "}over {r.activiteit.type.toLowerCase()} bij {r.activiteit.bewoner.naam}
+                      </span>
+                    </p>
+                    {r.bericht && (
+                      <p className="text-sm text-gray-600 mt-0.5">{r.bericht}</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Laatste foto — hero */}
       {laatsteMetFoto && (

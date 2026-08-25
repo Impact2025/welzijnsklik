@@ -2,18 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { toggleReactie, plaatsBericht, verwijderReactie } from "@/lib/actions/reacties";
-import { X, Send, Heart, Smile, ThumbsUp, PartyPopper, Frown, Hand, Flame, Laugh, type LucideIcon } from "lucide-react";
-
-const REACTIES: { id: string; icon: LucideIcon; label: string }[] = [
-  { id: "hart", icon: Heart, label: "Vind ik leuk" },
-  { id: "blij", icon: Smile, label: "Blij" },
-  { id: "duim", icon: ThumbsUp, label: "Duim omhoog" },
-  { id: "gejuich", icon: PartyPopper, label: "Gejuich" },
-  { id: "verdriet", icon: Frown, label: "Verdrietig" },
-  { id: "dank", icon: Hand, label: "Dank je wel" },
-  { id: "vuur", icon: Flame, label: "Top" },
-  { id: "lach", icon: Laugh, label: "Grappig" },
-];
+import { X, Send } from "lucide-react";
+import { REACTIES } from "@/lib/reactie-iconen";
 
 interface ReactieData {
   id: string;

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Heart, Clock } from "lucide-react";
 import { ACTIVITEIT_ICON, formatDatum, formatDuur } from "@/lib/activiteit";
 import { getFotoUrl } from "@/lib/foto";
+import { reactieIcon } from "@/lib/reactie-iconen";
 
 export default async function MijnActiviteiten() {
   const session = await auth();
@@ -116,20 +117,23 @@ export default async function MijnActiviteiten() {
                       <p className="text-[10px] font-semibold text-warm-400 uppercase tracking-wider">
                         Reacties van familie
                       </p>
-                      {a.reacties.slice(0, 3).map((r) => (
-                        <div key={r.id} className="flex items-start gap-2 text-xs">
-                          <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[7px] font-bold flex-shrink-0 mt-0.5">
-                            {r.gebruiker.naam.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
-                          </div>
-                          <div>
-                            <span className="font-semibold text-gray-700">{r.gebruiker.naam}</span>
-                            <span className="text-warm-400">
-                              {" "}{r.emoji}
+                      {a.reacties.slice(0, 3).map((r) => {
+                        const Icon = reactieIcon(r.emoji);
+                        return (
+                          <div key={r.id} className="flex items-start gap-2 text-xs">
+                            <div className="w-5 h-5 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-[7px] font-bold flex-shrink-0 mt-0.5">
+                              {r.gebruiker.naam.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <span className="font-semibold text-gray-700">{r.gebruiker.naam}</span>
+                              {Icon && (
+                                <Icon size={12} className="inline-block text-warm-400 mx-1 align-middle" />
+                              )}
                               {r.bericht && <span className="text-gray-600"> {r.bericht}</span>}
-                            </span>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                       {a.reacties.length > 3 && (
                         <p className="text-xs text-warm-400 pl-7">
                           +{a.reacties.length - 3} reacties

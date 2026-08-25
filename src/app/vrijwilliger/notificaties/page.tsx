@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ACTIVITEIT_ICON, formatDatum } from "@/lib/activiteit";
 import { Bell } from "lucide-react";
 import { EmptyState } from "@/components/ui";
+import { reactieIcon } from "@/lib/reactie-iconen";
 
 export default async function VrijwilligerNotificatiesPage() {
   const session = await auth();
@@ -56,6 +57,7 @@ export default async function VrijwilligerNotificatiesPage() {
           {reacties.map((r) => {
             const cfg = ACTIVITEIT_ICON[r.activiteit.type] ?? ACTIVITEIT_ICON.Anders;
             const Icon = cfg.icon;
+            const ReactieIcon = reactieIcon(r.emoji);
             const isNieuw = new Date(r.createdAt) >= weekGeleden;
             return (
               <div
@@ -63,7 +65,13 @@ export default async function VrijwilligerNotificatiesPage() {
                 className="bg-white rounded-2xl shadow-sm border border-neutral-100 p-4"
               >
                 <div className="flex gap-3 items-start">
-                  <div className="text-2xl leading-none pt-0.5 flex-shrink-0">{r.emoji}</div>
+                  <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center flex-shrink-0">
+                    {ReactieIcon ? (
+                      <ReactieIcon size={15} className="text-amber-600" />
+                    ) : (
+                      <Bell size={13} className="text-amber-600" />
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="text-sm font-semibold text-gray-900">{r.gebruiker.naam}</p>
