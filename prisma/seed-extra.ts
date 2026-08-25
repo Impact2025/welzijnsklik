@@ -122,9 +122,6 @@ async function main() {
   const aangemaaktDoor = coordinator?.id ?? orgId;
 
   const nu = new Date();
-  const startMaand = new Date(nu.getFullYear(), nu.getMonth(), 1);
-  const dagVanMaand = (offset: number) =>
-    new Date(startMaand.getFullYear(), startMaand.getMonth(), offset);
 
   // ─── Reset eerdere demo-rows (idempotent opnieuw vullen) ─────────────
   console.log("  Oude demo-rows verwijderen...");
@@ -358,6 +355,11 @@ async function main() {
   // ─── ~55 ACTIVITEITEN verspreid over de hele maand ───────────────────
   const typeSeq = ["Wandelen", "Koffiedrinken", "Gezelschap", "Spelletjes", "Lezen", "Muziek", "Boodschappen", "Anders"];
   const activiteitenPerDag: number[] = [1, 0, 1, 0, 2, 1, 2, 0, 1, 2, 1, 0, 2, 1, 1, 2, 0, 1, 2, 1, 1, 0, 2, 1, 1, 2, 0, 1, 2, 1, 1, 2, 2, 1, 0, 2, 1, 1, 2, 0, 1, 2, 1, 1, 2, 0, 1, 1, 2, 1, 2, 1, 1, 1, 2, 1];
+  // Laatste dag = gisteren, teruggerekend vanaf "nu" (nooit toekomstige datums, ongeacht wanneer geseed wordt)
+  const dagVanMaand = (dag: number) => {
+    const dagenTerug = activiteitenPerDag.length - dag;
+    return new Date(nu.getTime() - (dagenTerug + 1) * 24 * 60 * 60 * 1000);
+  };
   let actNr = 0;
   for (let dag = 1; dag <= activiteitenPerDag.length; dag++) {
     const aantal = activiteitenPerDag[dag - 1];
