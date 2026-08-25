@@ -1,5 +1,6 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { get } from "@vercel/blob";
 import { NextRequest, NextResponse } from "next/server";
 import { isVrijwilligerRol } from "@/lib/rollen";
 
@@ -114,8 +115,8 @@ export async function GET(request: NextRequest) {
 
 async function serve(blobUrl: string, organisatieId: string, gebruikerId: string, bewonerId?: string) {
   try {
-    const response = await fetch(blobUrl);
-    if (!response.ok) {
+    const result = await get(blobUrl, { access: "private" });
+    if (!result || result.statusCode !== 200) {
       return NextResponse.json({ error: "Foto niet beschikbaar" }, { status: 404 });
     }
 
@@ -126,11 +127,10 @@ async function serve(blobUrl: string, organisatieId: string, gebruikerId: string
       })
       .catch(() => {});
 
-    const blob = await response.blob();
-    return new NextResponse(blob, {
+    return new NextResponse(result.stream, {
       headers: {
-        "Content-Type": response.headers.get("content-type") ?? "image/jpeg",
-        "Content-Length": response.headers.get("content-length") ?? String(blob.size),
+        "Content-Type": result.blob.contentType ?? "image/jpeg",
+        "Content-Length": String(result.blob.size),
         "Cache-Control": "private, max-age=3600",
         "Content-Disposition": "inline",
       },
