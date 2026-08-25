@@ -26,7 +26,7 @@ export default async function MijnActiviteiten() {
   return (
     <div className="px-4 py-6 space-y-4">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Mijn activiteiten</h1>
+        <h1 className="text-xl font-bold text-gray-900">Tijdslijn</h1>
         <p className="text-sm text-warm-500 mt-0.5">Alles wat jij hebt gedaan</p>
       </div>
 

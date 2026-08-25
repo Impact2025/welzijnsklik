@@ -53,7 +53,7 @@ const NAV_VRIJWILLIGER: NavItem[] = [
   { href: "/vrijwilliger/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/vrijwilliger/berichten", icon: MessageSquare, label: "Chat" },
   { href: "/vrijwilliger/nieuw", icon: PlusCircle, label: "Nieuw", exact: true },
-  { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Activiteiten" },
+  { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Tijdslijn" },
 ];
 
 const NAV_WELZIJNSMEDEWERKER: NavItem[] = [
@@ -73,7 +73,7 @@ const NAV_VRIJWILLIGER_MOBILE: NavItem[] = [
   { href: "/vrijwilliger/nieuw", icon: PlusCircle, label: "Nieuw", exact: true },
   { href: "/vrijwilliger/hulp-gevraagd", icon: Megaphone, label: "Hulp" },
   { href: "/vrijwilliger/berichten", icon: MessageSquare, label: "Chat" },
-  { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Activiteiten" },
+  { href: "/vrijwilliger/mijn-activiteiten", icon: Clock, label: "Tijdslijn" },
 ];
 
 // Zelfde reden als hierboven: Welzijn staat als hart-icoon in de topbar,

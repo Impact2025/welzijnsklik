@@ -159,7 +159,7 @@ export function getTourSteps(rol: string, naam: string | undefined): TourStep[] 
         },
         {
           target: "/vrijwilliger/mijn-activiteiten",
-          title: "Mijn activiteiten",
+          title: "Tijdslijn",
           body: "Een overzicht van alles wat je hebt vastgelegd, terug te vinden wanneer je maar wilt.",
         },
         {
