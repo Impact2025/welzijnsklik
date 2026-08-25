@@ -26,26 +26,68 @@ function findVisibleTarget(href: string): HTMLElement | null {
   return null;
 }
 
-const CARD_W = 336;
+const CARD_W = 296;
+const CARD_H = 190; // benadering, genoeg om binnen viewport te clampen
 const MARGIN = 16;
+const GAP = 14; // ruimte tussen kaart en gemarkeerd element
+const ARROW = 9; // halve diagonaal van het pijltje
 
-function cardPosition(rect: Rect): { top: number; left: number } {
+type Side = "right" | "left" | "bottom" | "top";
+
+interface Placement {
+  top: number;
+  left: number;
+  side: Side;
+  /** Positie van het pijltje langs de kaartrand (px vanaf top/left, geclampt). */
+  arrowOffset: number;
+}
+
+/**
+ * Plaatst de kaart als een callout náást het gemarkeerde element (rechts voor
+ * de sidebar, links voor iconen rechtsboven) in plaats van er zomaar overheen
+ * — dat houdt het element zelf vrij en dekt minder van de pagina af. Valt
+ * terug op onder/boven wanneer er zijwaarts geen ruimte is.
+ */
+function computePlacement(rect: Rect): Placement {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
-  const cardH = 210; // benadering, genoeg om binnen viewport te clampen
 
+  const spaceRight = vw - (rect.left + rect.width);
+  const spaceLeft = rect.left;
   const spaceBelow = vh - (rect.top + rect.height);
-  const spaceAbove = rect.top;
-  const top =
-    spaceBelow > cardH + MARGIN || spaceBelow > spaceAbove
-      ? Math.min(rect.top + rect.height + 14, vh - cardH - MARGIN)
-      : Math.max(MARGIN, rect.top - cardH - 14);
 
-  let left = rect.left;
-  if (left + CARD_W > vw - MARGIN) left = rect.left + rect.width - CARD_W;
-  left = Math.max(MARGIN, Math.min(left, vw - CARD_W - MARGIN));
+  const need = CARD_W + GAP + MARGIN;
+  let side: Side;
+  if (spaceRight >= need) side = "right";
+  else if (spaceLeft >= need) side = "left";
+  else if (spaceBelow >= CARD_H + GAP + MARGIN) side = "bottom";
+  else side = "top";
 
-  return { top: Math.max(MARGIN, top), left };
+  let top: number;
+  let left: number;
+  if (side === "right") {
+    left = rect.left + rect.width + GAP;
+    top = rect.top + rect.height / 2 - CARD_H / 2;
+  } else if (side === "left") {
+    left = rect.left - GAP - CARD_W;
+    top = rect.top + rect.height / 2 - CARD_H / 2;
+  } else if (side === "bottom") {
+    left = rect.left + rect.width / 2 - CARD_W / 2;
+    top = rect.top + rect.height + GAP;
+  } else {
+    left = rect.left + rect.width / 2 - CARD_W / 2;
+    top = rect.top - GAP - CARD_H;
+  }
+
+  const clampedTop = Math.max(MARGIN, Math.min(top, vh - CARD_H - MARGIN));
+  const clampedLeft = Math.max(MARGIN, Math.min(left, vw - CARD_W - MARGIN));
+
+  const arrowOffset =
+    side === "right" || side === "left"
+      ? Math.max(20, Math.min(rect.top + rect.height / 2 - clampedTop, CARD_H - 20))
+      : Math.max(20, Math.min(rect.left + rect.width / 2 - clampedLeft, CARD_W - 20));
+
+  return { top: clampedTop, left: clampedLeft, side, arrowOffset };
 }
 
 export function WelcomeTour({
@@ -195,8 +237,8 @@ export function WelcomeTour({
     : undefined;
 
   const card = (
-    <div className="pointer-events-auto bg-white rounded-2xl shadow-2xl border border-warm-200 p-5 w-full">
-      <div className="flex items-center justify-between mb-3">
+    <div className="pointer-events-auto bg-white rounded-2xl shadow-2xl border border-warm-200 p-4 w-full">
+      <div className="flex items-center justify-between mb-2.5">
         <span className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-brand-600">
           <Sparkles size={13} />
           Stap {stepIndex + 1} van {steps.length}
@@ -210,7 +252,7 @@ export function WelcomeTour({
         </button>
       </div>
       <h3 className="text-base font-bold text-gray-900 mb-1.5">{step.title}</h3>
-      <p className="text-sm text-warm-600 leading-relaxed mb-4">{step.body}</p>
+      <p className="text-sm text-warm-600 leading-relaxed mb-3.5">{step.body}</p>
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-1.5">
           {steps.map((_, i) => (
@@ -258,12 +300,50 @@ export function WelcomeTour({
       )}
 
       {rect ? (
-        <div
-          className="absolute transition-all duration-300 ease-out"
-          style={{ top: cardPosition(rect).top, left: cardPosition(rect).left, width: CARD_W }}
-        >
-          {card}
-        </div>
+        (() => {
+          const placement = computePlacement(rect);
+          const arrowStyle: React.CSSProperties = { width: ARROW * 2, height: ARROW * 2 };
+          if (placement.side === "right") {
+            Object.assign(arrowStyle, {
+              left: -ARROW,
+              top: placement.arrowOffset - ARROW,
+              borderLeft: "1px solid var(--color-warm-200)",
+              borderBottom: "1px solid var(--color-warm-200)",
+            });
+          } else if (placement.side === "left") {
+            Object.assign(arrowStyle, {
+              right: -ARROW,
+              top: placement.arrowOffset - ARROW,
+              borderRight: "1px solid var(--color-warm-200)",
+              borderTop: "1px solid var(--color-warm-200)",
+            });
+          } else if (placement.side === "bottom") {
+            Object.assign(arrowStyle, {
+              top: -ARROW,
+              left: placement.arrowOffset - ARROW,
+              borderTop: "1px solid var(--color-warm-200)",
+              borderLeft: "1px solid var(--color-warm-200)",
+            });
+          } else {
+            Object.assign(arrowStyle, {
+              bottom: -ARROW,
+              left: placement.arrowOffset - ARROW,
+              borderBottom: "1px solid var(--color-warm-200)",
+              borderRight: "1px solid var(--color-warm-200)",
+            });
+          }
+          return (
+            <div
+              className="absolute transition-all duration-300 ease-out"
+              style={{ top: placement.top, left: placement.left, width: CARD_W }}
+            >
+              <div className="relative">
+                <div className="absolute bg-white rotate-45 pointer-events-none" style={arrowStyle} />
+                {card}
+              </div>
+            </div>
+          );
+        })()
       ) : (
         <div className="absolute inset-0 flex items-center justify-center p-4">
           <div style={{ maxWidth: CARD_W }} className="w-full">
