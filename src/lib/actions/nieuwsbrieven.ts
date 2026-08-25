@@ -378,25 +378,31 @@ export async function verstuurNieuwsbrief(id: string) {
     doelgroepLabel: doelgroepLabels,
   });
 
-  let verstuurt = 0;
-  for (const o of ontvangers) {
-    const ok = await sendEmail({
-      to: o.email!,
-      subject: draft.titel,
-      html,
+  // Verzend in batches i.p.v. één voor één — voorkomt een timeout bij
+  // organisaties met veel ontvangers en is een stuk sneller.
+  const VERZEND_BATCH_GROOTTE = 10;
+  const verzonden: typeof ontvangers = [];
+  for (let i = 0; i < ontvangers.length; i += VERZEND_BATCH_GROOTTE) {
+    const batch = ontvangers.slice(i, i + VERZEND_BATCH_GROOTTE);
+    const resultaten = await Promise.all(
+      batch.map((o) => sendEmail({ to: o.email!, subject: draft.titel, html }))
+    );
+    batch.forEach((o, idx) => {
+      if (resultaten[idx]) verzonden.push(o);
     });
-    if (ok) {
-      verstuurt++;
-      await prisma.nieuwsbriefAbonnement.create({
-        data: {
-          nieuwsbriefId: id,
-          gebruikerId: o.id,
-          email: o.email!,
-          naam: o.naam,
-          status: "verzonden",
-        },
-      });
-    }
+  }
+  const verstuurt = verzonden.length;
+
+  if (verzonden.length > 0) {
+    await prisma.nieuwsbriefAbonnement.createMany({
+      data: verzonden.map((o) => ({
+        nieuwsbriefId: id,
+        gebruikerId: o.id,
+        email: o.email!,
+        naam: o.naam,
+        status: "verzonden",
+      })),
+    });
   }
 
   await prisma.nieuwsbriefDraft.update({

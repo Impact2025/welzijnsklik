@@ -191,6 +191,10 @@ model Activiteit {
   fotoUrl        String?
   createdAt      DateTime  @default(now())
   reacties       Reactie[]
+
+  @@index([vrijwilligerId])
+  @@index([bewonerId])
+  @@index([createdAt])
 }
 
 model Reactie {
@@ -251,6 +255,8 @@ model HulpGevraagd {
   geplandeActiviteit GeplandeActiviteit?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
+
+  @@index([organisatieId, status, datum])
 }
 
 model HulpReactie {
@@ -264,6 +270,7 @@ model HulpReactie {
   statusGezien   Boolean      @default(true)
   createdAt      DateTime     @default(now())
   @@unique([hulpGevraagdId, gebruikerId])
+  @@index([gebruikerId, status])
 }
 
 model GeplandeActiviteit {
@@ -296,6 +303,9 @@ model Bericht {
   createdAt     DateTime  @default(now())
   van           Gebruiker @relation("BerichtenVan", fields: [vanId], references: [id])
   aan           Gebruiker @relation("BerichtenAan", fields: [aanId], references: [id])
+
+  @@index([vanId, aanId, createdAt])
+  @@index([aanId, gelezen])
 }
 
 model Wervingsinteresse {
